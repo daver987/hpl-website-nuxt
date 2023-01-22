@@ -1,7 +1,11 @@
 {
-  "name": "hpl-quasar-quote-form",
-  "version": "1.1.0",
+  "name": "hpl-website-nuxt",
+  "version": "1.0.0",
   "private": true,
+  "author": "David Robertson",
+  "description": "HPL Website Built with Nuxt 3",
+    "license": "MIT",
+
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
