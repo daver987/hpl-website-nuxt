@@ -99,15 +99,13 @@ export const formSchema = z.object({
     })
     .strip(),
   calculatedDistance: z.number(),
-  gtmValues: z
-    .object({
-      utm_medium: z.string().optional(),
-      utm_source: z.string().optional(),
-      utm_campaign: z.string().optional(),
-      utm_term: z.string().optional(),
-      gclid: z.string().optional(),
-    })
-    .optional(),
+  gtmValues: z.object({
+    utm_medium: z.string().default(''),
+    utm_source: z.string().default(''),
+    utm_campaign: z.string().default(''),
+    utm_term: z.string().default(''),
+    gclid: z.string().default(''),
+  }),
 })
 
 export type ValidationSchema = z.infer<typeof formSchema>

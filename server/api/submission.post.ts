@@ -7,8 +7,8 @@ import { serverSupabaseClient } from '#supabase/server'
 import { Database } from '~/types/supabase'
 import { ref } from 'vue'
 
+const zapierSecret = useRuntimeConfig().ZAPIER_WEBHOOK_SECRET
 export default defineEventHandler(async (event) => {
-  const zapierSecret = useRuntimeConfig().ZAPIER_WEBHOOK_SECRET
   const supabase = serverSupabaseClient<Database>(event)
   try {
     const body = await readBody(event)
@@ -318,9 +318,37 @@ export default defineEventHandler(async (event) => {
       })
       console.log('This is the returned email data', data)
     }
+    const createAircallContact = async () => {
+      const data = await $fetch('https://api.aircall.io/v1/contacts', {
+        method: 'POST',
+        headers: {
+          Authorization:
+            'Basic N2U0MWNlYmVmYzljNjZkYjVjMzE2NDNiMjgzYzZiZGQ6MTc0YjMwYWE1OTBiMWQxMWYwMmI2NjFhMWMxZjViODA=',
+        },
+        body: {
+          first_name: firstName,
+          last_name: lastName,
+          information: hplUserId.value,
+          phone_numbers: [
+            {
+              label: 'Phone Number',
+              value: phoneNumber,
+            },
+          ],
+          emails: [
+            {
+              label: 'Email Address',
+              value: emailAddress,
+            },
+          ],
+        },
+      })
+      console.log('This is the returned aircall data', data)
+    }
     await addUser()
     await addQuote()
     await sendEmail()
+    await createAircallContact()
 
     return {
       statusCode: 200,

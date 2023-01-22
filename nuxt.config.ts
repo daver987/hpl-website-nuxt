@@ -41,6 +41,8 @@ export default defineNuxtConfig({
     TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     ZAPIER_WEBHOOK_SECRET: process.env.ZAPIER_WEBHOOK_SECRET,
+    AIRCALL_API_TOKEN: process.env.AIRCALL_API_TOKEN,
+    AIRCALL_API_ID: process.env.AIRCALL_API_ID,
     public: {
       GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
       WEBSITE_URL: process.env.WEBSITE_URL,
