@@ -654,7 +654,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     <h3 class="pt-5 text-3xl text-center text-white uppercase">
       Instant Quote
     </h3>
-    <form id="lead_form" class="p-5 space-y-3" @submit="onSubmit">
+    <form id="lead_form" class="p-5 space-y-3" @submit.prevent="onSubmit">
       <div class="grid w-full grid-cols-1 gap-3">
         <InputPlacesAutocomplete
           label="Pick Up Location:"
