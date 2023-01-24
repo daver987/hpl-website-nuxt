@@ -26,10 +26,10 @@ const headerInfo = {
       :heading="headerInfo.heading"
       :image="headerInfo.image"
     />
-    <section class="px-6 mt-6 md:mb-20">
-      <div class="container mx-auto bg-white shadow-xl max-w-7xl">
+    <BaseSection class="md:-mt-20 relative z-10">
+      <BaseContainer class="bg-white shadow-xl">
         <div
-          class="relative z-20 grid grid-cols-1 py-6 mx-auto -mt-8 overflow-hidden bg-white md:-mt-20 md:px-2 lg:px-4 md:grid-cols-2"
+          class="grid grid-cols-1 py-6 -mt-8 overflow-hidden md:px-2 lg:px-4 md:grid-cols-2"
         >
           <div class="col-span-1 p-4">
             <h2 class="mb-4 text-center subheading lg:text-left">
@@ -50,10 +50,10 @@ const headerInfo = {
             </p>
           </div>
         </div>
-      </div>
-    </section>
-    <section class="px-6 mt-12 mb-8 md:mt-0">
-      <div class="container mx-auto max-w-7xl md:grid md:gap-4 md:grid-cols-2">
+      </BaseContainer>
+    </BaseSection>
+    <BaseSection>
+      <BaseContainer class="grid grid-cols-1 md:grid md:gap-4 md:grid-cols-2">
         <div
           :class="service.boxPosition"
           v-for="service in services"
@@ -63,7 +63,9 @@ const headerInfo = {
             <NuxtPicture
               :alt="service.altText"
               :src="service.image"
-              class="object-cover object-center"
+              :img-attrs="{
+                class: 'object-cover object-center w-full',
+              }"
             />
           </div>
           <div :class="service.infoPosition" class="flex">
@@ -84,33 +86,31 @@ const headerInfo = {
             </div>
           </div>
         </div>
-      </div>
-    </section>
-    <section class="mb-8">
-      <div
-        class="relative z-10 px-6 py-8 bg-center bg-no-repeat bg-cover sm:px-8 md:py-16 lg:py-20"
-        style="background-image: url('/images/niagara-falls-1.jpg')"
+      </BaseContainer>
+    </BaseSection>
+    <BaseSection
+      class="bg-center bg-no-repeat bg-cover space-y-3"
+      style="background-image: url('/images/niagara-falls-1.jpg')"
+    >
+      <p class="text-center subheading">High Park Livery Tours</p>
+      <h2 class="text-4xl text-center text-heading-light heading">
+        Tour Services Available
+      </h2>
+    </BaseSection>
+    <BaseSection class="pt-0">
+      <BaseContainer
+        class="grid grid-cols-1 md:grid-cols-2 bg-white shadow-xl p-2"
       >
-        <h2 class="text-center subheading">High Park Livery Tours</h2>
-        <h2 class="mt-2 text-4xl text-center text-heading-light heading">
-          Tour Services Available
-        </h2>
-      </div>
-      <div class="px-6 bg-background">
-        <div
-          class="relative z-20 grid max-w-4xl grid-cols-1 gap-4 pt-4 mx-auto -mt-6 bg-white shadow-xl place-items-center md:-mt-12 md:px-6 md:pb-4 lg:max-w-7xl lg:grid-cols-2"
-        >
-          <IconBlockAbout
-            v-for="tour in tours"
-            :key="tour.title"
-            :alt-text="tour.altText"
-            :body="tour.body"
-            :image="tour.image"
-            :title="tour.title"
-          />
-        </div>
-      </div>
-    </section>
+        <IconBlockAbout
+          v-for="tour in tours"
+          :key="tour.title"
+          :alt-text="tour.altText"
+          :body="tour.body"
+          :image="tour.image"
+          :title="tour.title"
+        />
+      </BaseContainer>
+    </BaseSection>
     <AppFooter />
   </div>
 </template>
