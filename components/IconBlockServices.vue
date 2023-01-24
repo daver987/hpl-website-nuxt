@@ -22,11 +22,19 @@ defineProps({
 <template>
   <div class="flex flex-row @xs:flex-col bg-white shadow-xl p-4">
     <div class="flex-shrink-0 mb-4 @sm:mb-0 @sm:mr-4">
-      <img :alt="altText" :src="`/icons/${image}.svg`" class="w-auto h-16"/>
+      <NuxtPicture
+        :alt="altText"
+        :src="`/icons/${image}.svg`"
+        :img-attrs="{
+          class: 'w-auto h-16',
+        }"
+      />
     </div>
     <div>
-      <h4 class="text-base tracking-widest uppercase subheading text-primary">{{ title }}</h4>
-      <p class="mt-1">{{ body }}</p>
+      <h4 class="text-base tracking-widest uppercase subheading text-primary">
+        {{ title }}
+      </h4>
+      <p class="mt-1 font-sans text-gray-500">{{ body }}</p>
     </div>
   </div>
 </template>

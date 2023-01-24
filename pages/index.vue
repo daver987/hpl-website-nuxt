@@ -110,8 +110,8 @@ export default {
         class="grid grid-cols-6 gap-6 -mt-6 bg-white shadow-xl md:grid-cols-12"
       >
         <div class="col-span-6 p-6 md:col-span-7">
-          <p class="text-sm text-gray-400 font-body">
-            <span class="text-gray-400">
+          <p class="text-sm font-sans text-gray-500">
+            <span class="font-sans text-gray-500">
               Experience luxury and reliability with
               <span class="text-sm font-bold uppercase font-body text-brand"
                 >High Park Livery's</span
