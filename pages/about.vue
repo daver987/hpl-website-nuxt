@@ -26,11 +26,9 @@ definePageMeta({
       :heading="headerInfo.heading"
       :image="headerInfo.image"
     />
-    <section class="px-4 mb-8 bg-background sm:px-6">
-      <div class="container mx-auto md:grid md:grid-cols-2">
-        <div
-          class="relative z-10 py-6 -mt-8 overflow-hidden bg-white shadow-xl md:-mt-16"
-        >
+    <BaseSection class="md:-mt-16">
+      <BaseContainer class="md:grid md:grid-cols-2">
+        <div class="relative py-6 -mt-8 overflow-hidden bg-white shadow-xl">
           <div class="py-5">
             <p class="text-center subheading">Behind The Wheel</p>
             <h2 class="mt-6 text-center heading">The Driver</h2>
@@ -70,22 +68,20 @@ definePageMeta({
             loading="lazy"
           />
         </div>
-      </div>
-    </section>
-    <section class="px-4 mb-8 bg-background sm:px-6">
-      <div class="container place-items-center md:grid md:grid-cols-2">
-        <div class="flex">
-          <NuxtPicture
-            alt="Tesla-S-Back-Seat"
-            :img-attrs="{
-              class:
-                'object-center object-cover w-full min-h-[18rem] self-center md:object-left',
-            }"
-            src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/f56d5571-1af0-4986-7db7-bd29dc818200/4200"
-            width="1920"
-            loading="lazy"
-          />
-        </div>
+      </BaseContainer>
+    </BaseSection>
+    <BaseSection>
+      <BaseContainer class="md:grid md:grid-cols-2 place-items-center">
+        <NuxtPicture
+          alt="Tesla-S-Back-Seat"
+          :img-attrs="{
+            class:
+              'object-center object-cover w-full min-h-[18rem] self-center md:object-left',
+          }"
+          src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/f56d5571-1af0-4986-7db7-bd29dc818200/4200"
+          width="1920"
+          loading="lazy"
+        />
         <div class="bg-white shadow-xl">
           <IconBlockAbout
             v-for="qualities in quality"
@@ -96,76 +92,69 @@ definePageMeta({
             :title="qualities.title"
           />
         </div>
-      </div>
-    </section>
-    <section class="mb-8 background-bg">
-      <div>
-        <NuxtPicture
-          alt="Toronto-evening-skyline"
-          :img-attrs="{
-            class: 'object-cover object-center w-full min-h-[16rem]',
-          }"
-          src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/d0f63a6f-1d68-49fe-b643-224003dd5f00/4200"
-          width="4200"
-          loading="lazy"
-        />
-      </div>
-      <div class="px-6">
-        <div
-          class="container px-4 mx-auto bg-white shadow-xl max-w-7xl sm:px-6 lg:px-8"
-        >
-          <div class="py-6 overflow-hidden bg-white md:px-2 lg:px-4">
-            <div class="px-4 py-5 sm:px-6">
-              <p class="text-center uppercase subheading md:text-left">
-                High Park Livery?
-              </p>
-              <h2 class="mt-6 text-center text-heading heading md:text-left">
-                WHO WE ARE
-              </h2>
-            </div>
-            <div class="px-3 py-4 sm:p-6">
-              <p class="font-sans text-gray-500 text-sm">
-                High Park Livery is a Toronto-based car service company. We
-                provide luxury transportation to clients in the Greater Toronto
-                and southern Ontario area. In addition to offering a variety of
-                car models and levels of service. Luxury Ride Service caters to
-                corporate and non-corporate clients with highly personalized
-                services that aim to exceed all expectations.
-              </p>
-              <p class="font-sans text-gray-500 text-sm">
-                When you choose to work with High Park Livery, you'll work with
-                highly trained professionals who know about the industry. We are
-                committed to customer satisfaction and punctuality in all that
-                we do. We offer suggestions on routes as well as excellent
-                amenities like refreshments and WiFi while en route. We aim to
-                create an atmosphere that ensures passengers feel comfortable
-                and relaxed throughout their journey.
-              </p>
-              <p class="font-sans text-gray-500 text-sm">
-                At High Park Livery, we don't cut corners or skimp on your
-                comfort to offer you a low price. We believe that all of our
-                luxury cars should be maintained to the highest industry
-                standards, ensuring a safe and unforgettable experience.
-              </p>
-              <p class="font-sans text-gray-500 text-sm">
-                Whether it's a night out on the town or a business meeting
-                across downtown Toronto, High Park Livery can provide a
-                luxurious ride that fits perfectly within your schedule and
-                budget.
-              </p>
-            </div>
-            <div class="px-4 py-4 sm:px-6">
-              <BaseButton
-                kind="btn-primary"
-                label="Contact Us"
-                to="/contact"
-                :nuxtLink="true"
-              />
-            </div>
+      </BaseContainer>
+    </BaseSection>
+    <BaseSection>
+      <NuxtPicture
+        alt="Toronto-evening-skyline"
+        :img-attrs="{
+          class: 'object-cover object-center w-full min-h-[16rem]',
+        }"
+        src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/d0f63a6f-1d68-49fe-b643-224003dd5f00/4200"
+        width="4200"
+        loading="lazy"
+      />
+      <BaseContainer class="bg-white shadow-xl">
+        <div class="py-6 overflow-hidden bg-white md:px-2 lg:px-4">
+          <div class="px-4 py-5 sm:px-6">
+            <p class="text-center uppercase subheading md:text-left">
+              High Park Livery?
+            </p>
+            <h2 class="mt-6 text-center text-heading heading md:text-left">
+              WHO WE ARE
+            </h2>
+          </div>
+          <div class="px-3 py-4 sm:p-6">
+            <p class="font-sans text-gray-500 text-sm">
+              High Park Livery is a Toronto-based car service company. We
+              provide luxury transportation to clients in the Greater Toronto
+              and southern Ontario area. In addition to offering a variety of
+              car models and levels of service. Luxury Ride Service caters to
+              corporate and non-corporate clients with highly personalized
+              services that aim to exceed all expectations.
+            </p>
+            <p class="font-sans text-gray-500 text-sm">
+              When you choose to work with High Park Livery, you'll work with
+              highly trained professionals who know about the industry. We are
+              committed to customer satisfaction and punctuality in all that we
+              do. We offer suggestions on routes as well as excellent amenities
+              like refreshments and WiFi while en route. We aim to create an
+              atmosphere that ensures passengers feel comfortable and relaxed
+              throughout their journey.
+            </p>
+            <p class="font-sans text-gray-500 text-sm">
+              At High Park Livery, we don't cut corners or skimp on your comfort
+              to offer you a low price. We believe that all of our luxury cars
+              should be maintained to the highest industry standards, ensuring a
+              safe and unforgettable experience.
+            </p>
+            <p class="font-sans text-gray-500 text-sm">
+              Whether it's a night out on the town or a business meeting across
+              downtown Toronto, High Park Livery can provide a luxurious ride
+              that fits perfectly within your schedule and budget.
+            </p>
+          </div>
+          <div class="px-4 py-4 sm:px-6">
+            <BaseButton
+              kind="btn-primary"
+              label="Contact Us"
+              to="/contact"
+              :nuxtLink="true"
+            />
           </div>
         </div>
-      </div>
-    </section>
+      </BaseContainer>
+    </BaseSection>
     <AppFooter />
   </div>
 </template>
