@@ -66,14 +66,16 @@ const open = ref<boolean>(false)
             </div>
 
             <div class="px-4 py-6 space-y-6 border-t border-gray-200">
-              <div v-for="page in nav" :key="page.id" class="flow-root">
-                <NuxtLink
-                  active-class="text-brand hover:text-brand-600"
-                  :to="page.href"
-                  class="block p-2 -m-2 font-medium text-gray-900 capitalize"
-                  >{{ page.name }}</NuxtLink
-                >
-              </div>
+              <template v-for="page in nav" :key="page.id">
+                <div class="flow-root">
+                  <NuxtLink
+                    exact-active-class="dark:text-brand dark:hover:text-brand-600"
+                    :to="page.href"
+                    class="block p-2 -m-2 font-medium capitalize"
+                    >{{ page.name }}
+                  </NuxtLink>
+                </div>
+              </template>
             </div>
 
             <div class="px-4 py-6 space-y-6 border-t border-gray-200">
@@ -163,7 +165,7 @@ const open = ref<boolean>(false)
                     :class="[
                       open
                         ? 'border-brand-600 text-brand-600'
-                        : 'border-transparent text-gray-100 hover:text-brand',
+                        : 'border-transparent text-brand-400 hover:text-brand',
                       'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out',
                     ]"
                   >
@@ -232,9 +234,9 @@ const open = ref<boolean>(false)
               </Popover>
               <template v-for="page in nav" :key="page.id">
                 <NuxtLink
-                  :to="page.href"
-                  class="flex items-center text-sm font-medium tracking-wider text-gray-100 capitalize hover:text-brand"
                   exact-active-class="text-brand hover:text-brand-600"
+                  :to="page.href"
+                  class="text-white flex items-center text-sm font-medium tracking-wider capitalize hover:text-brand"
                   >{{ page.name }}</NuxtLink
                 >
               </template>
