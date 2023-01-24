@@ -1,5 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { Database } from '~~/types/supabase'
+import { quotesRowSchema } from '~/schema/supabase'
 
 export default eventHandler(async (event) => {
   const supabase = serverSupabaseClient<Database>(event)
@@ -11,8 +12,9 @@ export default eventHandler(async (event) => {
       .select('*')
       .eq('quote_number', quote_number)
       .single()
-
-    return data
+    const quote = quotesRowSchema.parse(data)
+    console.log('Returned SS Quote:', quote)
+    return quote
   } catch (err) {
     console.log(err)
     return err

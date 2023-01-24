@@ -4,8 +4,7 @@
   "private": true,
   "author": "David Robertson",
   "description": "HPL Website Built with Nuxt 3",
-    "license": "MIT",
-
+  "license": "MIT",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -41,13 +40,13 @@
     "nuxt-seo-kit": "^0.4.13",
     "prettier": "^2.8.3",
     "stripe": "^11.6.0",
+    "supabase-to-zod": "^1.0.4",
     "twilio": "^3.84.1",
     "vee-validate": "^4.7.3",
     "vitest": "^0.27.2",
     "vue-tel-input": "^6.0.5",
     "zod": "^3.20.2"
   },
-
   "overrides": {
     "vue": "latest"
   }

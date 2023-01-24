@@ -21,9 +21,12 @@ async function getUserData() {
     setIsLoading.value = true
     // Get user ID from local storage
     hplUserId.value = localStorage.getItem('hplUserId')
-    if (!hplUserId.value || hplUserId.value === 'new_hpl_user') {
+    console.log('Hpl user id when routing to page', hplUserId.value)
+    if (hplUserId.value === null || undefined) {
       localStorage.setItem('hplUserId', 'new_hpl_user')
       console.log('New User')
+    } else if (hplUserId.value === 'new_hpl_user') {
+      console.log('New user no quote submission')
     } else {
       let { data, error } = await supabase
         .from('user')
@@ -54,6 +57,7 @@ onMounted(async () => {
 })
 
 //npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types/supabase.ts
+//npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types.ts
 </script>
 
 <template>

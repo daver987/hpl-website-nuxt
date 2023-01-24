@@ -1,7 +1,5 @@
 import { ValidationSchema } from '~/schema/quoteFormValues'
 import { VehicleType } from '~/schema/vehicleType'
-import { TripData } from '~/types/data'
-import { Place } from '~/types/DirectionsResponse'
 import { Surcharges } from '~/schema/surcharges'
 import { serverSupabaseClient } from '#supabase/server'
 import { Database } from '~/types/supabase'
@@ -43,21 +41,21 @@ export default defineEventHandler(async (event) => {
       endLng,
       startLat,
       startLng,
-    } = tripData as TripData
+    } = tripData
 
     const {
       formatted_address: originFormattedAddress,
       name: originName,
       place_id: originPlaceId,
       isPearsonAirportOrigin,
-    } = placeDataOrigin as Place
+    } = placeDataOrigin
 
     const {
       formatted_address: destinationFormattedAddress,
       name: destinationName,
       place_id: destinationPlaceId,
       isPearsonAirportDestination,
-    } = placeDataDestination as Place
+    } = placeDataDestination
 
     const { value: hoursValue, label: hoursLabel } = selectedNumberOfHours || {
       value: 0,

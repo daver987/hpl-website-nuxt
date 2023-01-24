@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const schema = z.object({
+export const surchargeSchema = z.object({
   id: z.number(),
   created_at: z.string(),
   name: z.string(),
@@ -13,4 +13,4 @@ export const schema = z.object({
   is_tax: z.boolean(),
 })
 
-export type Surcharges = z.infer<typeof schema>
+export type Surcharges = z.infer<typeof surchargeSchema>
