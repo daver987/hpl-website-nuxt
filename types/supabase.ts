@@ -9,6 +9,38 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      airport_surcharges: {
+        Row: {
+          airportCode: string | null
+          airportName: string | null
+          created_at: string | null
+          id: number
+          isActive: boolean | null
+          isTaxable: boolean | null
+          surchargeFee: number | null
+          surchargeName: string | null
+        }
+        Insert: {
+          airportCode?: string | null
+          airportName?: string | null
+          created_at?: string | null
+          id?: number
+          isActive?: boolean | null
+          isTaxable?: boolean | null
+          surchargeFee?: number | null
+          surchargeName?: string | null
+        }
+        Update: {
+          airportCode?: string | null
+          airportName?: string | null
+          created_at?: string | null
+          id?: number
+          isActive?: boolean | null
+          isTaxable?: boolean | null
+          surchargeFee?: number | null
+          surchargeName?: string | null
+        }
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -58,6 +90,7 @@ export interface Database {
       quotes: {
         Row: {
           addedToCart: boolean
+          airportFee: number | null
           baseRate: number
           calculatedDistance: number
           createdAt: string
@@ -72,6 +105,7 @@ export interface Database {
           endLng: number
           firstName: string
           fuelSurcharge: number
+          gclid: string | null
           gratuity: number
           hoursLabel: string
           hoursValue: number
@@ -88,11 +122,13 @@ export interface Database {
           originPlaceId: string
           passengersLabel: string
           passengersValue: number
+          phone_number: string | null
           pickupDate: string
           pickupTime: string
           quote_number: number
           returnDate: string | null
           returnTime: string | null
+          roundTripTotal: number | null
           serviceTypeLabel: string
           serviceTypeValue: number
           startLat: number
@@ -101,11 +137,16 @@ export interface Database {
           updatedAt: string
           userEmail: string
           userId: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
           vehicleTypeLabel: string
           vehicleTypeValue: number
         }
         Insert: {
           addedToCart?: boolean
+          airportFee?: number | null
           baseRate: number
           calculatedDistance: number
           createdAt?: string
@@ -120,6 +161,7 @@ export interface Database {
           endLng: number
           firstName: string
           fuelSurcharge: number
+          gclid?: string | null
           gratuity: number
           hoursLabel: string
           hoursValue?: number
@@ -136,11 +178,13 @@ export interface Database {
           originPlaceId: string
           passengersLabel?: string
           passengersValue?: number
+          phone_number?: string | null
           pickupDate: string
           pickupTime: string
           quote_number: number
           returnDate?: string | null
           returnTime?: string | null
+          roundTripTotal?: number | null
           serviceTypeLabel: string
           serviceTypeValue: number
           startLat: number
@@ -149,11 +193,16 @@ export interface Database {
           updatedAt?: string
           userEmail: string
           userId?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           vehicleTypeLabel: string
           vehicleTypeValue: number
         }
         Update: {
           addedToCart?: boolean
+          airportFee?: number | null
           baseRate?: number
           calculatedDistance?: number
           createdAt?: string
@@ -168,6 +217,7 @@ export interface Database {
           endLng?: number
           firstName?: string
           fuelSurcharge?: number
+          gclid?: string | null
           gratuity?: number
           hoursLabel?: string
           hoursValue?: number
@@ -184,11 +234,13 @@ export interface Database {
           originPlaceId?: string
           passengersLabel?: string
           passengersValue?: number
+          phone_number?: string | null
           pickupDate?: string
           pickupTime?: string
           quote_number?: number
           returnDate?: string | null
           returnTime?: string | null
+          roundTripTotal?: number | null
           serviceTypeLabel?: string
           serviceTypeValue?: number
           startLat?: number
@@ -197,6 +249,10 @@ export interface Database {
           updatedAt?: string
           userEmail?: string
           userId?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           vehicleTypeLabel?: string
           vehicleTypeValue?: number
         }
@@ -207,6 +263,7 @@ export interface Database {
           id: number
           isDisabled: boolean | null
           label: string | null
+          limo_anywhere_id: number | null
           value: number | null
         }
         Insert: {
@@ -214,6 +271,7 @@ export interface Database {
           id?: number
           isDisabled?: boolean | null
           label?: string | null
+          limo_anywhere_id?: number | null
           value?: number | null
         }
         Update: {
@@ -221,6 +279,7 @@ export interface Database {
           id?: number
           isDisabled?: boolean | null
           label?: string | null
+          limo_anywhere_id?: number | null
           value?: number | null
         }
       }
@@ -262,6 +321,32 @@ export interface Database {
           name?: string | null
         }
       }
+      taxes: {
+        Row: {
+          created_at: string | null
+          id: number
+          isApplicable: boolean | null
+          region: string | null
+          taxAmount: number | null
+          taxName: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          isApplicable?: boolean | null
+          region?: string | null
+          taxAmount?: number | null
+          taxName?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          isApplicable?: boolean | null
+          region?: string | null
+          taxAmount?: number | null
+          taxName?: string | null
+        }
+      }
       user: {
         Row: {
           createdAt: string
@@ -273,6 +358,7 @@ export interface Database {
           phoneNumber: string
           stripe_customer_id: string | null
           updatedAt: string
+          userCookie: string | null
         }
         Insert: {
           createdAt?: string
@@ -284,6 +370,7 @@ export interface Database {
           phoneNumber: string
           stripe_customer_id?: string | null
           updatedAt?: string
+          userCookie?: string | null
         }
         Update: {
           createdAt?: string
@@ -295,6 +382,7 @@ export interface Database {
           phoneNumber?: string
           stripe_customer_id?: string | null
           updatedAt?: string
+          userCookie?: string | null
         }
       }
       vehicle_type: {
@@ -304,6 +392,7 @@ export interface Database {
           is_active: boolean | null
           isDisabled: boolean | null
           label: string | null
+          limo_anywhere_id: number | null
           max_luggage: number | null
           max_passengers: number | null
           min_distance: number | null
@@ -321,6 +410,7 @@ export interface Database {
           is_active?: boolean | null
           isDisabled?: boolean | null
           label?: string | null
+          limo_anywhere_id?: number | null
           max_luggage?: number | null
           max_passengers?: number | null
           min_distance?: number | null
@@ -338,6 +428,7 @@ export interface Database {
           is_active?: boolean | null
           isDisabled?: boolean | null
           label?: string | null
+          limo_anywhere_id?: number | null
           max_luggage?: number | null
           max_passengers?: number | null
           min_distance?: number | null
