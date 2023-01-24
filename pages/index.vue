@@ -6,9 +6,20 @@ definePageMeta({
   name: 'Home',
   layout: 'default',
 })
+</script>
 
-const fleetImage =
-  'background-image: url("https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/5d10059a-b5c4-44cc-ef3f-6ef867396000/1920")'
+<script lang="ts">
+export default {
+  computed: {
+    fleetImage(): any {
+      const imgUrl = this.$img(
+        'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/5d10059a-b5c4-44cc-ef3f-6ef867396000/1920',
+        { width: 100, loading: 'lazy' }
+      )
+      return { backgroundImage: `url('${imgUrl}')` }
+    },
+  },
+}
 </script>
 
 <template>
