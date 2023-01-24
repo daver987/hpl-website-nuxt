@@ -22,7 +22,7 @@ defineProps({
 <template>
   <div class="p-4 sm:flex">
     <div class="flex-shrink-0 mb-4 sm:mb-0 sm:mr-4">
-      <NuxtImg :alt="altText" :src="`/icons/${image}.svg`" class="w-16" />
+      <img :alt="altText" :src="`/icons/${image}.svg`" class="w-16" />
     </div>
     <div>
       <h4 class="text-lg font-subheading text-brand">{{ title }}</h4>
