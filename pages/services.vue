@@ -111,5 +111,6 @@ const headerInfo = {
         </div>
       </div>
     </section>
+    <AppFooter />
   </div>
 </template>

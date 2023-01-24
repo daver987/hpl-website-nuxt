@@ -9,5 +9,6 @@ definePageMeta({
   <div class="dark:bg-grey-900">
     <AppNavigation />
     <ShoppingCart :is-it-quote="false" />
+    <SubFooter />
   </div>
 </template>

@@ -28,5 +28,6 @@ const headerInfo = {
       <ContactForm />
     </BaseSection>
     <Notification />
+    <AppFooter />
   </div>
 </template>

@@ -11,5 +11,6 @@ definePageMeta({
   <div class="h-full">
     <AppNavigation />
     <Summary />
+    <SubFooter />
   </div>
 </template>

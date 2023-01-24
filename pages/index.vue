@@ -219,5 +219,6 @@ export default {
       </BaseContainer>
       <TheLogoCloud />
     </BaseSection>
+    <AppFooter />
   </div>
 </template>

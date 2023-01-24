@@ -41,5 +41,6 @@ definePageMeta({
         </NuxtLink>
       </div>
     </section>
+    <AppFooter />
   </div>
 </template>

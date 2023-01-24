@@ -27,6 +27,7 @@ showNotification()
   <div class="min-h-screen dark:bg-grey-900">
     <AppNavigation />
     <ShoppingCart />
+    <SubFooter />
     <Notification
       :show="notification"
       message1="Your Quote Has been Submitted"

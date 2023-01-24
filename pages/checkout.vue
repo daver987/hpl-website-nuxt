@@ -12,5 +12,6 @@ console.log(route.quoteNumber)
   <div class="min-h-screen dark:bg-grey-900">
     <AppNavigation :is-it-quote="false" />
     <ShoppingCart />
+    <SubFooter />
   </div>
 </template>
