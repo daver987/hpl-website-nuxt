@@ -22,12 +22,10 @@ defineProps({
 <template>
   <div class="flex flex-row @xs:flex-col bg-white shadow-xl p-4">
     <div class="flex-shrink-0 mb-4 @sm:mb-0 @sm:mr-4">
-      <NuxtPicture
+      <NuxtImg
         :alt="altText"
         :src="`/icons/${image}.svg`"
-        :img-attrs="{
-          class: 'w-auto h-16',
-        }"
+        class="w-auto h-16"
       />
     </div>
     <div>
