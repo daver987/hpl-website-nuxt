@@ -651,7 +651,6 @@ const onSubmit = handleSubmit(async (formValues) => {
     <h2 class="pt-5 text-3xl text-center text-white uppercase">
       Instant Quote
     </h2>
-    <label aria-hidden="true" for="lead_form">Lead Form</label>
     <form
       id="lead_form"
       name="lead_form"
