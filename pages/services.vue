@@ -2,11 +2,10 @@
 import { services } from '~/data/services'
 import { ourTours, Tour } from '~/data/tours'
 definePageMeta({
-  title: 'Services',
   layout: 'default',
 })
 useHead({
-  title: 'High Park Livery | Services',
+  title: 'High Park Livery | Our Services',
 })
 const tours = ourTours as Tour[]
 const headerInfo = {

@@ -25,9 +25,9 @@ defineProps({
       <img :alt="altText" :src="`/icons/${image}.svg`" class="w-auto h-16" />
     </div>
     <div>
-      <h4 class="text-base tracking-widest uppercase subheading text-primary">
+      <h3 class="text-base tracking-widest uppercase subheading text-primary">
         {{ title }}
-      </h4>
+      </h3>
       <p class="mt-1 font-sans text-gray-500">{{ body }}</p>
     </div>
   </div>

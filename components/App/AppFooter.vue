@@ -56,25 +56,28 @@ const nav = navigation as NavigationItem[]
           >
             Quick Links
           </h3>
-          <ul
-            class="flex flex-col font-bold leading-relaxed tracking-wider uppercase font-body text-body-light"
-          >
-            <li v-for="myNavigation in nav" :key="myNavigation.id">
-              <NuxtLink
-                :to="myNavigation.href"
-                active-class="text-brand hover:text-brand-600"
-              >
-                {{ myNavigation.name }}
-              </NuxtLink>
-            </li>
-          </ul>
+          <nav>
+            <ul
+              class="flex flex-col font-bold leading-relaxed tracking-wider uppercase font-body text-body-light"
+            >
+              <li v-for="myNavigation in nav" :key="myNavigation.id">
+                <NuxtLink
+                  :to="myNavigation.href"
+                  active-class="text-brand hover:text-brand-600"
+                >
+                  {{ myNavigation.name }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
         </div>
         <div class="my-8 space-y-6 lg:space-y-4">
-          <h3
+          <label
+            for="email"
             class="text-xl tracking-widest uppercase font-subheading text-primary"
           >
             Sign Up
-          </h3>
+          </label>
           <EmailInput />
           <BaseButton kind="btn-solid" label="Subscribe" />
           <p

@@ -19,7 +19,6 @@ const setIsLoading = ref(false)
 async function getUserData() {
   try {
     setIsLoading.value = true
-    // Get user ID from local storage
     hplUserId.value = localStorage.getItem('hplUserId')
     console.log('Hpl user id when routing to page', hplUserId.value)
     if (hplUserId.value === null || undefined) {

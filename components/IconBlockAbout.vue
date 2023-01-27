@@ -25,7 +25,7 @@ defineProps({
       <img :alt="altText" :src="`/icons/${image}.svg`" class="w-16" />
     </div>
     <div>
-      <h4 class="text-lg font-subheading text-brand">{{ title }}</h4>
+      <h3 class="text-lg font-subheading text-brand">{{ title }}</h3>
       <p class="mt-1 font-sans text-gray-500">{{ body }}</p>
     </div>
   </div>

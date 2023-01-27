@@ -144,6 +144,9 @@ const inputOptions = ref({
   showDialCode: true,
   name: 'phoneNumber',
   type: 'tel',
+  ariaDescribedby: 'name',
+  ariaLabeledBy: 'placeholder',
+  placeholder: 'Enter Phone',
 })
 const dropdownOptions = ref({
   showDialCodeInSelection: false,
@@ -645,10 +648,16 @@ const onSubmit = handleSubmit(async (formValues) => {
   <div
     class="bg-black border border-white rounded sm:mx-auto sm:w-full sm:max-w-lg sm:overflow-hidden sm:rounded-lg border-1"
   >
-    <h3 class="pt-5 text-3xl text-center text-white uppercase">
+    <h2 class="pt-5 text-3xl text-center text-white uppercase">
       Instant Quote
-    </h3>
-    <form id="lead_form" class="p-5 space-y-3" @submit.prevent="onSubmit">
+    </h2>
+    <label aria-hidden="true" for="lead_form">Lead Form</label>
+    <form
+      id="lead_form"
+      name="lead_form"
+      class="p-5 space-y-3"
+      @submit.prevent="onSubmit"
+    >
       <div class="grid w-full grid-cols-1 gap-3">
         <InputPlacesAutocomplete
           label="Pick Up Location:"
@@ -813,6 +822,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             name="phoneNumber"
           >
             <VueTelInput
+              aria-label="phone input"
               v-bind="field"
               v-model="phoneNumber"
               :dropdown-options="dropdownOptions"
@@ -835,13 +845,14 @@ const onSubmit = handleSubmit(async (formValues) => {
                 aria-describedby="comments-description"
                 v-bind="field"
                 id="round_trip"
+                name="round_trip"
                 v-model="isRoundTrip"
                 type="checkbox"
                 class="w-4 h-4 border-gray-300 rounded text-brand-600 focus:ring-brand-500"
               />
             </div>
             <div class="ml-3 text-sm">
-              <label for="comments" class="font-medium text-gray-100"
+              <label for="round_trip" class="font-medium text-gray-100"
                 >Round Trip</label
               >
             </div>
