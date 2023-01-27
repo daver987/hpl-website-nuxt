@@ -10,13 +10,7 @@ import { ReturnedQuote } from '~/schema/returnedFormData'
 import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
 import { z } from 'zod'
-import { DirectionsSchema } from '~/server/api/get-distance.get'
-import {
-  tripDataSchema,
-  placeDataSchema,
-  PlaceData,
-  TripData,
-} from '~~/types/data'
+import { TripData } from '~~/types/data'
 import { useGtm } from '@gtm-support/vue-gtm'
 
 const gtm = useGtm()
@@ -784,7 +778,6 @@ const onSubmit = handleSubmit(async (formValues) => {
       <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
         <div class="col-span-1">
           <InputText
-            id="first_name"
             v-model="firstName"
             label="First Name:"
             name="firstName"
@@ -795,7 +788,6 @@ const onSubmit = handleSubmit(async (formValues) => {
 
         <div class="col-span-1">
           <InputText
-            id="last_name"
             v-model="lastName"
             label="Last Name:"
             name="lastName"
@@ -807,7 +799,6 @@ const onSubmit = handleSubmit(async (formValues) => {
       <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
         <div class="col-span-1">
           <InputText
-            id="email"
             v-model="emailAddress"
             label="Email Address:"
             name="emailAddress"
