@@ -5,7 +5,6 @@ import { VueTelInput } from 'vue-tel-input'
 import 'vue-tel-input/dist/vue-tel-input.css'
 import { useForm, Field } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
-import { returnedQuote } from '~/schema/returnedFormData'
 import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
 import { z } from 'zod'
@@ -98,6 +97,7 @@ const lastName = ref<string>('')
 const emailAddress = ref<string>('')
 const phoneNumber = ref<string>('')
 const disabled = ref<boolean>(true)
+const tripData = ref<TripData | null>(null)
 
 const buildPassengerOptions = (numPassengers: number) => {
   let options = [
@@ -194,7 +194,7 @@ const onOriginChange = async (evt: Place) => {
   origin.value.isPearsonAirportOrigin = isPearsonAirportOrigin.value
   if (origin.value && destination.value) {
     console.log('origin and destination are both set')
-    const { data: tripData } = await useFetch('/api/get-distance', {
+    const { data } = await useFetch('/api/get-distance', {
       query: {
         origin: originPlaceId.value,
         destination: place_id,
@@ -206,8 +206,8 @@ const onOriginChange = async (evt: Place) => {
     })
     placeDataOrigin.value = origin.value
     placeDataDestination.value = destination.value
-
-    console.log('Trip data:', tripData)
+    tripData.value = data.value
+    console.log('Trip data:', data)
     console.log('Origin data:', placeDataOrigin.value)
     console.log('Destination data:', placeDataDestination.value)
     const {
@@ -273,7 +273,7 @@ const onDestinationChange = async (evt: Place) => {
   console.log('Destination:', destination.value)
   if (origin.value && destination.value) {
     console.log('origin and destination are both set')
-    const { data: tripData } = await useFetch('/api/get-distance', {
+    const { data } = await useFetch('/api/get-distance', {
       query: {
         origin: originPlaceId.value,
         destination: place_id,
@@ -282,6 +282,7 @@ const onDestinationChange = async (evt: Place) => {
 
     placeDataOrigin.value = origin.value
     placeDataDestination.value = destination.value
+    tripData.value = data.value
     console.log('Trip data:', tripData.value)
     console.log('Origin data:', placeDataOrigin.value)
     console.log('Destination data:', placeDataDestination.value)
@@ -380,7 +381,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     method: 'POST',
     body: values,
   })
-  returnedQuoteValues.value = returnedQuote.parse(data.value)
+  returnedQuoteValues.value = data?.value
   const { hplUserId } = returnedQuoteValues.value
   localStorage.setItem('hplUserId', hplUserId)
   localStorage.setItem('quote_data', JSON.stringify(returnedQuoteValues.value))
@@ -391,12 +392,14 @@ const onSubmit = handleSubmit(async (formValues) => {
       triggerEvent()
       loading.value = false
       await navigateTo('/quoted')
+      console.log('navigated to /quoted')
     }, 1500)
     return
   } else {
     setTimeout(() => {
       loading.value = false
       openAlert.value = true
+      console.log('error')
     }, 1500)
     return
   }

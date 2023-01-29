@@ -1,5 +1,3 @@
-import { ValidationSchema } from '~/schema/quoteFormValues'
-import { VehicleType } from '~/schema/vehicleType'
 import { Surcharges } from '~/schema/surcharges'
 import { serverSupabaseClient } from '#supabase/server'
 import { Database } from '~/types/supabase'
@@ -30,7 +28,7 @@ export default defineEventHandler(async (event) => {
       tripData,
       selectedPassengers,
       gtmValues,
-    } = body.data as ValidationSchema
+    } = body.data
 
     const {
       distanceText,
@@ -73,17 +71,18 @@ export default defineEventHandler(async (event) => {
 
     const { value: selectedHours, label: selectedHoursLabel } =
       selectedNumberOfHours || { value: 0, label: 'Hours Not Selected' }
-
+    const vehicleRates = ref({} as any)
     //get the vehicle type from the vehicle type value
-    const getVehicleType = async () => {
-      const { data } = await supabase
+    try {
+      const { data: vehicleTypeValues } = await supabase
         .from('vehicle_type')
         .select('*')
         .eq('value', vehicleTypeValue)
-      console.log('This is the Vehicle Type', data)
-      return data
+      console.log('This is the Vehicle Type', vehicleTypeValues)
+      vehicleRates.value = vehicleTypeValues[0]
+    } catch (e) {
+      console.log(e)
     }
-    const vehicleRates = (await getVehicleType()) as VehicleType[]
 
     const {
       min_distance,
@@ -92,7 +91,7 @@ export default defineEventHandler(async (event) => {
       min_hours_hourly,
       min_rate_hourly,
       per_hour,
-    } = vehicleRates[0]
+    } = vehicleRates.value
 
     //calculate the base rate
     const baseRateDistance = () => {
@@ -124,7 +123,7 @@ export default defineEventHandler(async (event) => {
       return baseRateDistance()
     }
     const surchargeAmounts = {} as any
-    let totalAmount: string | number = baseAmount()
+    let totalAmount = baseAmount()
 
     for (const surcharge of surcharges) {
       if (surcharge.is_active) {
@@ -270,7 +269,7 @@ export default defineEventHandler(async (event) => {
           gratuity: surchargeAmounts.Gratuity,
           HST: surchargeAmounts.HST,
           userEmail: emailAddress,
-          totalFare: totalAmount as number,
+          totalFare: totalAmount,
           quote_number: quoteNumber,
           firstName,
           lastName,
@@ -350,7 +349,6 @@ export default defineEventHandler(async (event) => {
 
     return {
       statusCode: 200,
-      body,
       pickupDate,
       pickupTime,
       returnDate,
