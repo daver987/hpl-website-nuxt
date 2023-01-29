@@ -122,7 +122,7 @@ const selectedPassengers = ref(passengerOptions.value[0])
 const buildHoursRequiredOptions = () => {
   let options = [
     {
-      label: 'Select Hours',
+      label: 'For Hourly Service',
       value: 0,
       isDisabled: true,
     },
