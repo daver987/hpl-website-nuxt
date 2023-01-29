@@ -11,11 +11,6 @@ import {
   TransitionChild,
   TransitionRoot,
 } from '@headlessui/vue'
-import {
-  Bars3Icon,
-  MagnifyingGlassIcon,
-  XMarkIcon as XMarkIconOutline,
-} from '@heroicons/vue/24/outline'
 import { navigation, NavigationItem } from '~/data/navigation'
 
 const quoteStore = useQuoteStore()
@@ -61,7 +56,11 @@ const open = ref<boolean>(false)
                 @click="open = false"
               >
                 <span class="sr-only">Close menu</span>
-                <XMarkIconOutline class="w-6 h-6" aria-hidden="true" />
+                <Icon
+                  name="heroicons:x-mark"
+                  class="w-6 h-6"
+                  aria-hidden="true"
+                />
               </button>
             </div>
 
@@ -96,7 +95,7 @@ const open = ref<boolean>(false)
             </div>
 
             <div class="px-4 py-6 border-t border-gray-200">
-              <NuxtLink href="#" class="flex items-center p-2 -m-2">
+              <NuxtLink class="flex items-center p-2 -m-2">
                 <NuxtPicture
                   src="https://tailwindui.com/img/flags/flag-canada.svg"
                   alt="Canada flag"
@@ -131,7 +130,7 @@ const open = ref<boolean>(false)
             @click="open = true"
           >
             <span class="sr-only">Open menu</span>
-            <Bars3Icon class="w-6 h-6" aria-hidden="true" />
+            <Icon name="heroicons:x-mark" class="w-6 h-6" aria-hidden="true" />
           </button>
 
           <!-- Logo -->
@@ -154,12 +153,7 @@ const open = ref<boolean>(false)
           <!-- Flyout menus -->
           <PopoverGroup class="hidden lg:ml-8 lg:block lg:self-stretch">
             <div class="flex h-full space-x-8">
-              <Popover
-                v-for="category in navigation.categories"
-                :key="category.name"
-                class="flex"
-                v-slot="{ open }"
-              >
+              <Popover class="flex" v-slot="{ open }">
                 <div class="relative flex">
                   <PopoverButton
                     :class="[
@@ -169,7 +163,6 @@ const open = ref<boolean>(false)
                       'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out',
                     ]"
                   >
-                    {{ category.name }}
                   </PopoverButton>
                 </div>
 
@@ -196,32 +189,20 @@ const open = ref<boolean>(false)
                           <div
                             class="grid grid-cols-3 row-start-1 text-sm gap-y-10 gap-x-8"
                           >
-                            <div
-                              v-for="section in category.sections"
-                              :key="section.name"
-                            >
+                            <div>
                               <p
-                                :id="`${section.name}-heading`"
                                 class="font-medium text-gray-100 hover:text-brand"
-                              >
-                                {{ section.name }}
-                              </p>
+                              ></p>
                               <ul
                                 role="list"
-                                :aria-labelledby="`${section.name}-heading`"
                                 class="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                               >
-                                <li
-                                  v-for="item in section.items"
-                                  :key="item.name"
-                                  class="flex"
-                                >
+                                <li class="flex">
                                   <NuxtLink
-                                    :to="item.href"
                                     class="hover:text-gray-800"
                                     exact-active-class="text-brand hover:text-brand-600"
-                                    >{{ item.name }}</NuxtLink
-                                  >
+                                    >{{
+                                  }}</NuxtLink>
                                 </li>
                               </ul>
                             </div>
@@ -281,7 +262,11 @@ const open = ref<boolean>(false)
             <div v-if="false" class="flex lg:ml-6">
               <a href="#" class="p-2 text-gray-400 hover:text-gray-500">
                 <span class="sr-only">Search</span>
-                <MagnifyingGlassIcon class="w-6 h-6" aria-hidden="true" />
+                <Icon
+                  name="heroicons:magnifying-glass"
+                  class="w-6 h-6"
+                  aria-hidden="true"
+                />
               </a>
             </div>
 

@@ -3,10 +3,9 @@ import { services } from '~/data/services'
 import { ourTours, Tour } from '~/data/tours'
 definePageMeta({
   layout: 'default',
-})
-useHead({
   title: 'High Park Livery | Our Services',
 })
+
 const tours = ourTours as Tour[]
 const headerInfo = {
   aboveHeading: 'WHAT WE OFFER YOU',
@@ -25,7 +24,7 @@ const headerInfo = {
       :heading="headerInfo.heading"
       :image="headerInfo.image"
     />
-    <BaseSection class="md:-mt-20 relative z-10">
+    <BaseSection class="relative z-10 md:-mt-20">
       <BaseContainer class="bg-white shadow-xl">
         <div
           class="grid grid-cols-1 py-6 -mt-8 overflow-hidden md:px-2 lg:px-4 md:grid-cols-2"
@@ -88,7 +87,7 @@ const headerInfo = {
       </BaseContainer>
     </BaseSection>
     <BaseSection
-      class="bg-center bg-no-repeat bg-cover space-y-3"
+      class="space-y-3 bg-center bg-no-repeat bg-cover"
       style="background-image: url('/images/niagara-falls-1.jpg')"
     >
       <p class="text-center subheading">High Park Livery Tours</p>
@@ -98,7 +97,7 @@ const headerInfo = {
     </BaseSection>
     <BaseSection class="pt-0">
       <BaseContainer
-        class="grid grid-cols-1 md:grid-cols-2 bg-white shadow-xl p-2"
+        class="grid grid-cols-1 p-2 bg-white shadow-xl md:grid-cols-2"
       >
         <IconBlockAbout
           v-for="tour in tours"

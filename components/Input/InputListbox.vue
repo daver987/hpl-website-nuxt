@@ -70,7 +70,9 @@ defineEmits(['update:modelValue'])
     </ListboxLabel>
     <div class="relative mt-1">
       <ListboxButton
-        :class="classes"
+        :class="[
+          modelValue.value === 0 ? `text-gray-400 ${classes}` : 'text-gray-900',
+        ]"
         class="relative w-full py-2 pl-3 pr-10 text-left bg-white border border-gray-300 rounded shadow-sm cursor-default focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
       >
         <span class="block capitalize truncate">{{ modelValue.label }}</span>

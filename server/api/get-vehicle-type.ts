@@ -5,14 +5,14 @@ export default defineEventHandler(async (event) => {
   try {
     const supabase = serverSupabaseClient<Database>(event)
     const { data } = await supabase
-      .from('service_type')
+      .from('vehicle_type')
       .select('*')
       .order('value', { ascending: true })
-    const serviceTypes = data
-    console.log('Service Types SSR:', serviceTypes)
-    return serviceTypes
+    const vehicleTypes = data
+    console.log('Vehicle Types SSR:', vehicleTypes)
+    return vehicleTypes
   } catch (e) {
-    console.log('Service Types Error:', e)
-    return 'Error Getting Service Types'
+    console.log('Vehicle Types Error:', e)
+    return 'Error Getting Vehicle Types'
   }
 })

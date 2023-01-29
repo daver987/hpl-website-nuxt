@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { qualities } from '~/data/qualities'
-useHead({
+definePageMeta({
+  layout: 'default',
   title: 'High Park Livery | About Us',
 })
 const headerInfo = {
@@ -11,10 +12,7 @@ const headerInfo = {
     'background-image: url("https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/33276e69-8f27-493e-57ee-7e63d9819700/1920")',
 }
 
-const quality = qualities
-definePageMeta({
-  layout: 'default',
-})
+// const quality = qualities
 </script>
 
 <template>
@@ -84,12 +82,12 @@ definePageMeta({
           />
           <div class="bg-white shadow-xl">
             <IconBlockAbout
-              v-for="qualities in quality"
-              :key="qualities.title"
-              :altText="qualities.altText"
-              :body="qualities.body"
-              :image="qualities.image"
-              :title="qualities.title"
+              v-for="quality in qualities"
+              :key="quality.title"
+              :altText="quality.altText"
+              :body="quality.body"
+              :image="quality.image"
+              :title="quality.title"
             />
           </div>
         </BaseContainer>

@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     '@nuxt/image-edge',
     'nuxt-icon',
     '@nuxtjs/supabase',
+    'nuxt-vitest',
     [
       '@pinia/nuxt',
       {

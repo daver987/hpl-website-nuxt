@@ -25,8 +25,6 @@
     "@headlessui/tailwindcss": "^0.1.2",
     "@headlessui/vue": "^1.7.7",
     "@heroicons/vue": "^2.0.14",
-    "@histoire/plugin-nuxt": "^0.12.4",
-    "@histoire/plugin-vue": "^0.12.4",
     "@nuxt/image-edge": "^1.0.0-27907872.f4dd19d",
     "@nuxtjs/fontaine": "^0.2.4",
     "@nuxtjs/robots": "^3.0.0",
@@ -44,11 +42,11 @@
     "@vueuse/math": "^9.11.1",
     "@vueuse/nuxt": "^9.11.1",
     "cypress": "^12.4.0",
-    "histoire": "^0.12.4",
     "ip": "^1.1.8",
     "nuxt": "^3.1.1",
     "nuxt-icon": "^0.2.10",
     "nuxt-seo-kit": "^1.0.1",
+    "nuxt-vitest": "^0.6.3",
     "prettier": "^2.8.3",
     "start-server-and-test": "^1.15.3",
     "stripe": "^11.8.0",
@@ -57,9 +55,9 @@
     "vee-validate": "^4.7.3",
     "vitest": "^0.28.2",
     "vue-tel-input": "^6.0.5",
+    "vue3-datepicker": "^0.3.4",
     "zod": "^3.20.2"
   },
-  "type": "module",
   "overrides": {
     "vue": "latest"
   }

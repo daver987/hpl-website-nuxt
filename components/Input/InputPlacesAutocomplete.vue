@@ -72,8 +72,8 @@ const getAutocompleteComponents = () => {
 
 const emit = defineEmits(['change'])
 
-onMounted(() => {
-  initAutocomplete()
+onMounted(async () => {
+  await initAutocomplete()
 })
 const modelValue = ref('')
 </script>
@@ -93,7 +93,7 @@ const modelValue = ref('')
       :placeholder="placeholder"
       :type="type"
       :value="modelValue"
-      @input="(event) => (modelValue = event.target.value)"
+      @input="(event) => (modelValue = event.target?.value)"
       class="block w-full border-0 p-0 text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-sm pb-0.5 -mt-1 capitalize"
     />
     <div v-if="showError === null" class="flex">

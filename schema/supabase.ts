@@ -14,6 +14,36 @@ export const jsonSchema: z.ZodSchema<Json> = z.lazy(() =>
     .nullable()
 )
 
+export const accountsRowSchema = z.object({
+  company_account_number: z.number().nullable(),
+  company_address: z.string().nullable(),
+  company_email: z.string().nullable(),
+  company_name: z.string().nullable(),
+  company_phone: z.string().nullable(),
+  created_at: z.string().nullable(),
+  id: z.string(),
+})
+
+export const accountsInsertSchema = z.object({
+  company_account_number: z.number().optional().nullable(),
+  company_address: z.string().optional().nullable(),
+  company_email: z.string().optional().nullable(),
+  company_name: z.string().optional().nullable(),
+  company_phone: z.string().optional().nullable(),
+  created_at: z.string().optional().nullable(),
+  id: z.string().optional(),
+})
+
+export const accountsUpdateSchema = z.object({
+  company_account_number: z.number().optional().nullable(),
+  company_address: z.string().optional().nullable(),
+  company_email: z.string().optional().nullable(),
+  company_name: z.string().optional().nullable(),
+  company_phone: z.string().optional().nullable(),
+  created_at: z.string().optional().nullable(),
+  id: z.string().optional(),
+})
+
 export const airportSurchargesRowSchema = z.object({
   airportCode: z.string().nullable(),
   airportName: z.string().nullable(),
@@ -45,6 +75,57 @@ export const airportSurchargesUpdateSchema = z.object({
   isTaxable: z.boolean().optional().nullable(),
   surchargeFee: z.number().optional().nullable(),
   surchargeName: z.string().optional().nullable(),
+})
+
+export const conversationRowSchema = z.object({
+  created_at: z.string().nullable(),
+  creator_id: z.string().nullable(),
+  deleted_at: z.string().nullable(),
+  id: z.string(),
+  updated_at: z.string().nullable(),
+})
+
+export const conversationInsertSchema = z.object({
+  created_at: z.string().optional().nullable(),
+  creator_id: z.string().optional().nullable(),
+  deleted_at: z.string().optional().nullable(),
+  id: z.string().optional(),
+  updated_at: z.string().optional().nullable(),
+})
+
+export const conversationUpdateSchema = z.object({
+  created_at: z.string().optional().nullable(),
+  creator_id: z.string().optional().nullable(),
+  deleted_at: z.string().optional().nullable(),
+  id: z.string().optional(),
+  updated_at: z.string().optional().nullable(),
+})
+
+export const messagesRowSchema = z.object({
+  conversation_id: z.string().nullable(),
+  created_at: z.string().nullable(),
+  deleted_at: z.string().nullable(),
+  id: z.number(),
+  message: z.string().nullable(),
+  sender_id: z.string().nullable(),
+})
+
+export const messagesInsertSchema = z.object({
+  conversation_id: z.string().optional().nullable(),
+  created_at: z.string().optional().nullable(),
+  deleted_at: z.string().optional().nullable(),
+  id: z.number().optional(),
+  message: z.string().optional().nullable(),
+  sender_id: z.string().optional().nullable(),
+})
+
+export const messagesUpdateSchema = z.object({
+  conversation_id: z.string().optional().nullable(),
+  created_at: z.string().optional().nullable(),
+  deleted_at: z.string().optional().nullable(),
+  id: z.number().optional(),
+  message: z.string().optional().nullable(),
+  sender_id: z.string().optional().nullable(),
 })
 
 export const profilesRowSchema = z.object({
@@ -95,62 +176,64 @@ export const quoteNumberUpdateSchema = z.object({
   latest_quote_number: z.number().optional().nullable(),
 })
 
-export const quotesRowSchema = z.object({
-  addedToCart: z.boolean(),
-  airportFee: z.number().nullable(),
-  baseRate: z.number(),
-  calculatedDistance: z.number(),
-  createdAt: z.string(),
-  destinationFormattedAddress: z.string(),
-  destinationName: z.string(),
-  destinationPlaceId: z.string(),
-  distanceText: z.string(),
-  distanceValue: z.number(),
-  durationText: z.string(),
-  durationValue: z.number(),
-  endLat: z.number(),
-  endLng: z.number(),
-  firstName: z.string(),
-  fuelSurcharge: z.number(),
-  gclid: z.string().nullable(),
-  gratuity: z.number(),
-  hoursLabel: z.string(),
-  hoursValue: z.number(),
-  HST: z.number(),
-  id: z.string(),
-  isBooked: z.boolean(),
-  isItHourly: z.boolean(),
-  isPearsonAirportDropoff: z.boolean(),
-  isPearsonAirportPickup: z.boolean(),
-  isRoundTrip: z.boolean(),
-  lastName: z.string(),
-  originFormattedAddress: z.string(),
-  originName: z.string(),
-  originPlaceId: z.string(),
-  passengersLabel: z.string(),
-  passengersValue: z.number(),
-  phone_number: z.string().nullable(),
-  pickupDate: z.string(),
-  pickupTime: z.string(),
-  quote_number: z.number(),
-  returnDate: z.string().nullable(),
-  returnTime: z.string().nullable(),
-  roundTripTotal: z.number().nullable(),
-  serviceTypeLabel: z.string(),
-  serviceTypeValue: z.number(),
-  startLat: z.number(),
-  startLng: z.number(),
-  totalFare: z.number(),
-  updatedAt: z.string(),
-  userEmail: z.string(),
-  userId: z.string().nullable(),
-  utm_campaign: z.string().nullable(),
-  utm_medium: z.string().nullable(),
-  utm_source: z.string().nullable(),
-  utm_term: z.string().nullable(),
-  vehicleTypeLabel: z.string(),
-  vehicleTypeValue: z.number(),
-})
+export const quotesRowSchema = z.array(
+  z.object({
+    addedToCart: z.boolean(),
+    airportFee: z.number().nullable(),
+    baseRate: z.number(),
+    calculatedDistance: z.number(),
+    createdAt: z.string(),
+    destinationFormattedAddress: z.string(),
+    destinationName: z.string(),
+    destinationPlaceId: z.string(),
+    distanceText: z.string(),
+    distanceValue: z.number(),
+    durationText: z.string(),
+    durationValue: z.number(),
+    endLat: z.number(),
+    endLng: z.number(),
+    firstName: z.string(),
+    fuelSurcharge: z.number(),
+    gclid: z.string().nullable(),
+    gratuity: z.number(),
+    hoursLabel: z.string(),
+    hoursValue: z.number(),
+    HST: z.number(),
+    id: z.string(),
+    isBooked: z.boolean(),
+    isItHourly: z.boolean(),
+    isPearsonAirportDropoff: z.boolean(),
+    isPearsonAirportPickup: z.boolean(),
+    isRoundTrip: z.boolean(),
+    lastName: z.string(),
+    originFormattedAddress: z.string(),
+    originName: z.string(),
+    originPlaceId: z.string(),
+    passengersLabel: z.string(),
+    passengersValue: z.number(),
+    phone_number: z.string().nullable(),
+    pickupDate: z.string(),
+    pickupTime: z.string(),
+    quote_number: z.number(),
+    returnDate: z.string().nullable(),
+    returnTime: z.string().nullable(),
+    roundTripTotal: z.number().nullable(),
+    serviceTypeLabel: z.string(),
+    serviceTypeValue: z.number(),
+    startLat: z.number(),
+    startLng: z.number(),
+    totalFare: z.number(),
+    updatedAt: z.string(),
+    userEmail: z.string(),
+    userId: z.string().nullable(),
+    utm_campaign: z.string().nullable(),
+    utm_medium: z.string().nullable(),
+    utm_source: z.string().nullable(),
+    utm_term: z.string().nullable(),
+    vehicleTypeLabel: z.string(),
+    vehicleTypeValue: z.number(),
+  })
+)
 
 export const quotesInsertSchema = z.object({
   addedToCart: z.boolean().optional(),
@@ -266,14 +349,16 @@ export const quotesUpdateSchema = z.object({
   vehicleTypeValue: z.number().optional(),
 })
 
-export const serviceTypeRowSchema = z.object({
-  created_at: z.string().nullable(),
-  id: z.number(),
-  isDisabled: z.boolean().nullable(),
-  label: z.string().nullable(),
-  limo_anywhere_id: z.number().nullable(),
-  value: z.number().nullable(),
-})
+export const serviceTypeRowSchema = z.array(
+  z.object({
+    created_at: z.string().nullable(),
+    id: z.number(),
+    isDisabled: z.boolean().nullable(),
+    label: z.string().nullable(),
+    limo_anywhere_id: z.number().nullable(),
+    value: z.number().nullable(),
+  })
+)
 
 export const serviceTypeInsertSchema = z.object({
   created_at: z.string().optional().nullable(),
@@ -398,24 +483,28 @@ export const userUpdateSchema = z.object({
   userCookie: z.string().optional().nullable(),
 })
 
-export const vehicleTypeRowSchema = z.object({
-  created_at: z.string().nullable(),
-  id: z.number(),
-  is_active: z.boolean().nullable(),
-  isDisabled: z.boolean().nullable(),
-  label: z.string().nullable(),
-  limo_anywhere_id: z.number().nullable(),
-  max_luggage: z.number().nullable(),
-  max_passengers: z.number().nullable(),
-  min_distance: z.number().nullable(),
-  min_hours_hourly: z.number().nullable(),
-  min_rate_distance: z.number().nullable(),
-  min_rate_hourly: z.number().nullable(),
-  name: z.string().nullable(),
-  per_hour: z.number().nullable(),
-  per_km: z.number().nullable(),
-  value: z.number().nullable(),
-})
+export const vehicleTypeRowSchema = z.array(
+  z.array(
+    z.object({
+      created_at: z.string().nullable(),
+      id: z.number(),
+      is_active: z.boolean().nullable(),
+      isDisabled: z.boolean().nullable(),
+      label: z.string().nullable(),
+      limo_anywhere_id: z.number().nullable(),
+      max_luggage: z.number().nullable(),
+      max_passengers: z.number().nullable(),
+      min_distance: z.number().nullable(),
+      min_hours_hourly: z.number().nullable(),
+      min_rate_distance: z.number().nullable(),
+      min_rate_hourly: z.number().nullable(),
+      name: z.string().nullable(),
+      per_hour: z.number().nullable(),
+      per_km: z.number().nullable(),
+      value: z.number().nullable(),
+    })
+  )
+)
 
 export const vehicleTypeInsertSchema = z.object({
   created_at: z.string().optional().nullable(),

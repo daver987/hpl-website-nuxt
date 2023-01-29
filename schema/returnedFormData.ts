@@ -42,6 +42,7 @@ export const returnedQuote = z
     vehicleTypeLabel: z.string().default('Standard Sedan'),
     vehicleTypeValue: z.number(),
     totalFare: z.number().default(0),
+    hplUserId: z.string(),
     rate: z.object({
       id: z.number(),
       name: z.string(),

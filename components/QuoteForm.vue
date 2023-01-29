@@ -5,19 +5,15 @@ import { VueTelInput } from 'vue-tel-input'
 import 'vue-tel-input/dist/vue-tel-input.css'
 import { useForm, Field } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
-import { Database } from '~/types/supabase'
-import { ReturnedQuote } from '~/schema/returnedFormData'
+import { returnedQuote } from '~/schema/returnedFormData'
 import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
 import { z } from 'zod'
 import { TripData } from '~~/types/data'
 import { useGtm } from '@gtm-support/vue-gtm'
 
-const gtm = useGtm()
-
 const route = useRoute()
 const routeUrl = route.query
-console.log('Route Url', routeUrl)
 const { utm_medium, utm_source, utm_campaign, utm_term, gclid } = routeUrl
 const gtmValues = ref({
   utm_medium,
@@ -27,9 +23,9 @@ const gtmValues = ref({
   gclid,
 })
 
+const gtm = useGtm()
 function triggerEvent() {
-  //@ts-ignore
-  gtm.trackEvent({
+  gtm?.trackEvent({
     event: 'submitQuote',
     category: 'Request quote',
     action: 'click',
@@ -38,102 +34,6 @@ function triggerEvent() {
     noninteraction: false,
   })
 }
-
-const selectFormData = z.object({
-  label: z.string(),
-  value: z.number(),
-  isDisabled: z.boolean().optional(),
-})
-
-type SelectFormData = z.infer<typeof selectFormData>
-
-const userStore = useUserStore()
-const { hplUserId } = storeToRefs(userStore)
-
-const supabase = useSupabaseClient<Database>()
-
-const passengerClasses = ref('text-gray-400')
-const passengerOptions = ref<SelectFormData[]>([
-  {
-    label: 'Select Passengers',
-    value: 0,
-    isDisabled: true,
-  },
-  {
-    label: '1 passenger',
-    value: 1,
-    isDisabled: false,
-  },
-  {
-    label: '2 passengers',
-    value: 2,
-    isDisabled: false,
-  },
-  {
-    label: '3 passengers',
-    value: 3,
-    isDisabled: false,
-  },
-  {
-    label: '4 passengers',
-    value: 4,
-    isDisabled: false,
-  },
-  {
-    label: '5 passengers',
-    value: 5,
-    isDisabled: false,
-  },
-  {
-    label: '6 passengers',
-    value: 6,
-    isDisabled: false,
-  },
-  {
-    label: '7 passengers',
-    value: 7,
-    isDisabled: false,
-  },
-])
-const selectedPassengers = ref<SelectFormData>(passengerOptions.value[0])
-
-// get the service types to populate the select
-const { data: serviceTypes } = await useAsyncData('service_type', async () => {
-  const { data } = await supabase
-    .from('service_type')
-    .select('label,value,isDisabled')
-  return data
-})
-const serviceTypeClasses = ref('text-gray-400')
-const serviceTypeOptions = ref<SelectFormData[]>(
-  // @ts-ignore
-  serviceTypes.value.sort((a, b) => (a.value > b.value ? 1 : -1))
-)
-const selectedServiceType = ref<SelectFormData>(serviceTypeOptions.value[0])
-
-// get the vehicle types to populate the select
-const { data: vehicleTypes } = await useAsyncData('vehicle_type', async () => {
-  const { data } = await supabase
-    .from('vehicle_type')
-    .select('label,value,isDisabled')
-  return data
-})
-const vehicleTypeClasses = ref('text-gray-400')
-const vehicleTypeOptions = ref<SelectFormData[]>(
-  // @ts-ignore
-  vehicleTypes.value.sort((a, b) => (a.value > b.value ? 1 : -1))
-)
-const selectedVehicleType = ref<SelectFormData>(vehicleTypeOptions.value[0])
-
-const hoursRequiredClasses = ref('cursor-not-allowed opacity-50 text-gray-300')
-const hoursRequiredOptions = ref<SelectFormData[]>([
-  {
-    label: 'For Hourly Service Only',
-    value: 0,
-    isDisabled: true,
-  },
-])
-const selectedNumberOfHours = ref<SelectFormData>(hoursRequiredOptions.value[0])
 
 // Options for the phone number input
 const inputOptions = ref({
@@ -155,6 +55,31 @@ const dropdownOptions = ref({
   showDialCodeInList: true,
 })
 
+const selectFormData = z.array(
+  z.object({
+    label: z.string(),
+    value: z.number(),
+    isDisabled: z.boolean().optional(),
+  })
+)
+
+const userStore = useUserStore()
+const { hplUserId } = storeToRefs(userStore)
+
+const extractOptions = (originalArray: {
+  label: string
+  value: number
+  isDisabled: boolean
+}) => {
+  return originalArray.map(
+    (obj: { label: any; value: any; isDisabled: any }) => ({
+      label: obj.label,
+      value: obj.value,
+      isDisabled: obj.isDisabled,
+    })
+  )
+}
+
 const origin = ref<Place | null>(null)
 const originPlaceId = ref<string>('')
 const destination = ref<Place | null>(null)
@@ -165,7 +90,6 @@ const pickupTime = ref<string>('')
 const returnDate = ref<string>('')
 const returnTime = ref<string>('')
 const isItHourly = ref<boolean>(false)
-const tripData = ref<TripData | null>(null)
 const placeDataOrigin = ref<Place | null>(null)
 const placeDataDestination = ref<Place | null>(null)
 const isRoundTrip = ref<boolean>(false)
@@ -175,238 +99,83 @@ const emailAddress = ref<string>('')
 const phoneNumber = ref<string>('')
 const disabled = ref<boolean>(true)
 
+const buildPassengerOptions = (numPassengers: number) => {
+  let options = [
+    {
+      label: 'Select Passengers',
+      value: 0,
+      isDisabled: true,
+    },
+  ]
+  for (let i = 1; i <= numPassengers; i++) {
+    options.push({
+      label: i + ' Passengers',
+      value: i,
+      isDisabled: false,
+    })
+  }
+  return options
+}
+const passengerOptions = ref(buildPassengerOptions(7))
+const selectedPassengers = ref(passengerOptions.value[0])
+
+const buildHoursRequiredOptions = () => {
+  let options = [
+    {
+      label: 'Select Hours',
+      value: 0,
+      isDisabled: true,
+    },
+  ]
+  for (let i = 2; i <= 12; i++) {
+    options.push({
+      label: i + ' hrs',
+      value: i,
+      isDisabled: false,
+    })
+  }
+  return options
+}
+const hoursRequiredClasses = ref('cursor-not-allowed opacity-50 text-gray-300')
+const hoursRequiredOptions = ref(buildHoursRequiredOptions())
+const selectedNumberOfHours = ref(hoursRequiredOptions.value[0])
+
+const { data: serviceTypes } = await useFetch('/api/get-service-type')
+const serviceTypeOptions = ref(extractOptions(serviceTypes.value))
+console.log(serviceTypeOptions.value)
+const selectedServiceType = ref(serviceTypeOptions.value[0])
+
 watch(selectedServiceType, () => {
   if (selectedServiceType.value.value === 4) {
     isItHourly.value = true
     disabled.value = false
-    hoursRequiredClasses.value = <string>'text-gray-400'
-    hoursRequiredOptions.value = <SelectFormData[]>[
-      {
-        label: 'Select Hours',
-        value: 0,
-        isDisabled: true,
-      },
-      {
-        label: '2 hrs',
-        value: 2,
-        isDisabled: false,
-      },
-      {
-        label: '3 hrs',
-        value: 3,
-        isDisabled: false,
-      },
-      {
-        label: '4 hrs',
-        value: 4,
-        isDisabled: false,
-      },
-      {
-        label: '5 hrs',
-        value: 5,
-        isDisabled: false,
-      },
-      {
-        label: '6 hrs',
-        value: 6,
-        isDisabled: false,
-      },
-      {
-        label: '7 hrs',
-        value: 7,
-        isDisabled: false,
-      },
-      {
-        label: '8 hrs',
-        value: 8,
-        isDisabled: false,
-      },
-      {
-        label: '9 hrs',
-        value: 9,
-        isDisabled: false,
-      },
-      {
-        label: '10 hrs',
-        value: 10,
-        isDisabled: false,
-      },
-      {
-        label: '11 hrs',
-        value: 11,
-        isDisabled: false,
-      },
-      {
-        label: '12 hrs',
-        value: 12,
-        isDisabled: false,
-      },
-    ]
-    selectedNumberOfHours.value = hoursRequiredOptions
-      .value[0] as SelectFormData
+    hoursRequiredClasses.value = 'text-gray-400'
+    selectedNumberOfHours.value = hoursRequiredOptions.value[0]
   } else {
     isItHourly.value = false
     disabled.value = true
-    hoursRequiredClasses.value = <string>(
-      'cursor-not-allowed opacity-50 text-gray-300'
-    )
-    hoursRequiredOptions.value = <SelectFormData[]>[
-      {
-        label: 'For Hourly Service',
-        value: 0,
-        isDisabled: true,
-      },
-    ]
-    selectedNumberOfHours.value = hoursRequiredOptions
-      .value[0] as SelectFormData
-  }
-  console.log(
-    selectedServiceType.value.label as string,
-    selectedServiceType.value.value,
-    selectedNumberOfHours.value.label,
-    isItHourly.value
-  )
-})
-watch(selectedServiceType, () => {
-  if (selectedServiceType.value.value === 0) {
-    serviceTypeClasses.value = 'text-gray-400' as string
-  } else {
-    serviceTypeClasses.value = 'text-gray-900' as string
+    hoursRequiredClasses.value = 'cursor-not-allowed opacity-50 text-gray-300'
+    selectedNumberOfHours.value = hoursRequiredOptions.value[0]
   }
 })
+
+const { data: vehicleTypes } = await useFetch('/api/get-vehicle-type')
+const vehicleTypeOptions = ref(extractOptions(vehicleTypes.value))
+console.log(vehicleTypeOptions.value)
+const selectedVehicleType = ref(vehicleTypeOptions.value[0])
+
 watch(selectedVehicleType, () => {
-  if (selectedVehicleType.value.value === 1 || 2) {
-    passengerOptions.value = <SelectFormData[]>[
-      {
-        label: 'Select Passengers',
-        value: 0,
-        isDisabled: true,
-      },
-      {
-        label: '1 Passenger',
-        value: 1,
-        isDisabled: false,
-      },
-      {
-        label: '2 Passengers',
-        value: 2,
-        isDisabled: false,
-      },
-      {
-        label: '3 Passengers',
-        value: 3,
-        isDisabled: false,
-      },
-    ]
-    selectedPassengers.value = passengerOptions.value[0] as SelectFormData
+  if (selectedVehicleType.value?.value === 1 || 2) {
+    passengerOptions.value = buildPassengerOptions(3)
+    selectedPassengers.value = passengerOptions.value[0]
   }
-  if (selectedVehicleType.value.value === 3) {
-    passengerOptions.value = <SelectFormData[]>[
-      {
-        label: 'Select Passengers',
-        value: 0,
-        isDisabled: true,
-      },
-      {
-        label: '1 Passenger',
-        value: 1,
-        isDisabled: false,
-      },
-      {
-        label: '2 Passengers',
-        value: 2,
-        isDisabled: false,
-      },
-      {
-        label: '3 Passengers',
-        value: 3,
-        isDisabled: false,
-      },
-      {
-        label: '4 Passengers',
-        value: 4,
-        isDisabled: false,
-      },
-      {
-        label: '5 Passengers',
-        value: 5,
-        isDisabled: false,
-      },
-      {
-        label: '6 Passengers',
-        value: 6,
-        isDisabled: false,
-      },
-      {
-        label: '7 Passengers',
-        value: 7,
-        isDisabled: false,
-      },
-    ]
-    selectedPassengers.value = passengerOptions.value[0] as SelectFormData
+  if (selectedVehicleType.value?.value === 3) {
+    passengerOptions.value = buildPassengerOptions(7)
+    selectedPassengers.value = passengerOptions.value[0]
   }
   if (selectedVehicleType.value.value === 4) {
-    passengerOptions.value = <SelectFormData[]>[
-      {
-        label: 'Select Passengers',
-        value: 0,
-        isDisabled: true,
-      },
-      {
-        label: '1 Passenger',
-        value: 1,
-        isDisabled: false,
-      },
-      {
-        label: '2 Passengers',
-        value: 2,
-        isDisabled: false,
-      },
-      {
-        label: '3 Passengers',
-        value: 3,
-        isDisabled: false,
-      },
-      {
-        label: '4 Passengers',
-        value: 4,
-        isDisabled: false,
-      },
-      {
-        label: '5 Passengers',
-        value: 5,
-        isDisabled: false,
-      },
-      {
-        label: '6 Passengers',
-        value: 6,
-        isDisabled: false,
-      },
-    ]
-    selectedPassengers.value = passengerOptions.value[0] as SelectFormData
-  }
-  console.log(
-    selectedVehicleType.value.label as string,
-    selectedVehicleType.value.value as number
-  )
-})
-watch(selectedVehicleType, () => {
-  if (selectedVehicleType.value.value === 0) {
-    vehicleTypeClasses.value = 'text-gray-400' as string
-  } else {
-    vehicleTypeClasses.value = 'text-gray-900' as string
-  }
-})
-watch(selectedPassengers, () => {
-  if (selectedPassengers.value.value === 0) {
-    passengerClasses.value = 'text-gray-400' as string
-  } else {
-    passengerClasses.value = 'text-gray-900' as string
-  }
-})
-watch(selectedNumberOfHours, () => {
-  if (selectedNumberOfHours.value.value !== 0) {
-    hoursRequiredClasses.value = 'text-gray-900' as string
+    passengerOptions.value = buildPassengerOptions(6)
+    selectedPassengers.value = passengerOptions.value[0]
   }
 })
 
@@ -425,8 +194,7 @@ const onOriginChange = async (evt: Place) => {
   origin.value.isPearsonAirportOrigin = isPearsonAirportOrigin.value
   if (origin.value && destination.value) {
     console.log('origin and destination are both set')
-    const { data } = await useFetch<TripData>('/api/get-distance', {
-      //@ts-ignore
+    const { data: tripData } = await useFetch('/api/get-distance', {
       query: {
         origin: originPlaceId.value,
         destination: place_id,
@@ -436,9 +204,6 @@ const onOriginChange = async (evt: Place) => {
       origin: originPlaceId.value,
       destination: place_id,
     })
-    console.log('data is', data.value)
-    //@ts-ignore
-    tripData.value = data.value
     placeDataOrigin.value = origin.value
     placeDataDestination.value = destination.value
 
@@ -493,7 +258,7 @@ const onOriginChange = async (evt: Place) => {
 }
 
 const destinationType = ref<string[]>([])
-const isPearsonAirportDestination = ref<boolean>(false)
+const isPearsonAirportDestination = ref(false)
 const onDestinationChange = async (evt: Place) => {
   destination.value = evt
   const { place_id, types, name } = destination.value
@@ -508,15 +273,13 @@ const onDestinationChange = async (evt: Place) => {
   console.log('Destination:', destination.value)
   if (origin.value && destination.value) {
     console.log('origin and destination are both set')
-    const { data } = await useFetch('/api/get-distance', {
-      //@ts-ignore
+    const { data: tripData } = await useFetch('/api/get-distance', {
       query: {
         origin: originPlaceId.value,
         destination: place_id,
       },
     })
 
-    tripData.value = data.value
     placeDataOrigin.value = origin.value
     placeDataDestination.value = destination.value
     console.log('Trip data:', tripData.value)
@@ -536,12 +299,12 @@ const onDestinationChange = async (evt: Place) => {
       place_id: originPlaceIdValue,
       formatted_address: originFormattedAddress,
       name: originName,
-    } = placeDataOrigin.value as Place
+    } = placeDataOrigin.value
     const {
       place_id: destinationPlaceId,
       formatted_address: destinationFormattedAddress,
       name: destinationName,
-    } = placeDataDestination.value as Place
+    } = placeDataDestination.value
     calculatedDistance.value = distanceValue / 1000
     console.log('calculated distance is:', calculatedDistance.value)
     return {
@@ -605,29 +368,25 @@ const { handleSubmit, errors } = useForm({
   validationSchema,
 })
 
-const loading = ref<boolean>(false)
-const returnedQuote = ref<ReturnedQuote | unknown>(null)
-const openAlert = ref<boolean>(false)
+const loading = ref(false)
+const openAlert = ref(false)
+const returnedQuoteValues = ref()
 
 const onSubmit = handleSubmit(async (formValues) => {
   loading.value = true
   const values = formSchema.safeParse(formValues)
   console.log('values are:', values)
   const { data } = await useFetch('/api/submission', {
-    //@ts-ignore
     method: 'POST',
     body: values,
   })
-  returnedQuote.value = data.value as unknown as ReturnedQuote
-  // @ts-ignore
-  hplUserId.value = returnedQuote.value.hplUserId as unknown as string
-  localStorage.setItem('hplUserId', hplUserId.value)
-  //@ts-ignore
-  localStorage.setItem('quote_data', JSON.stringify(returnedQuote.value))
-  console.log('Returned data is:', returnedQuote.value)
+  returnedQuoteValues.value = returnedQuote.parse(data.value)
+  const { hplUserId } = returnedQuoteValues.value
+  localStorage.setItem('hplUserId', hplUserId)
+  localStorage.setItem('quote_data', JSON.stringify(returnedQuoteValues.value))
+  console.log('Returned data is:', returnedQuoteValues.value)
 
-  //@ts-ignore
-  if (returnedQuote.value.statusCode === 200) {
+  if (returnedQuoteValues?.value.statusCode === 200) {
     setTimeout(async () => {
       triggerEvent()
       loading.value = false
@@ -717,7 +476,6 @@ const onSubmit = handleSubmit(async (formValues) => {
           >
             <InputListbox
               v-model="selectedServiceType"
-              :classes="serviceTypeClasses"
               :options="serviceTypeOptions"
               key-prop="selectedServiceType"
               label-prop="name"
@@ -735,7 +493,6 @@ const onSubmit = handleSubmit(async (formValues) => {
           >
             <InputListbox
               v-model="selectedVehicleType"
-              :classes="vehicleTypeClasses"
               :options="vehicleTypeOptions"
               key-prop="selectedVehicleType"
               label="Vehicle Type"
@@ -754,7 +511,6 @@ const onSubmit = handleSubmit(async (formValues) => {
           >
             <InputListbox
               v-model="selectedPassengers"
-              :classes="passengerClasses"
               :options="passengerOptions"
               key-prop="selectedPassengers"
               label="Number of Passengers"

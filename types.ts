@@ -9,6 +9,35 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          company_account_number: number | null
+          company_address: string | null
+          company_email: string | null
+          company_name: string | null
+          company_phone: string | null
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          company_account_number?: number | null
+          company_address?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          company_phone?: string | null
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          company_account_number?: number | null
+          company_address?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          company_phone?: string | null
+          created_at?: string | null
+          id?: string
+        }
+      }
       airport_surcharges: {
         Row: {
           airportCode: string | null
@@ -39,6 +68,55 @@ export interface Database {
           isTaxable?: boolean | null
           surchargeFee?: number | null
           surchargeName?: string | null
+        }
+      }
+      conversation: {
+        Row: {
+          created_at: string | null
+          creator_id: string | null
+          deleted_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          creator_id?: string | null
+          deleted_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          creator_id?: string | null
+          deleted_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+      }
+      messages: {
+        Row: {
+          conversation_id: string | null
+          created_at: string | null
+          deleted_at: string | null
+          id: number
+          message: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: number
+          message?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: number
+          message?: string | null
+          sender_id?: string | null
         }
       }
       profiles: {
@@ -442,21 +520,5 @@ export interface Database {
         }
       }
     }
-    // Views: {
-    //   [_ in never]: never
-    // }
-    // Functions: {
-    //   get_new_quote_number: {
-    //     Args: Record<PropertyKey, never>
-    //     Returns: number
-    //   }
-    //   increment_quote_number: {
-    //     Args: Record<PropertyKey, never>
-    //     Returns: number
-    //   }
-    // }
-    // Enums: {
-    //   [_ in never]: never
-    // }
   }
 }

@@ -1,3 +1,4 @@
+// @vitest-environment nuxt
 import { describe, test, expect } from 'vitest'
 import { Rates, Surcharges } from '~/types/Rates'
 
@@ -95,13 +96,6 @@ describe('getRatePerKM', () => {
     expect(getRatePerKM(true, rates[1])).toEqual(90)
   })
 })
-
-// write a function that evaluates the isHourly flag and if its true returns the correct base rate per hour or per km
-// if its true it takes the num_hours and subtracts the Min_hours_hourly from it if it comes back below 0 it returns
-// min rate per hour, if it comes back above 0 it returns the base rate per hour plus the num_hours times the per_hour
-// if its false it evaluates the num_km and if it comes back below the min_distance it returns the min_rate_distance
-// if it comes back above the min_distance it returns the num_km minus the min_distance and multiplies the remainder
-// by the per_km and adds it to the min_rate_distance
 
 const getBaseRate = (
   isHourly: boolean,
