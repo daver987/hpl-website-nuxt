@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
 export const formSchema = z.object({
-  pickupDate: z.string().min(1),
-  pickupTime: z.string().min(1),
-  returnDate: z.string().optional(),
-  returnTime: z.string().optional(),
+  pickupDate: z.date(),
+  pickupTime: z.date(),
+  returnDate: z.date().optional(),
+  returnTime: z.date().optional(),
   selectedServiceType: z
     .object({
       label: z.enum([
@@ -29,27 +29,23 @@ export const formSchema = z.object({
     .strip(),
   selectedNumberOfHours: z
     .object({
-      label: z
-        .enum([
-          'Hourly Service Not Selected',
-          'For Hourly Service',
-          '2 hrs',
-          '3 hrs',
-          '4 hrs',
-          '5 hrs',
-          '6 hrs',
-          '7 hrs',
-          '8 hrs',
-          '9 hrs',
-          '10 hrs',
-          '11 hrs',
-          '12 hrs',
-        ])
-        .default('Hourly Service Not Selected'),
+      label: z.enum([
+        'For Hourly Service',
+        '2 hrs',
+        '3 hrs',
+        '4 hrs',
+        '5 hrs',
+        '6 hrs',
+        '7 hrs',
+        '8 hrs',
+        '9 hrs',
+        '10 hrs',
+        '11 hrs',
+        '12 hrs',
+      ]),
       value: z.number().int().gte(0).lte(12).default(0),
     })
-    .strip()
-    .optional(),
+    .strip(),
   selectedPassengers: z
     .object({
       label: z.enum([
@@ -67,7 +63,7 @@ export const formSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   emailAddress: z.string().email(),
-  phoneNumber: z.string().min(7),
+  phoneNumber: z.string().min(7).default('+1'),
   isRoundTrip: z.boolean(),
   isItHourly: z.boolean(),
   tripData: z.object({

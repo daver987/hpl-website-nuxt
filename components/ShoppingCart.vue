@@ -6,6 +6,7 @@ import { useQuoteStore } from '~/stores/useQuoteStore'
 import { useCartStore } from '~/stores/useCartStore'
 import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
+import { format } from 'date-fns'
 
 const supabase = useSupabaseClient<Database>()
 const route = useRoute()
@@ -77,7 +78,6 @@ const {
   HST,
   fuelSurcharge,
   id,
-  userId,
   quote_number,
   isPearsonAirportPickup,
   isPearsonAirportDropoff,
@@ -233,7 +233,9 @@ const createSession = async () => {
           >
         </dt>
         <dd class="font-medium text-gray-900 dark:text-gray-100">
-          <time :datetime="currentDate">{{ currentDate }}</time>
+          <time :datetime="currentDate">{{
+            format(new Date(), 'MMMM dd, yyyy')
+          }}</time>
         </dd>
       </dl>
       <div class="mt-4 sm:mt-0">
@@ -280,9 +282,10 @@ const createSession = async () => {
                   </div>
                   <div class="flex flex-col mt-2 space-y-1 text-sm">
                     <p class="text-gray-500 dark:text-gray-100">
-                      <span class="text-brand-400">Date: </span>{{ pickupDate }}
+                      <span class="text-brand-400">Date: </span
+                      >{{ format(new Date(pickupDate), 'MMMM dd, yyyy') }}
                       <span class="text-brand-400">Time: </span>
-                      {{ pickupTime }}
+                      {{ format(new Date(pickupTime), 'hh:mm a') }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span>{{ originName }}
@@ -372,9 +375,10 @@ const createSession = async () => {
                   </div>
                   <div class="flex flex-col mt-2 space-y-1 text-sm">
                     <p class="text-gray-500 dark:text-gray-100">
-                      <span class="text-brand-400">Date: </span>{{ returnDate }}
+                      <span class="text-brand-400">Date: </span
+                      >{{ format(new Date(returnDate), 'hh:mm a') }}
                       <span class="text-brand-400">Time: </span>
-                      {{ returnTime }}
+                      {{ format(new Date(returnTime), 'hh:mm a') }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span

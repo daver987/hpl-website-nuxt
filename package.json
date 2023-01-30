@@ -42,6 +42,7 @@
     "@vueuse/math": "^9.11.1",
     "@vueuse/nuxt": "^9.11.1",
     "cypress": "^12.4.0",
+    "date-fns": "^2.29.3",
     "ip": "^1.1.8",
     "nuxt": "^3.1.1",
     "nuxt-icon": "^0.2.10",
@@ -55,7 +56,6 @@
     "vee-validate": "^4.7.3",
     "vitest": "^0.28.2",
     "vue-tel-input": "^6.0.5",
-    "vue3-datepicker": "^0.3.4",
     "zod": "^3.20.2"
   },
   "overrides": {

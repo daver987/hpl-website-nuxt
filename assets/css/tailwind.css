@@ -228,6 +228,10 @@ body {
     background-color: #ebebeb;
 }
 
+:root {
+    --vdp-selected-bg-color: theme("colors.brand.DEFAULT");
+    --vdp-hover-bg-color: theme("colors.brand.DEFAULT");
+}
 
 
 .vti__dropdown {

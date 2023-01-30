@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseClient<Database>(event)
   try {
     const body = await readBody(event)
+    console.log('This is the body', body)
     const {
       calculatedDistance,
       firstName,
@@ -28,7 +29,7 @@ export default defineEventHandler(async (event) => {
       tripData,
       selectedPassengers,
       gtmValues,
-    } = body.data
+    } = body
 
     const {
       distanceText,
@@ -79,6 +80,7 @@ export default defineEventHandler(async (event) => {
         .select('*')
         .eq('value', vehicleTypeValue)
       console.log('This is the Vehicle Type', vehicleTypeValues)
+      //@ts-ignore
       vehicleRates.value = vehicleTypeValues[0]
     } catch (e) {
       console.log(e)

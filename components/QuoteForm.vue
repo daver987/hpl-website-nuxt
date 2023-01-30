@@ -1,15 +1,16 @@
 <script lang="ts" setup>
 import { Place } from '~/types/DirectionsResponse'
-import { formSchema } from '~/schema/quoteFormValues'
+import { formSchema, ValidationSchema } from '~/schema/quoteFormValues'
 import { VueTelInput } from 'vue-tel-input'
 import 'vue-tel-input/dist/vue-tel-input.css'
-import { useForm, Field } from 'vee-validate'
+import { ErrorMessage, Field, Form } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
 import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
 import { z } from 'zod'
 import { TripData } from '~~/types/data'
 import { useGtm } from '@gtm-support/vue-gtm'
+import Datepicker from '~/components/datepicker/Datepicker.vue'
 
 const route = useRoute()
 const routeUrl = route.query
@@ -46,6 +47,7 @@ const inputOptions = ref({
   ariaDescribedby: 'name',
   ariaLabeledBy: 'placeholder',
   placeholder: 'Enter Phone',
+  autoFocus: true,
 })
 const dropdownOptions = ref({
   showDialCodeInSelection: false,
@@ -83,11 +85,11 @@ const origin = ref<Place | null>(null)
 const originPlaceId = ref<string>('')
 const destination = ref<Place | null>(null)
 const destinationPlaceId = ref<string>('')
-const calculatedDistance = ref<number>(0)
-const pickupDate = ref<string>('')
-const pickupTime = ref<string>('')
-const returnDate = ref<string>('')
-const returnTime = ref<string>('')
+const calculatedDistance = ref<number | null>(null)
+const pickupDate = ref(null)
+const pickupTime = ref(null)
+const returnDate = ref(new Date())
+const returnTime = ref(new Date())
 const isItHourly = ref<boolean>(false)
 const placeDataOrigin = ref<Place | null>(null)
 const placeDataDestination = ref<Place | null>(null)
@@ -365,17 +367,13 @@ watch(destinationType, () => {
 })
 
 const validationSchema = toFormValidator(formSchema)
-const { handleSubmit, errors } = useForm({
-  validationSchema,
-})
 
 const loading = ref(false)
 const openAlert = ref(false)
 const returnedQuoteValues = ref()
 
-const onSubmit = handleSubmit(async (formValues) => {
+async function onSubmit(values: ValidationSchema) {
   loading.value = true
-  const values = formSchema.safeParse(formValues)
   console.log('values are:', values)
   const { data } = await useFetch('/api/submission', {
     method: 'POST',
@@ -403,7 +401,8 @@ const onSubmit = handleSubmit(async (formValues) => {
     }, 1500)
     return
   }
-})
+}
+const today = ref<Date>(new Date())
 </script>
 
 <template>
@@ -413,11 +412,12 @@ const onSubmit = handleSubmit(async (formValues) => {
     <h2 class="pt-5 text-3xl text-center text-white uppercase">
       Instant Quote
     </h2>
-    <form
+    <Form
       id="lead_form"
-      name="lead_form"
+      :validation-schema="validationSchema"
       class="p-5 space-y-3"
-      @submit.prevent="onSubmit"
+      name="lead_form"
+      @submit="onSubmit"
     >
       <div class="grid w-full grid-cols-1 gap-3">
         <InputPlacesAutocomplete
@@ -426,6 +426,7 @@ const onSubmit = handleSubmit(async (formValues) => {
           placeholder="Enter pick up location"
           @change="onOriginChange"
         />
+        <ErrorMessage class="text-sm text-red-600" name="placeDataOrigin" />
       </div>
       <div class="grid w-full grid-cols-1 gap-3">
         <InputPlacesAutocomplete
@@ -434,21 +435,34 @@ const onSubmit = handleSubmit(async (formValues) => {
           placeholder="Enter drop off location"
           @change="onDestinationChange"
         />
+        <ErrorMessage
+          class="text-sm text-red-600"
+          name="placeDataDestination"
+        />
       </div>
       <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
         <div class="col-span-1">
-          <InputDate
+          <Datepicker
             v-model="pickupDate"
+            :lower-limit="today"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left bg-white border border-gray-300 rounded shadow-sm cursor-pointer text-gray-900 placeholder-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            input-format="MMM dd, yyyy"
             name="pickupDate"
             placeholder="Enter A Pickup Date"
           />
+          <ErrorMessage class="text-sm text-red-600" name="pickupDate" />
         </div>
         <div class="md:col-span-1">
-          <InputTime
+          <Datepicker
             v-model="pickupTime"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left bg-white border border-gray-300 rounded shadow-sm cursor-pointer text-gray-900 placeholder-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            inputFormat="hh:mm a"
+            minimum-view="time"
             name="pickupTime"
             placeholder="Enter A Pickup Time"
+            starting-view="time"
           />
+          <ErrorMessage class="text-sm text-red-600" name="pickupTime" />
         </div>
       </div>
       <div
@@ -456,79 +470,79 @@ const onSubmit = handleSubmit(async (formValues) => {
         class="grid grid-cols-1 gap-3 md:grid-cols-2"
       >
         <div class="col-span-1">
-          <InputDate
+          <Datepicker
             v-model="returnDate"
+            :lower-limit="today"
+            allow-outside-interval
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left bg-white border border-gray-300 rounded shadow-sm cursor-pointer text-gray-900 placeholder-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            input-format="MMM dd, yyyy"
             name="returnDate"
             placeholder="Enter A Return Date"
           />
         </div>
+        <ErrorMessage class="text-sm text-red-600" name="returnDate" />
         <div class="col-span-1">
-          <InputTime
+          <Datepicker
             v-model="returnTime"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left bg-white border border-gray-300 rounded shadow-sm cursor-pointer text-gray-900 placeholder-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            input-format="hh:mm a"
+            minimum-view="time"
             name="returnTime"
             placeholder="Enter A Return Time"
+            starting-view="time"
           />
+          <ErrorMessage class="text-sm text-red-600" name="returnTime" />
         </div>
       </div>
       <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
         <div class="col-span-1">
-          <Field
-            v-slot="{ field, errors, errorMessage }"
-            v-model="selectedServiceType"
-            name="selectedServiceType"
-          >
+          <Field v-model="selectedServiceType" name="selectedServiceType">
             <InputListbox
               v-model="selectedServiceType"
               :options="serviceTypeOptions"
               key-prop="selectedServiceType"
               label-prop="name"
-              v-bind="field"
             />
-            <span class="text-red-500">{{ errorMessage }}</span>
+            <ErrorMessage
+              class="text-sm text-red-600"
+              name="selectedServiceType"
+            />
           </Field>
         </div>
 
         <div class="col-span-1">
-          <Field
-            v-slot="{ field, errorMessage }"
-            v-model="selectedVehicleType"
-            name="selectedVehicleType"
-          >
+          <Field v-model="selectedVehicleType" name="selectedVehicleType">
             <InputListbox
               v-model="selectedVehicleType"
               :options="vehicleTypeOptions"
               key-prop="selectedVehicleType"
               label="Vehicle Type"
-              v-bind="field"
             />
-            <span class="text-red-500">{{ errorMessage }}</span>
+            <ErrorMessage
+              class="text-sm text-red-600"
+              name="selectedVehicleType"
+            />
           </Field>
         </div>
       </div>
       <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
         <div class="col-span-1">
-          <Field
-            v-slot="{ field, errorMessage }"
-            v-model="selectedPassengers"
-            name="selectedPassengers"
-          >
+          <Field v-model="selectedPassengers" name="selectedPassengers">
             <InputListbox
               v-model="selectedPassengers"
               :options="passengerOptions"
               key-prop="selectedPassengers"
               label="Number of Passengers"
-              v-bind="field"
             />
-            <span class="text-red-500">{{ errorMessage }}</span>
+            <ErrorMessage
+              class="text-sm text-red-600"
+              name="selectedPassengers"
+            />
           </Field>
         </div>
 
         <div class="col-span-1">
-          <Field
-            v-slot="{ field, errorMessage }"
-            v-model="selectedNumberOfHours"
-            name="selectedNumberOfHours"
-          >
+          <Field v-model="selectedNumberOfHours" name="selectedNumberOfHours">
             <InputListbox
               v-model="selectedNumberOfHours"
               :classes="hoursRequiredClasses"
@@ -536,9 +550,11 @@ const onSubmit = handleSubmit(async (formValues) => {
               :options="hoursRequiredOptions"
               key-prop="selectedNumberOfHours"
               label="Number of Hours"
-              v-bind="field"
             />
-            <span class="text-red-500">{{ errorMessage }}</span>
+            <ErrorMessage
+              class="text-sm text-red-600"
+              name="selectedNumberOfHours"
+            />
           </Field>
         </div>
       </div>
@@ -551,6 +567,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             placeholder="Enter first name"
             type="text"
           />
+          <ErrorMessage class="text-sm text-red-600" name="firstName" />
         </div>
 
         <div class="col-span-1">
@@ -561,6 +578,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             placeholder="Enter last name"
             type="text"
           />
+          <ErrorMessage class="text-sm text-red-600" name="lastName" />
         </div>
       </div>
       <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
@@ -572,104 +590,78 @@ const onSubmit = handleSubmit(async (formValues) => {
             placeholder="Enter Email Address"
             type="email"
           />
+          <ErrorMessage class="text-sm text-red-600" name="emailAddress" />
         </div>
         <div class="col-span-1">
           <Field
             v-slot="{ field, errorMessage }"
-            v-model="phoneNumber"
+            :validateOnBlur="true"
+            :validateOnChange="false"
+            :validateOnInput="false"
+            :validateOnModelUpdate="false"
             name="phoneNumber"
           >
             <VueTelInput
-              aria-label="phone input"
-              v-bind="field"
               v-model="phoneNumber"
               :dropdown-options="dropdownOptions"
               :input-options="inputOptions"
-              :invalidMsg="errorMessage"
+              aria-label="phone input"
               style-classes="rounded border border-gray-300 pr-1 bg-white shadow-sm focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600"
-            ></VueTelInput>
+              v-bind="field"
+            />
+            <ErrorMessage class="text-sm text-red-600" name="phoneNumber" />
           </Field>
         </div>
       </div>
       <div class="flex flex-row">
-        <Field
-          v-slot="{ field, errorMessage }"
-          v-model="isRoundTrip"
-          name="isRoundTrip"
-        >
-          <div class="relative flex items-start">
-            <div class="flex items-center h-5">
-              <input
-                aria-describedby="comments-description"
-                v-bind="field"
-                id="round_trip"
-                name="round_trip"
-                v-model="isRoundTrip"
-                type="checkbox"
-                class="w-4 h-4 border-gray-300 rounded text-brand-600 focus:ring-brand-500"
-              />
-            </div>
-            <div class="ml-3 text-sm">
-              <label for="round_trip" class="font-medium text-gray-100"
-                >Round Trip</label
-              >
-            </div>
+        <div class="relative flex items-start">
+          <div class="flex items-center h-5">
+            <input
+              id="round_trip"
+              v-model="isRoundTrip"
+              aria-describedby="comments-description"
+              class="w-4 h-4 border-gray-300 rounded text-brand-600 focus:ring-brand-500"
+              name="round_trip"
+              type="checkbox"
+            />
           </div>
-        </Field>
+          <div class="ml-3 text-sm">
+            <label class="font-medium text-gray-100" for="round_trip"
+              >Round Trip</label
+            >
+          </div>
+        </div>
+        <Field v-model="placeDataOrigin" name="placeDataOrigin" type="hidden" />
         <Field
-          v-slot="{ field, errorMessage }"
-          v-model="placeDataOrigin"
-          name="placeDataOrigin"
-        >
-          <input type="hidden" v-bind="field" v-model="placeDataOrigin" />
-        </Field>
-        <Field
-          v-slot="{ field, errorMessage }"
           v-model="placeDataDestination"
           name="placeDataDestination"
-        >
-          <input type="hidden" v-bind="field" v-model="placeDataDestination" />
-        </Field>
+          type="hidden"
+        />
+        <Field v-model="tripData" name="tripData" type="hidden" />
         <Field
-          v-slot="{ field, errorMessage }"
-          v-model="tripData"
-          name="tripData"
-        >
-          <input type="hidden" v-bind="field" v-model="tripData" />
-        </Field>
-        <Field
-          v-slot="{ field, errorMessage }"
           v-model="calculatedDistance"
           name="calculatedDistance"
-        >
-          <input type="hidden" v-bind="field" v-model="calculatedDistance" />
-        </Field>
-        <Field
-          v-slot="{ field, errorMessage }"
-          v-model="isItHourly"
-          name="isItHourly"
-        >
-          <input type="hidden" v-bind="field" v-model="isItHourly" />
-        </Field>
-        <Field
-          v-slot="{ field, errorMessage }"
-          v-model="gtmValues"
-          name="gtmValues"
-        >
-          <input type="hidden" v-bind="field" v-model="gtmValues" />
-        </Field>
+          type="hidden"
+        />
+        <Field v-model="isItHourly" name="isItHourly" type="hidden" />
+        <Field v-model="gtmValues" name="gtmValues" type="hidden" />
+        <Field v-model="pickupDate" name="pickupDate" type="hidden" />
+        <Field v-model="pickupTime" name="pickupTime" type="hidden" />
+        <Field v-model="isRoundTrip" name="isRoundTrip" type="hidden" />
+        <Field v-model="returnDate" name="returnDate" type="hidden" />
+        <Field v-model="returnTime" name="returnTime" type="hidden" />
       </div>
       <div class="flex flex-row">
         <button
           id="submit_button"
-          type="submit"
           class="inline-flex items-center w-full px-4 py-2 text-sm font-medium text-white uppercase bg-red-600 border border-transparent rounded shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          type="submit"
         >
           <span class="self-center mx-auto">{{
             loading ? 'Processing.....' : 'Get Prices & Availability'
           }}</span>
         </button>
       </div>
-    </form>
+    </Form>
   </div>
 </template>
