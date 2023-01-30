@@ -2,6 +2,8 @@ import { Surcharges } from '~/schema/surcharges'
 import { serverSupabaseClient } from '#supabase/server'
 import { Database } from '~/types/supabase'
 import { ref } from 'vue'
+import { formatDate } from '~/utils/formatDate'
+import { formatTime } from '~/utils/formatTime'
 
 const zapierSecret = useRuntimeConfig().ZAPIER_WEBHOOK_SECRET
 export default defineEventHandler(async (event) => {
@@ -306,10 +308,10 @@ export default defineEventHandler(async (event) => {
           isItRoundTrip: isRoundTrip,
           destinationName: placeDataDestination.name,
           originName: placeDataOrigin.name,
-          pickupDate,
-          pickupTime,
-          returnDate,
-          returnTime,
+          pickupDate: formatDate(pickupDate),
+          pickupTime: formatTime(pickupTime),
+          returnDate: formatDate(returnDate),
+          returnTime: formatTime(returnTime),
           quoteNumber,
           originFormattedAddress: placeDataOrigin.formatted_address,
           destinationFormattedAddress: placeDataDestination.formatted_address,
