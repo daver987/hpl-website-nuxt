@@ -1,9 +1,15 @@
 import { z } from 'zod'
 
 export const formSchema = z.object({
-  pickupDate: z.date(),
-  pickupTime: z.date(),
-  returnDate: z.date().optional(),
+  pickupDate: z.date({
+    required_error: 'Pickup Date is Required',
+    invalid_type_error: 'Pickup Date must be a valid date',
+  }),
+  pickupTime: z.date({
+    required_error: 'Pickup Time is Required',
+    invalid_type_error: 'Pickup Time must be a valid time',
+  }),
+  returnDate: z.date({}).optional(),
   returnTime: z.date().optional(),
   selectedServiceType: z
     .object({
@@ -60,10 +66,21 @@ export const formSchema = z.object({
       value: z.number().int().gte(1).lte(7),
     })
     .strip(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  emailAddress: z.string().email(),
-  phoneNumber: z.string().min(7).default('+1'),
+  firstName: z.string().min(1, {
+    message: 'Please enter a valid first name',
+  }),
+  lastName: z.string().min(1, {
+    message: 'Please enter a valid last name',
+  }),
+  emailAddress: z
+    .string()
+    .email({ message: 'Please enter a valid emial address' }),
+  phoneNumber: z
+    .string()
+    .min(7, {
+      message: 'Please enter a valid phone number',
+    })
+    .default('+1'),
   isRoundTrip: z.boolean(),
   isItHourly: z.boolean(),
   tripData: z.object({
@@ -77,22 +94,34 @@ export const formSchema = z.object({
     endLng: z.number(),
   }),
   placeDataOrigin: z
-    .object({
-      formatted_address: z.string(),
-      name: z.string(),
-      place_id: z.string(),
-      types: z.array(z.string()),
-      isPearsonAirportOrigin: z.boolean(),
-    })
+    .object(
+      {
+        formatted_address: z.string(),
+        name: z.string(),
+        place_id: z.string(),
+        types: z.array(z.string()),
+        isPearsonAirportOrigin: z.boolean(),
+      },
+      {
+        required_error: 'Pickup Location is Required',
+        invalid_type_error: 'Pickup Location is Required',
+      }
+    )
     .strip(),
   placeDataDestination: z
-    .object({
-      formatted_address: z.string(),
-      name: z.string(),
-      place_id: z.string(),
-      types: z.array(z.string()),
-      isPearsonAirportDestination: z.boolean(),
-    })
+    .object(
+      {
+        formatted_address: z.string(),
+        name: z.string(),
+        place_id: z.string(),
+        types: z.array(z.string()),
+        isPearsonAirportDestination: z.boolean(),
+      },
+      {
+        required_error: 'Drop off Locaction is Required',
+        invalid_type_error: 'Drop off Locaction is Required',
+      }
+    )
     .strip(),
   calculatedDistance: z.number(),
   gtmValues: z.object({

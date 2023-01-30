@@ -130,7 +130,7 @@ const open = ref<boolean>(false)
             @click="open = true"
           >
             <span class="sr-only">Open menu</span>
-            <Icon name="heroicons:x-mark" class="w-6 h-6" aria-hidden="true" />
+            <Icon name="heroicons:bars-3" class="w-6 h-6" aria-hidden="true" />
           </button>
 
           <!-- Logo -->
@@ -202,7 +202,7 @@ const open = ref<boolean>(false)
                                     class="hover:text-gray-800"
                                     exact-active-class="text-brand hover:text-brand-600"
                                     >{{
-                                  }}</NuxtLink>
+                                    }}</NuxtLink>
                                 </li>
                               </ul>
                             </div>
@@ -217,7 +217,7 @@ const open = ref<boolean>(false)
                 <NuxtLink
                   exact-active-class="text-brand hover:text-brand-600"
                   :to="page.href"
-                  class="text-white flex items-center text-sm font-medium tracking-wider capitalize hover:text-brand"
+                  class="flex items-center text-sm font-medium tracking-wider text-white capitalize hover:text-brand"
                   >{{ page.name }}</NuxtLink
                 >
               </template>
