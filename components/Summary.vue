@@ -64,7 +64,6 @@ onMounted(async () => {
   totalFareQuote.value = totalFare
   roundTripTotalQuote.value = roundTripTotal
   isRoundTripQuote.value = isRoundTrip
-
 })
 
 console.log('Returned Quote from summary', quote.value)
