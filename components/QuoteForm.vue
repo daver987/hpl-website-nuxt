@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Place } from '~/types/DirectionsResponse'
-import { formSchema, ValidationSchema } from '~/schema/quoteFormValues'
+import { formSchema } from '~/schema/quoteFormValues'
 import { VueTelInput } from 'vue-tel-input'
 import 'vue-tel-input/dist/vue-tel-input.css'
 import { ErrorMessage, Field, Form } from 'vee-validate'
@@ -72,6 +72,7 @@ const extractOptions = (originalArray: {
   value: number
   isDisabled: boolean
 }) => {
+  //@ts-ignore
   return originalArray.map(
     (obj: { label: any; value: any; isDisabled: any }) => ({
       label: obj.label,
@@ -86,8 +87,8 @@ const originPlaceId = ref<string>('')
 const destination = ref<Place | null>(null)
 const destinationPlaceId = ref<string>('')
 const calculatedDistance = ref<number | null>(null)
-const pickupDate = ref(null)
-const pickupTime = ref(null)
+const pickupDate = ref(undefined)
+const pickupTime = ref(undefined)
 const returnDate = ref(new Date())
 const returnTime = ref(new Date())
 const isItHourly = ref<boolean>(false)
@@ -143,6 +144,7 @@ const hoursRequiredOptions = ref(buildHoursRequiredOptions())
 const selectedNumberOfHours = ref(hoursRequiredOptions.value[0])
 
 const { data: serviceTypes } = await useFetch('/api/get-service-type')
+//@ts-ignore
 const serviceTypeOptions = ref(extractOptions(serviceTypes.value))
 console.log(serviceTypeOptions.value)
 const selectedServiceType = ref(serviceTypeOptions.value[0])
@@ -162,6 +164,7 @@ watch(selectedServiceType, () => {
 })
 
 const { data: vehicleTypes } = await useFetch('/api/get-vehicle-type')
+//@ts-ignore
 const vehicleTypeOptions = ref(extractOptions(vehicleTypes.value))
 console.log(vehicleTypeOptions.value)
 const selectedVehicleType = ref(vehicleTypeOptions.value[0])
@@ -372,7 +375,7 @@ const loading = ref(false)
 const openAlert = ref(false)
 const returnedQuoteValues = ref()
 
-async function onSubmit(values: ValidationSchema) {
+async function onSubmit(values: any) {
   loading.value = true
   console.log('values are:', values)
   const { data } = await useFetch('/api/submission', {
@@ -402,7 +405,7 @@ async function onSubmit(values: ValidationSchema) {
     return
   }
 }
-const today = ref<Date>(new Date())
+
 </script>
 
 <template>
@@ -444,8 +447,8 @@ const today = ref<Date>(new Date())
         <div class="col-span-1">
           <Datepicker
             v-model="pickupDate"
-            :lower-limit="today"
-            class="w-full py-2 pl-3 pr-10 mt-1 text-left bg-white border border-gray-300 rounded shadow-sm cursor-pointer text-gray-900 placeholder-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            :lower-limit="new Date()"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="MMM dd, yyyy"
             name="pickupDate"
             placeholder="Enter A Pickup Date"
@@ -455,12 +458,13 @@ const today = ref<Date>(new Date())
         <div class="md:col-span-1">
           <Datepicker
             v-model="pickupTime"
-            class="w-full py-2 pl-3 pr-10 mt-1 text-left bg-white border border-gray-300 rounded shadow-sm cursor-pointer text-gray-900 placeholder-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             inputFormat="hh:mm a"
             minimum-view="time"
             name="pickupTime"
             placeholder="Enter A Pickup Time"
             starting-view="time"
+            dayPickerHeadingFormat="hh:mm a"
           />
           <ErrorMessage class="text-sm text-red-600" name="pickupTime" />
         </div>
@@ -472,9 +476,9 @@ const today = ref<Date>(new Date())
         <div class="col-span-1">
           <Datepicker
             v-model="returnDate"
-            :lower-limit="today"
+            :lower-limit="new Date()"
             allow-outside-interval
-            class="w-full py-2 pl-3 pr-10 mt-1 text-left bg-white border border-gray-300 rounded shadow-sm cursor-pointer text-gray-900 placeholder-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="MMM dd, yyyy"
             name="returnDate"
             placeholder="Enter A Return Date"
@@ -484,12 +488,13 @@ const today = ref<Date>(new Date())
         <div class="col-span-1">
           <Datepicker
             v-model="returnTime"
-            class="w-full py-2 pl-3 pr-10 mt-1 text-left bg-white border border-gray-300 rounded shadow-sm cursor-pointer text-gray-900 placeholder-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="hh:mm a"
             minimum-view="time"
             name="returnTime"
             placeholder="Enter A Return Time"
             starting-view="time"
+            dayPickerHeadingFormat="hh:mm a"
           />
           <ErrorMessage class="text-sm text-red-600" name="returnTime" />
         </div>
@@ -594,7 +599,7 @@ const today = ref<Date>(new Date())
         </div>
         <div class="col-span-1">
           <Field
-            v-slot="{ field, errorMessage }"
+            v-slot="{ field }"
             :validateOnBlur="true"
             :validateOnChange="false"
             :validateOnInput="false"
@@ -658,7 +663,7 @@ const today = ref<Date>(new Date())
           type="submit"
         >
           <span class="self-center mx-auto">{{
-            loading ? 'Processing.....' : 'Get Prices & Availability'
+  loading? 'Processing.....': 'Get Prices & Availability'
           }}</span>
         </button>
       </div>
