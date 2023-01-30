@@ -72,7 +72,9 @@ const {
   serviceTypeLabel,
   totalFare,
   originName,
+  originFormattedAddress,
   destinationName,
+  destinationFormattedAddress,
   baseRate,
   gratuity,
   HST,
@@ -92,6 +94,12 @@ const returnServiceTypeLabel = computed(() => {
     ? 'To Airport'
     : serviceTypeLabel
 })
+
+const pickupAddress = formatAddress(originName, originFormattedAddress)
+const dropOffAddrress = formatAddress(
+  destinationName,
+  destinationFormattedAddress
+)
 
 const roundTripFare = (roundTrip: boolean | null, fare: number | null) => {
   if (roundTrip === null || fare === null) return 0
@@ -234,7 +242,7 @@ const createSession = async () => {
         </dt>
         <dd class="font-medium text-gray-900 dark:text-gray-100">
           <time :datetime="currentDate">{{
-            format(new Date(), 'MMMM dd, yyyy')
+  format(new Date(), 'MMMM dd, yyyy')
           }}</time>
         </dd>
       </dl>
@@ -288,11 +296,11 @@ const createSession = async () => {
                       {{ format(new Date(pickupTime), 'hh:mm a') }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
-                      <span class="text-brand-400">PU: </span>{{ originName }}
+                      <span class="text-brand-400">PU: </span>{{ pickupAddress }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">DO: </span>
-                      {{ destinationName }}
+                      {{ dropOffAddrress }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Vehicle Type: </span
@@ -342,7 +350,7 @@ const createSession = async () => {
                   class="flex-shrink-0 w-5 h-5 text-gray-300"
                   aria-hidden="true"
                 />
-                <span>{{ isRoundTrip ? 'Round Trip' : `One Way Trip` }}</span>
+                <span>{{ isRoundTrip? 'Round Trip': `One Way Trip` }}</span>
               </p>
             </div>
           </li>
@@ -382,11 +390,11 @@ const createSession = async () => {
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span
-                      >{{ destinationName }}
+                      >{{ dropOffAddrress }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">DO: </span>
-                      {{ originName }}
+                      {{ pickupAddress }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Vehicle Type: </span
@@ -435,7 +443,7 @@ const createSession = async () => {
                   class="flex-shrink-0 w-5 h-5 text-gray-300"
                   aria-hidden="true"
                 />
-                <span>{{ isRoundTrip ? 'Round Trip' : `One Way Trip` }}</span>
+                <span>{{ isRoundTrip? 'Round Trip': `One Way Trip` }}</span>
               </p>
             </div>
           </li>
@@ -458,7 +466,7 @@ const createSession = async () => {
           <div class="flex items-center justify-between">
             <dt class="text-sm text-gray-600 dark:text-gray-300">Subtotal</dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripBaseRate : baseRate.toFixed(2) }}
+              $ {{ isRoundTrip? roundTripBaseRate: baseRate.toFixed(2) }}
             </dd>
           </div>
           <div
@@ -485,7 +493,7 @@ const createSession = async () => {
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
               $
               {{
-                isRoundTrip ? roundTripFuelSurcharge : fuelSurcharge.toFixed(2)
+                isRoundTrip? roundTripFuelSurcharge: fuelSurcharge.toFixed(2)
               }}
             </dd>
           </div>
@@ -511,7 +519,7 @@ const createSession = async () => {
               </a>
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripGratuity : gratuity.toFixed(2) }}
+              $ {{ isRoundTrip? roundTripGratuity: gratuity.toFixed(2) }}
             </dd>
           </div>
           <div
@@ -558,7 +566,7 @@ const createSession = async () => {
               </a>
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripHST : HST.toFixed(2) }}
+              $ {{ isRoundTrip? roundTripHST: HST.toFixed(2) }}
             </dd>
           </div>
           <div
@@ -571,8 +579,8 @@ const createSession = async () => {
               $
               {{
                 isRoundTrip
-                  ? roundTripTotalFare().toFixed(2)
-                  : totalFareWithAirportFee().toFixed(2)
+                ? roundTripTotalFare().toFixed(2)
+                                                            : totalFareWithAirportFee().toFixed(2)
               }}
             </dd>
           </div>
@@ -585,7 +593,7 @@ const createSession = async () => {
             type="button"
             class="w-full px-4 py-3 text-base font-medium text-white uppercase bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
           >
-            {{ loading ? 'Adding To Cart...' : 'Add To Cart' }}
+            {{ loading? 'Adding To Cart...': 'Add To Cart' }}
           </button>
           <button
             v-else
@@ -593,7 +601,7 @@ const createSession = async () => {
             type="button"
             class="w-full px-4 py-3 text-base font-medium text-white uppercase bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
           >
-            {{ loadingCheckout ? 'Loading...' : 'Book Now' }}
+            {{ loadingCheckout? 'Loading...': 'Book Now' }}
           </button>
         </div>
       </section>
