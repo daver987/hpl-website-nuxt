@@ -7,7 +7,6 @@ import { ErrorMessage, Field, Form } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
 import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
-import { z } from 'zod'
 import { TripData } from '~~/types/data'
 import { useGtm } from '@gtm-support/vue-gtm'
 import Datepicker from '~/components/datepicker/Datepicker.vue'
@@ -56,14 +55,6 @@ const dropdownOptions = ref({
   showDialCodeInList: true,
 })
 
-const selectFormData = z.array(
-  z.object({
-    label: z.string(),
-    value: z.number(),
-    isDisabled: z.boolean().optional(),
-  })
-)
-
 const userStore = useUserStore()
 const { hplUserId } = storeToRefs(userStore)
 
@@ -109,8 +100,13 @@ const buildPassengerOptions = (numPassengers: number) => {
       value: 0,
       isDisabled: true,
     },
+    {
+      label: '1 Passenger',
+      value: 1,
+      isDisabled: false,
+    },
   ]
-  for (let i = 1; i <= numPassengers; i++) {
+  for (let i = 2; i <= numPassengers; i++) {
     options.push({
       label: i + ' Passengers',
       value: i,
@@ -405,7 +401,6 @@ async function onSubmit(values: any) {
     return
   }
 }
-
 </script>
 
 <template>
@@ -663,7 +658,7 @@ async function onSubmit(values: any) {
           type="submit"
         >
           <span class="self-center mx-auto">{{
-  loading? 'Processing.....': 'Get Prices & Availability'
+            loading ? 'Processing.....' : 'Get Prices & Availability'
           }}</span>
         </button>
       </div>

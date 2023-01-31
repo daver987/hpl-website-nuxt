@@ -74,7 +74,7 @@ export const formSchema = z.object({
   }),
   emailAddress: z
     .string()
-    .email({ message: 'Please enter a valid emial address' }),
+    .email({ message: 'Please enter a valid email address' }),
   phoneNumber: z
     .string()
     .min(7, {
