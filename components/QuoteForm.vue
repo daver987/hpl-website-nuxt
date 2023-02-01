@@ -393,15 +393,14 @@ async function onSubmit(values: any) {
       triggerEvent()
       loading.value = false
       await navigateTo('/quoted')
-      console.log('navigated to /quoted')
-    }, 1500)
+    }, 500)
     return
   } else {
     setTimeout(() => {
       loading.value = false
       openAlert.value = true
       console.log('error')
-    }, 1500)
+    }, 500)
     return
   }
 }
