@@ -312,7 +312,7 @@ export default defineEventHandler(async (event) => {
           pickupTime: formatTime(pickupTime),
           returnDate: formatDate(returnDate),
           returnTime: formatTime(returnTime),
-          quote_number,
+          quote_number: quote_number,
           originFormattedAddress: placeDataOrigin.formatted_address,
           destinationFormattedAddress: placeDataDestination.formatted_address,
         },
