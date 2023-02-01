@@ -4,7 +4,7 @@ const color = colorMode.value
 </script>
 
 <template>
-  <div class="w-full max-w-sm mx-auto lg:w-96">
+  <div class="mx-auto w-full max-w-sm lg:w-96">
     <div v-if="color === 'dark'">
       <NuxtLink to="/">
         <NuxtPicture
@@ -73,7 +73,7 @@ const color = colorMode.value
                 type="email"
                 autocomplete="email"
                 required
-                class="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:border-brand focus:outline-none focus:ring-brand sm:text-sm"
+                class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-brand sm:text-sm"
               />
             </div>
           </div>
@@ -91,7 +91,7 @@ const color = colorMode.value
                 type="password"
                 autocomplete="current-password"
                 required
-                class="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:border-brand focus:outline-none focus:ring-brand sm:text-sm"
+                class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-brand sm:text-sm"
               />
             </div>
           </div>
@@ -102,11 +102,11 @@ const color = colorMode.value
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                class="w-4 h-4 border-gray-300 rounded text-brand-600 focus:ring-brand"
+                class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand"
               />
               <label
                 for="remember-me"
-                class="block ml-2 text-sm text-gray-900 dark:text-gray-200"
+                class="ml-2 block text-sm text-gray-900 dark:text-gray-200"
                 >Remember me</label
               >
             </div>
@@ -123,7 +123,7 @@ const color = colorMode.value
           <div>
             <button
               type="submit"
-              class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
+              class="flex w-full justify-center rounded-md border border-transparent bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
             >
               Sign in
             </button>

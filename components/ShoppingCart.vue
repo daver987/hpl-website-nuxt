@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { Database } from '~/types/supabase'
 import { ReturnType } from '~/types/ReturnType'
 import { Quote } from '~/schema/quote'
-import { useQuoteStore } from '~/stores/useQuoteStore'
 import { useCartStore } from '~/stores/useCartStore'
 import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
 import { format } from 'date-fns'
-import { z } from 'zod'
+import { Database } from '~/types/supabase'
+import { useQuoteStore } from '~/stores/useQuoteStore'
+import { useStorage } from '@vueuse/core'
 
-const supabase = useSupabaseClient<Database>()
 const route = useRoute()
+const supabase = useSupabaseClient<Database>()
 
 const cartStore = useCartStore()
-const quoteStore = useQuoteStore()
-const { quoteNumber, quoteData } = storeToRefs(quoteStore)
-console.log('Store Quote Number', quoteNumber.value)
 const userStore = useUserStore()
+const quoteStore = useQuoteStore()
 const { hplUserId, first_name, last_name, phone_number, email_address } =
   storeToRefs(userStore)
 console.log('Store User ID in cart:', hplUserId.value)
@@ -30,36 +28,31 @@ console.log(
   phone_number.value
 )
 
-const quoteNumberSchema = z.coerce.string()
-//get the latest quote number
-const getLatestQuoteNumber = async () => {
-  const { data } = await supabase
-    .from('quote_number')
-    .select('latest_quote_number')
-    .single()
-  console.log('This is the latest quote number', data)
-  return route.path === '/checkout'
-    ? route.query.quotenumber
-    : data?.latest_quote_number
-}
-const getQuoteNumber = async () => {
-  console.log('This is the path', route.path)
-  const { quotenumber } = route.query
-  console.log('This is the quote number', quotenumber)
-  return quoteNumberSchema.parse(quotenumber)
-}
+const storedQuoteNumber = useStorage('quote_number', '2583')
+console.log('Stored Quote Number:', storedQuoteNumber.value)
 
-const { data: quoteFormData } = await useAsyncData('quotes', async () => {
-  quoteNumber.value = await getLatestQuoteNumber()
+const { data: quoteData } = await useAsyncData('quote', async () => {
+  let quoteNumber: () => any
+  quoteNumber = () => {
+    if (route.path === '/checkout') {
+      return route.query.quote_number
+        ? route.query.quote_number
+        : route.query.quotenumber
+    } else if (quoteStore.quote_number === null) {
+      return useStorage('quote_number', 2583)
+    } else {
+      return quoteStore.quote_number
+    }
+  }
+  console.log('Quote Number in function', quoteNumber())
   const { data } = await supabase
     .from('quotes')
     .select('*')
-    .eq('quote_number', quoteNumber.value)
+    .eq('quote_number', quoteNumber())
     .single()
   return data
 })
-console.log('Quote Form Data', quoteFormData.value)
-quoteData.value = quoteFormData.value as Quote
+
 const {
   pickupDate,
   pickupTime,
@@ -164,14 +157,14 @@ const loadingCheckout = ref(false)
 const createSession = async () => {
   loadingCheckout.value = true
   //@ts-ignore
-  localStorage.setItem('quote_number', quoteNumber.value.toString())
+  localStorage.setItem('quote_number', quote_number.toString())
   const checkoutBody = {
     firstName: first_name.value,
     lastName: last_name.value,
     userEmail,
     customerId: id,
     phoneNumber: phone_number.value,
-    quoteNumber: quoteNumber.value,
+    quoteNumber: quote_number,
   }
   const { data: stripeData } = await useFetch(`/api/create-checkout-session`, {
     //@ts-ignore
@@ -179,6 +172,10 @@ const createSession = async () => {
     body: checkoutBody,
   })
   console.log('Stripe Returned Data:', stripeData.value)
+  const { data: conversion } = await useFetch(`/api/post-conversion`, {
+    method: 'POST',
+    body: checkoutBody,
+  })
   const { statusCode, url, stripeCustomerId, sessionId } =
     stripeData.value as ReturnType
   console.log(
@@ -214,7 +211,7 @@ const createSession = async () => {
 </script>
 
 <template>
-  <main class="max-w-2xl px-4 pt-6 pb-8 mx-auto sm:px-6 lg:max-w-7xl lg:px-8">
+  <main class="mx-auto max-w-2xl px-4 pt-6 pb-8 sm:px-6 lg:max-w-7xl lg:px-8">
     <h1
       class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
     >
@@ -240,9 +237,9 @@ const createSession = async () => {
           >
         </dt>
         <dd class="font-medium text-gray-900 dark:text-gray-100">
-          <time :datetime="currentDate">{{
-            format(new Date(), 'MMMM dd, yyyy')
-          }}</time>
+          <time :datetime="currentDate"
+            >{{ format(new Date(), 'MMMM dd, yyyy') }}
+          </time>
         </dd>
       </dl>
       <div class="mt-4 sm:mt-0">
@@ -259,7 +256,7 @@ const createSession = async () => {
         <h2 id="cart-heading" class="sr-only">Items in your shopping cart</h2>
         <ul
           role="list"
-          class="border-t border-b border-gray-200 divide-y divide-gray-200"
+          class="divide-y divide-gray-200 border-t border-b border-gray-200"
         >
           <li class="flex py-6 sm:py-8">
             <div class="flex-shrink-0">
@@ -273,24 +270,24 @@ const createSession = async () => {
               />
             </div>
 
-            <div class="flex flex-col justify-between flex-1 ml-4 sm:ml-6">
+            <div class="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
               <div
                 class="relative pr-9 sm:grid sm:grid-cols-1 sm:gap-x-6 sm:pr-0"
               >
                 <div>
-                  <div class="flex justify-between mb-2">
+                  <div class="mb-2 flex justify-between">
                     <h3 class="text-base">
                       <NuxtLink
                         to="#"
-                        class="font-medium text-gray-700 dark:text-gray-200 dark:hover:text-gray-200 hover:text-gray-800"
+                        class="font-medium text-gray-700 hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-200"
                         >{{ serviceTypeLabel }}
                       </NuxtLink>
                     </h3>
                   </div>
-                  <div class="flex flex-col mt-2 space-y-1 text-sm">
+                  <div class="mt-2 flex flex-col space-y-1 text-sm">
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Date: </span
-                      >{{ format(new Date(pickupDate), 'MMMM dd, yyyy') }}
+                      >{{ formatDateNew(pickupDate) }}
                       <span class="text-brand-400">Time: </span>
                       {{ format(new Date(pickupTime), 'hh:mm a') }}
                     </p>
@@ -322,12 +319,12 @@ const createSession = async () => {
                     <button
                       v-if="false"
                       type="button"
-                      class="inline-flex p-2 -m-2 text-gray-400 hover:text-gray-500"
+                      class="-m-2 inline-flex p-2 text-gray-400 hover:text-gray-500"
                     >
                       <span class="sr-only">Remove</span>
                       <Icon
                         name="heroicons:x-mark-20-solid"
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         aria-hidden="true"
                       />
                     </button>
@@ -336,18 +333,18 @@ const createSession = async () => {
               </div>
 
               <p
-                class="flex mt-4 space-x-2 text-sm text-gray-700 dark:text-gray-200"
+                class="mt-4 flex space-x-2 text-sm text-gray-700 dark:text-gray-200"
               >
                 <Icon
                   name="heroicons:check-20-solid"
                   v-if="isRoundTrip"
-                  class="flex-shrink-0 w-5 h-5 text-green-500"
+                  class="h-5 w-5 flex-shrink-0 text-green-500"
                   aria-hidden="true"
                 />
                 <Icon
                   name="heroicons:clock-20-solid"
                   v-else
-                  class="flex-shrink-0 w-5 h-5 text-gray-300"
+                  class="h-5 w-5 flex-shrink-0 text-gray-300"
                   aria-hidden="true"
                 />
                 <span>{{ isRoundTrip ? 'Round Trip' : `One Way Trip` }}</span>
@@ -367,24 +364,24 @@ const createSession = async () => {
               />
             </div>
 
-            <div class="flex flex-col justify-between flex-1 ml-4 sm:ml-6">
+            <div class="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
               <div
                 class="relative pr-9 sm:grid sm:grid-cols-1 sm:gap-x-6 sm:pr-0"
               >
                 <div>
-                  <div class="flex justify-between mb-2">
+                  <div class="mb-2 flex justify-between">
                     <h3 class="text-base">
                       <NuxtLink
                         to="#"
-                        class="font-medium text-gray-700 dark:text-gray-200 dark:hover:text-gray-200 hover:text-gray-800"
+                        class="font-medium text-gray-700 hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-200"
                         >{{ returnServiceTypeLabel }}
                       </NuxtLink>
                     </h3>
                   </div>
-                  <div class="flex flex-col mt-2 space-y-1 text-sm">
+                  <div class="mt-2 flex flex-col space-y-1 text-sm">
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Date: </span
-                      >{{ format(new Date(returnDate), 'hh:mm a') }}
+                      >{{ formatDateNew(returnDate) }}
                       <span class="text-brand-400">Time: </span>
                       {{ format(new Date(returnTime), 'hh:mm a') }}
                     </p>
@@ -415,12 +412,12 @@ const createSession = async () => {
                   <div v-if="false" class="absolute top-0 right-0">
                     <button
                       type="button"
-                      class="inline-flex p-2 -m-2 text-gray-400 hover:text-gray-500"
+                      class="-m-2 inline-flex p-2 text-gray-400 hover:text-gray-500"
                     >
                       <span class="sr-only">Remove</span>
                       <Icon
                         name="heroicons:x-mark-20-solid"
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         aria-hidden="true"
                       />
                     </button>
@@ -429,18 +426,18 @@ const createSession = async () => {
               </div>
 
               <p
-                class="flex mt-4 space-x-2 text-sm text-gray-700 dark:text-gray-200"
+                class="mt-4 flex space-x-2 text-sm text-gray-700 dark:text-gray-200"
               >
                 <Icon
                   name="heroicons:check-20-solid"
                   v-if="isRoundTrip"
-                  class="flex-shrink-0 w-5 h-5 text-green-500"
+                  class="h-5 w-5 flex-shrink-0 text-green-500"
                   aria-hidden="true"
                 />
                 <Icon
                   name="heroicons:clock-20-solid"
                   v-else
-                  class="flex-shrink-0 w-5 h-5 text-gray-300"
+                  class="h-5 w-5 flex-shrink-0 text-gray-300"
                   aria-hidden="true"
                 />
                 <span>{{ isRoundTrip ? 'Round Trip' : `One Way Trip` }}</span>
@@ -453,7 +450,7 @@ const createSession = async () => {
       <!-- Order summary -->
       <section
         aria-labelledby="summary-heading"
-        class="px-4 py-6 mt-16 bg-gray-100 rounded-lg dark:bg-grey-800 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
+        class="mt-16 rounded-lg bg-gray-100 px-4 py-6 dark:bg-grey-800 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
       >
         <h2
           id="summary-heading"
@@ -470,7 +467,7 @@ const createSession = async () => {
             </dd>
           </div>
           <div
-            class="flex items-center justify-between pt-4 border-t border-gray-200"
+            class="flex items-center justify-between border-t border-gray-200 pt-4"
           >
             <dt
               class="flex items-center text-sm text-gray-600 dark:text-gray-300"
@@ -478,14 +475,14 @@ const createSession = async () => {
               <span>Fuel Surcharge</span>
               <a
                 href="#"
-                class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-500"
+                class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
               >
                 <span class="sr-only"
                   >Learn more about how fuel surcharge is calculated</span
                 >
                 <Icon
                   name="heroicons:question-mark-circle-20-solid"
-                  class="w-5 h-5"
+                  class="h-5 w-5"
                   aria-hidden="true"
                 />
               </a>
@@ -498,7 +495,7 @@ const createSession = async () => {
             </dd>
           </div>
           <div
-            class="flex items-center justify-between pt-4 border-t border-gray-200"
+            class="flex items-center justify-between border-t border-gray-200 pt-4"
           >
             <dt
               class="flex items-center text-sm text-gray-600 dark:text-gray-300"
@@ -506,14 +503,14 @@ const createSession = async () => {
               <span>Gratuity</span>
               <a
                 href="#"
-                class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-500"
+                class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
               >
                 <span class="sr-only"
                   >Learn more about how gratuity is calculated</span
                 >
                 <Icon
                   name="heroicons:question-mark-circle-20-solid"
-                  class="w-5 h-5"
+                  class="h-5 w-5"
                   aria-hidden="true"
                 />
               </a>
@@ -524,20 +521,20 @@ const createSession = async () => {
           </div>
           <div
             v-if="addPearsonFee === 15"
-            class="flex items-center justify-between pt-4 border-t border-gray-200"
+            class="flex items-center justify-between border-t border-gray-200 pt-4"
           >
             <dt class="flex text-sm text-gray-600 dark:text-gray-300">
               <span>Airport Fee</span>
               <a
                 href="#"
-                class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-500"
+                class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
               >
                 <span class="sr-only"
                   >Learn more about the Pearson Airport Fee</span
                 >
                 <Icon
                   name="heroicons:question-mark-circle-20-solid"
-                  class="w-5 h-5"
+                  class="h-5 w-5"
                   aria-hidden="true"
                 />
               </a>
@@ -547,20 +544,20 @@ const createSession = async () => {
             </dd>
           </div>
           <div
-            class="flex items-center justify-between pt-4 border-t border-gray-200"
+            class="flex items-center justify-between border-t border-gray-200 pt-4"
           >
             <dt class="flex text-sm text-gray-600 dark:text-gray-300">
               <span>HST</span>
               <a
                 href="#"
-                class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-500"
+                class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
               >
                 <span class="sr-only"
                   >Learn more about how tax is calculated</span
                 >
                 <Icon
                   name="heroicons:question-mark-circle-20-solid"
-                  class="w-5 h-5"
+                  class="h-5 w-5"
                   aria-hidden="true"
                 />
               </a>
@@ -570,7 +567,7 @@ const createSession = async () => {
             </dd>
           </div>
           <div
-            class="flex items-center justify-between pt-4 border-t border-gray-200"
+            class="flex items-center justify-between border-t border-gray-200 pt-4"
           >
             <dt class="text-base font-medium text-gray-900 dark:text-gray-100">
               {{ !addedToCart ? 'Quote' : 'Order' }} total
@@ -591,7 +588,7 @@ const createSession = async () => {
             v-if="!addedToCart"
             @click="cartStore.addToCart()"
             type="button"
-            class="w-full px-4 py-3 text-base font-medium text-white uppercase bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
+            class="w-full rounded-md border border-transparent bg-red-600 px-4 py-3 text-base font-medium uppercase text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
           >
             {{ loading ? 'Adding To Cart...' : 'Add To Cart' }}
           </button>
@@ -599,7 +596,7 @@ const createSession = async () => {
             v-else
             @click="createSession"
             type="button"
-            class="w-full px-4 py-3 text-base font-medium text-white uppercase bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
+            class="w-full rounded-md border border-transparent bg-red-600 px-4 py-3 text-base font-medium uppercase text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
           >
             {{ loadingCheckout ? 'Loading...' : 'Book Now' }}
           </button>
@@ -607,20 +604,20 @@ const createSession = async () => {
       </section>
       <section
         v-if="addedToCart"
-        class="px-4 py-6 sm:p-6 lg:col-start-8 lg:col-span-5 lg:mt-0 lg:p-6"
+        class="px-4 py-6 sm:p-6 lg:col-span-5 lg:col-start-8 lg:mt-0 lg:p-6"
       >
-        <div class="flex flex-col mb-2">
+        <div class="mb-2 flex flex-col">
           <p
             class="font-sans text-sm font-bold text-gray-900 dark:text-gray-100"
           >
             We require a credit card to hold your reservation
           </p>
-          <p class="text-xs font-sans text-red-700 max-w-[65ch]">
+          <p class="max-w-[65ch] font-sans text-xs text-red-700">
             Please note, 24 hours before the scheduled pickup time, an
             authorization hold will be placed on your credit card for the full
             amount of your reservation.
           </p>
-          <div class="flex flex-col mt-2">
+          <div class="mt-2 flex flex-col">
             <p
               class="font-sans text-sm font-bold text-gray-900 dark:text-gray-100"
             >

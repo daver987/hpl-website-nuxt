@@ -20,18 +20,18 @@ defineProps({
 </script>
 
 <template>
-  <BaseCard class="flex justify-center w-full mb-8 md:max-w-2xl">
-    <div class="flex flex-col justify-around w-full max-w-xl md:flex-row">
+  <BaseCard class="mb-8 flex w-full justify-center md:max-w-2xl">
+    <div class="flex w-full max-w-xl flex-col justify-around md:flex-row">
       <ItemCount :kind="people" :amount="peopleAmount">
-        <Icon name="bi:people" class="w-16 h-auto text-gray-400" />
+        <Icon name="bi:people" class="h-auto w-16 text-gray-400" />
       </ItemCount>
       <ItemCount :kind="luggage" :amount="luggageAmount">
         <Icon
           name="fluent:luggage-28-regular"
-          class="w-16 h-auto text-gray-400"
+          class="h-auto w-16 text-gray-400"
         />
       </ItemCount>
-      <div class="flex flex-col items-center justify-center h-full">
+      <div class="flex h-full flex-col items-center justify-center">
         <BaseButton
           kind="btn-brand"
           label="Reserve"

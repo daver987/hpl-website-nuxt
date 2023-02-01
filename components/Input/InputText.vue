@@ -38,9 +38,9 @@ const {
 
 <template>
   <div
-    class="px-3 bg-white border border-gray-300 rounded shadow-sm focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600"
+    class="rounded border border-gray-300 bg-white px-3 shadow-sm focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600"
   >
-    <label :for="name" class="block text-gray-700 text-xxs font-regular">{{
+    <label :for="name" class="font-regular block text-xxs text-gray-700">{{
       label
     }}</label>
     <input
@@ -51,7 +51,7 @@ const {
       :type="type"
       @input="handleChange"
       :value="inputValue"
-      class="block w-full border-0 p-0 text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-sm pb-0.5 -mt-1"
+      class="-mt-1 block w-full border-0 p-0 pb-0.5 text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-sm"
     />
     <div v-if="!showError" class="flex">
       <div class="block text-xs text-red-700">

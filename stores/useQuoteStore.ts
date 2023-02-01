@@ -1,20 +1,42 @@
-import { defineStore, acceptHMRUpdate } from 'pinia'
-import { Quote } from '~/schema/quote'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 
 export const useQuoteStore = defineStore('useQuoteStore', {
-  state: () => ({
-    quoteNumber: 0 as number | string | null,
-    isRoundTrip: false,
-    quoteData: {} as Quote | null,
-  }),
-  getters: {
-    //
+  state: () => {
+    return {
+      loading: false,
+      quote: <any | null>null,
+      quote_number: <string | null>null,
+      quoteNumberLatest: <number | null>2521,
+    }
   },
   actions: {
-    //
+    async getQuoteSingle() {
+      try {
+        const data = await $fetch('/api/get-quote-single', {
+          query: { quote_number: this.quote_number },
+        })
+        console.log('Single Quote:', data)
+        this.quote = data
+        return data
+      } catch (error) {
+        alert(error)
+      }
+    },
+    async getQuoteNumberLatest() {
+      try {
+        const data = await $fetch('/api/get-quotenumber')
+        console.log('Latest Quote Number:', this.quoteNumberLatest)
+        this.quoteNumberLatest = data
+        return data
+      } catch (error) {
+        alert(error)
+      }
+    },
+    getters: {},
   },
 })
 
 if (import.meta.hot) {
+  //@ts-ignore
   import.meta.hot.accept(acceptHMRUpdate(useQuoteStore, import.meta.hot))
 }

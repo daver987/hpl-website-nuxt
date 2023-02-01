@@ -49,6 +49,7 @@
     "nuxt-seo-kit": "^1.0.1",
     "nuxt-vitest": "^0.6.3",
     "prettier": "^2.8.3",
+    "prettier-plugin-tailwindcss": "^0.2.2",
     "start-server-and-test": "^1.15.3",
     "stripe": "^11.8.0",
     "supabase-to-zod": "^1.0.4",

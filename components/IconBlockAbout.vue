@@ -21,11 +21,11 @@ defineProps({
 
 <template>
   <div class="p-4 sm:flex">
-    <div class="flex-shrink-0 mb-4 sm:mb-0 sm:mr-4">
+    <div class="mb-4 flex-shrink-0 sm:mb-0 sm:mr-4">
       <img :alt="altText" :src="`/icons/${image}.svg`" class="w-16" />
     </div>
     <div>
-      <h3 class="text-lg font-subheading text-brand">{{ title }}</h3>
+      <h3 class="font-subheading text-lg text-brand">{{ title }}</h3>
       <p class="mt-1 font-sans text-gray-500">{{ body }}</p>
     </div>
   </div>

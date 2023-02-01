@@ -10,7 +10,7 @@ console.log(route.quoteNumber)
 
 <template>
   <div class="min-h-screen dark:bg-grey-900">
-    <AppNavigation :is-it-quote="false" />
+    <AppNavigation />
     <ShoppingCart />
     <SubFooter />
   </div>

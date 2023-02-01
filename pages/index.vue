@@ -37,13 +37,13 @@ export default {
               <div
                 class="px-4 sm:px-6 sm:text-center md:mx-auto md:max-w-2xl lg:col-span-6 lg:flex lg:items-center lg:text-left"
               >
-                <div class="flex flex-col align-center lg:align-start">
+                <div class="align-center lg:align-start flex flex-col">
                   <h1
-                    class="mb-2 text-3xl text-center text-white capitalize sm:text-4xl md:text-5xl font-heading md:text-left"
+                    class="mb-2 text-center font-heading text-3xl capitalize text-white sm:text-4xl md:text-left md:text-5xl"
                   >
                     Experience Toronto's Finest Car Service
                   </h1>
-                  <p class="text-center subheading md:text-left">
+                  <p class="subheading text-center md:text-left">
                     High Park Livery
                   </p>
                   <NuxtPicture
@@ -57,7 +57,7 @@ export default {
                   />
                 </div>
               </div>
-              <div class="px-3 pb-8 mt-16 sm:mt-24 lg:col-span-6 lg:mt-0">
+              <div class="mt-16 px-3 pb-8 sm:mt-24 lg:col-span-6 lg:mt-0">
                 <QuoteForm />
               </div>
             </div>
@@ -68,7 +68,7 @@ export default {
     <main>
       <BaseSection>
         <BaseContainer
-          class="grid grid-cols-1 md:grid-cols-2 lg:max-w-7xl lg:grid-cols-4 gap-3 @container"
+          class="grid grid-cols-1 gap-3 @container md:grid-cols-2 lg:max-w-7xl lg:grid-cols-4"
         >
           <IconBlockServices
             v-for="feature in features"
@@ -81,17 +81,17 @@ export default {
         </BaseContainer>
       </BaseSection>
       <BaseSection
-        class="pt-10 bg-center bg-no-repeat bg-fit"
+        class="bg-fit bg-center bg-no-repeat pt-10"
         :style="fleetImage"
       >
         <BaseContainer
-          class="flex flex-col justify-between place-items-center lg:flex-row"
+          class="flex flex-col place-items-center justify-between lg:flex-row"
         >
           <div class="mb-4 space-y-4">
-            <p class="text-center subheading lg:text-left">
+            <p class="subheading text-center lg:text-left">
               The Many Types of Comfort We offer
             </p>
-            <h2 class="text-center text-white capitalize heading lg:text-left">
+            <h2 class="heading text-center capitalize text-white lg:text-left">
               Our Fleet
             </h2>
           </div>
@@ -107,13 +107,13 @@ export default {
       </BaseSection>
       <BaseSection class="px-4 pt-0 sm:px-6 lg:px-8">
         <BaseContainer
-          class="grid grid-cols-6 gap-6 -mt-6 bg-white shadow-xl md:grid-cols-12"
+          class="-mt-6 grid grid-cols-6 gap-6 bg-white shadow-xl md:grid-cols-12"
         >
           <div class="col-span-6 p-6 md:col-span-7">
-            <p class="text-sm font-sans text-gray-500">
+            <p class="font-sans text-sm text-gray-500">
               <span class="font-sans text-gray-500">
                 Experience luxury and reliability with
-                <span class="text-sm font-bold uppercase font-body text-brand"
+                <span class="font-body text-sm font-bold uppercase text-brand"
                   >High Park Livery's</span
                 >
                 Toronto car service. For over a decade, we have consistently
@@ -136,10 +136,10 @@ export default {
             </p>
           </div>
           <div
-            class="flex justify-center w-full col-span-2 p-6 place-items-center"
+            class="col-span-2 flex w-full place-items-center justify-center p-6"
           >
             <NuxtPicture
-              class="self-center w-96"
+              class="w-96 self-center"
               src="/icons/24-hours.svg"
               alt="24 hours icon"
             />
@@ -148,11 +148,11 @@ export default {
       </BaseSection>
       <BaseSection>
         <BaseContainer
-          class="flex flex-col max-w-4xl mx-auto mb-8 md:flex-none md:mb-4 md:grid md:grid-cols-2 md:grid-rows-1 md:items-stretch lg:max-w-7xl"
+          class="mx-auto mb-8 flex max-w-4xl flex-col md:mb-4 md:grid md:flex-none md:grid-cols-2 md:grid-rows-1 md:items-stretch lg:max-w-7xl"
         >
           <IconBlockFleet
             heading="Cadillac XTS"
-            class="order-1 md:order-first md:w-full md:col-span-1 md:col-start-1 md:self-center"
+            class="order-1 md:order-first md:col-span-1 md:col-start-1 md:w-full md:self-center"
           />
           <IconBlockFleetImage
             altText="XTS Interior"
@@ -161,24 +161,24 @@ export default {
           />
         </BaseContainer>
         <BaseContainer
-          class="flex flex-col items-stretch max-w-4xl mx-auto gap-x-2 md:flex-none md:grid md:grid-cols-2 lg:max-w-7xl"
+          class="mx-auto flex max-w-4xl flex-col items-stretch gap-x-2 md:grid md:flex-none md:grid-cols-2 lg:max-w-7xl"
         >
           <IconBlockFleet
-            class="order-2 mb-8 w-full md:mb-4 md:max-w-[80%] md:col-span-1 md:col-start-1 md:row-start-2 md:justify-self-end"
+            class="order-2 mb-8 w-full md:col-span-1 md:col-start-1 md:row-start-2 md:mb-4 md:max-w-[80%] md:justify-self-end"
             heading="Cadillac Escalade"
           />
           <IconBlockFleetImage
             altText="Escalade Interior"
-            class="order-1 md:mb-0 md:col-span-1 md:col-start-1 md:row-start-1 md:row-end-2 md:self-end"
+            class="order-1 md:col-span-1 md:col-start-1 md:row-start-1 md:row-end-2 md:mb-0 md:self-end"
             image="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/180e12f4-a0c1-4c70-b5af-5f05bbfa4700/1920"
           />
           <IconBlockFleet
-            class="order-4 w-full md:order-first md:max-w-[80%] md:pb-8 md:place-self-end md:justify-self-end"
+            class="order-4 w-full md:order-first md:max-w-[80%] md:place-self-end md:justify-self-end md:pb-8"
             heading="Lincoln Continental"
           />
           <IconBlockFleetImage
             altText="Continental Interior"
-            class="order-3 md:-mt-8 md:col-start-2 md:row-start-2"
+            class="order-3 md:col-start-2 md:row-start-2 md:-mt-8"
             image="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/7968b80b-ad94-4501-02ca-43e552c67100/1920"
           />
         </BaseContainer>
@@ -195,12 +195,12 @@ export default {
         />
       </BaseSection>
       <BaseSection class="px-4 pt-0 sm:px-6 lg:px-8">
-        <BaseContainer class="pt-32 pb-16 -mt-16 bg-white">
-          <p class="text-center subheading">WHAT High Park Livery OFFERS YOU</p>
-          <h2 class="mt-4 text-center heading">We Offer</h2>
+        <BaseContainer class="-mt-16 bg-white pt-32 pb-16">
+          <p class="subheading text-center">WHAT High Park Livery OFFERS YOU</p>
+          <h2 class="heading mt-4 text-center">We Offer</h2>
         </BaseContainer>
         <div
-          class="bg-white shadow-xl max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 @container -mt-8 p-6"
+          class="mx-auto -mt-8 grid max-w-7xl grid-cols-1 gap-4 bg-white p-6 shadow-xl @container lg:grid-cols-2"
         >
           <IconBlockAbout
             v-for="service in servicesHome"
@@ -215,8 +215,8 @@ export default {
       </BaseSection>
       <BaseSection>
         <BaseContainer class="space-y-8">
-          <p class="text-center subheading">High Park Livery PARTNERS</p>
-          <h2 class="text-center heading">They Trust Us</h2>
+          <p class="subheading text-center">High Park Livery PARTNERS</p>
+          <h2 class="heading text-center">They Trust Us</h2>
         </BaseContainer>
         <TheLogoCloud />
       </BaseSection>

@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="grid grid-cols-1 mb-12 place-items-center md:grid-cols-2">
+    <div class="mb-12 grid grid-cols-1 place-items-center md:grid-cols-2">
       <div>
-        <h2 class="pt-8 text-center md:text-left font-heading">
+        <h2 class="pt-8 text-center font-heading md:text-left">
           Lincoln Continental Sedan
         </h2>
       </div>
@@ -15,7 +15,7 @@
         />
       </div>
     </div>
-    <div class="grid grid-cols-1 mb-12 place-items-center md:grid-cols-2">
+    <div class="mb-12 grid grid-cols-1 place-items-center md:grid-cols-2">
       <BaseCard class="space-y-6">
         <h3 class="subheading">About The Vehicle</h3>
         <p class="font-sans text-gray-500">
@@ -38,7 +38,7 @@
         />
       </div>
     </div>
-    <div class="grid grid-cols-1 gap-4 mb-12">
+    <div class="mb-12 grid grid-cols-1 gap-4">
       <div class="col-span-1">
         <NuxtPicture
           src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/5736467c-b928-4091-e3aa-e1f1524a3f00/1920"
@@ -50,7 +50,7 @@
         />
       </div>
     </div>
-    <div class="flex flex-row justify-end w-full">
+    <div class="flex w-full flex-row justify-end">
       <Luggage :peopleAmount="3" :luggageAmount="3" class="md:-mt-48" />
     </div>
   </div>

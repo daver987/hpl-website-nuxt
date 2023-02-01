@@ -3,7 +3,6 @@ import { useLocalStorage } from '@vueuse/core'
 import { Database } from '~/types/supabase'
 import { format } from 'date-fns'
 
-
 const quote = ref()
 let quoteNumber = ref()
 
@@ -46,7 +45,27 @@ onMounted(async () => {
   const quoteData = await getQuote()
   console.log('Quote Data', quoteData)
   quote.value = quoteData
-  const { pickupDate, pickupTime, returnDate, returnTime, firstName, lastName, userEmail, originName, originFormattedAddress, destinationName, destinationFormattedAddress, serviceTypeLabel, vehicleTypeLabel, isPearsonAirportDropoff, isPearsonAirportPickup, totalFare, roundTripTotal, isRoundTrip, phone_number } = quote.value
+  const {
+    pickupDate,
+    pickupTime,
+    returnDate,
+    returnTime,
+    firstName,
+    lastName,
+    userEmail,
+    originName,
+    originFormattedAddress,
+    destinationName,
+    destinationFormattedAddress,
+    serviceTypeLabel,
+    vehicleTypeLabel,
+    isPearsonAirportDropoff,
+    isPearsonAirportPickup,
+    totalFare,
+    roundTripTotal,
+    isRoundTrip,
+    phone_number,
+  } = quote.value
   formattedPickupDate.value = formatDate(pickupDate)
   formattedPickupTime.value = formatTime(pickupTime)
   formattedReturnDate.value = formatDate(returnDate)
@@ -56,7 +75,10 @@ onMounted(async () => {
   userEmailQuote.value = userEmail
   phoneNumber.value = phone_number
   originNameQuote.value = formatAddress(originName, originFormattedAddress)
-  destinationNameQuote.value = formatAddress(destinationName, destinationFormattedAddress)
+  destinationNameQuote.value = formatAddress(
+    destinationName,
+    destinationFormattedAddress
+  )
   serviceTypeLabelQuote.value = serviceTypeLabel
   vehicleTypeLabelQuote.value = vehicleTypeLabel
   isPearsonAirportDropoffQuote.value = isPearsonAirportDropoff
@@ -68,18 +90,16 @@ onMounted(async () => {
 
 console.log('Returned Quote from summary', quote.value)
 
-
 const formatDate = (date: string) => {
   return format(new Date(date), 'MMMM dd, yyyy')
 }
 const formatTime = (date: string) => {
   return format(new Date(date), 'hh:mm a')
 }
+
 function formatAddress(name: string, address: string) {
-  return address.includes(name) ? address : `${name}, ${address}`;
+  return address.includes(name) ? address : `${name}, ${address}`
 }
-
-
 
 const printSummary = () => {
   window.print()
@@ -88,7 +108,7 @@ const space = ' '
 </script>
 
 <template>
-  <BaseContainer class="p-6 bg-gray-100 rounded">
+  <BaseContainer class="rounded bg-gray-100 p-6">
     <div class="sm:flex sm:items-center">
       <div class="sm:flex-auto">
         <h1 class="font-sans text-xl font-semibold text-gray-900">
@@ -104,42 +124,47 @@ const space = ' '
             HPL-{{ quoteNumber }}</span
           ><br />
           For:
-          <span class="font-sans font-normal">{{ firstNameQuote }} {{ lastNameQuote }}</span>
+          <span class="font-sans font-normal"
+            >{{ firstNameQuote }} {{ lastNameQuote }}</span
+          >
           <span class="font-sans font-normal"> {{ lastNameQuote }}</span
           ><br />
           Email:
           <span class="font-sans font-normal">{{ userEmailQuote }}</span
           ><br />
           Pick up Date:
-          <time class="font-sans font-normal" :datetime="formattedPickupDate">{{ formattedPickupDate }}</time>
+          <time class="font-sans font-normal" :datetime="formattedPickupDate"
+            >{{ formattedPickupDate }}
+          </time>
           <br />
           Pick up Time:
-          <time class="font-sans font-normal" :datetime="formattedPickupTime">{{
-            formattedPickupTime
-          }}</time>
-          <div>
+          <time class="font-sans font-normal" :datetime="formattedPickupTime"
+            >{{ formattedPickupTime }}
+          </time>
+        </p>
+        <p>
           Return Pick up Date:
-          <time class="font-sans font-normal" :datetime="formattedReturnDate">{{
-            formattedReturnDate
-          }}</time>
+          <time class="font-sans font-normal" :datetime="formattedReturnDate"
+            >{{ formattedReturnDate }}
+          </time>
           <br />
           Return Pick up Time:
-          <time class="font-sans font-normal" :datetime="formattedReturnTime">{{
-            formattedReturnTime
-          }}</time></div>
+          <time class="font-sans font-normal" :datetime="formattedReturnTime"
+            >{{ formattedReturnTime }}
+          </time>
         </p>
       </div>
       <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
         <button
           @click="printSummary"
           type="button"
-          class="inline-flex items-center justify-center px-4 py-2 font-sans text-sm font-medium tracking-wider text-white uppercase border border-transparent rounded-md shadow-sm bg-primary hover:bg-primary focus:ring-primary focus:outline-none focus:ring-2 focus:ring-offset-2 sm:w-auto"
+          class="inline-flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 font-sans text-sm font-medium uppercase tracking-wider text-white shadow-sm hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:w-auto"
         >
           Print
         </button>
       </div>
     </div>
-    <div class="flex flex-col mt-8 -mx-4 sm:-mx-6 md:mx-0">
+    <div class="-mx-4 mt-8 flex flex-col sm:-mx-6 md:mx-0">
       <table class="min-w-full divide-y divide-gray-300">
         <thead>
           <tr>
@@ -153,19 +178,19 @@ const space = ' '
 
             <th
               scope="col"
-              class="hidden py-3.5 px-3 font-sans text-right text-sm font-semibold text-gray-900 sm:table-cell"
+              class="hidden py-3.5 px-3 text-right font-sans text-sm font-semibold text-gray-900 sm:table-cell"
             >
               Service Type
             </th>
             <th
               scope="col"
-              class="hidden py-3.5 font-sans px-3 text-right text-sm font-semibold text-gray-900 sm:table-cell"
+              class="hidden py-3.5 px-3 text-right font-sans text-sm font-semibold text-gray-900 sm:table-cell"
             >
               Vehicle Type
             </th>
             <th
               scope="col"
-              class="py-3.5 pl-3 font-sans pr-4 text-right text-sm font-semibold text-gray-900 sm:pr-6 md:pr-0"
+              class="py-3.5 pl-3 pr-4 text-right font-sans text-sm font-semibold text-gray-900 sm:pr-6 md:pr-0"
             >
               Price
             </th>
@@ -189,33 +214,38 @@ const space = ' '
                 <span class="font-sans font-bold text-gray-900"
                   >Vehicle Type:
                 </span>
-                {{ serviceTypeLabelQuote }}<br /><span class="font-bold text-gray-900"
+                {{ serviceTypeLabelQuote }}<br /><span
+                  class="font-bold text-gray-900"
                   >Service Type: </span
                 >{{ vehicleTypeLabelQuote }}
               </div>
             </td>
             <td
-            v-if="isPearsonAirportPickupQuote || isPearsonAirportDropoffQuote"
-              class="hidden px-3 py-4 font-sans text-sm text-right text-gray-500 sm:table-cell"
+              v-if="isPearsonAirportPickupQuote || isPearsonAirportDropoffQuote"
+              class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-            {{ serviceTypeLabelQuote !== 'From Airport' ? 'To Airport' : serviceTypeLabelQuote }}
+              {{
+                serviceTypeLabelQuote !== 'From Airport'
+                  ? 'To Airport'
+                  : serviceTypeLabelQuote
+              }}
             </td>
 
             <td
-            v-else
-              class="hidden px-3 py-4 font-sans text-sm text-right text-gray-500 sm:table-cell"
+              v-else
+              class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-            {{ serviceTypeLabelQuote }}
-          </td>
+              {{ serviceTypeLabelQuote }}
+            </td>
             <td
-              class="hidden px-3 py-4 font-sans text-sm text-right text-gray-500 sm:table-cell"
+              class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
               {{ vehicleTypeLabelQuote }}
             </td>
             <td
-              class="py-4 pl-3 pr-4 font-sans text-sm text-right text-gray-500 sm:pr-6 md:pr-0"
+              class="py-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
-              ${{ totalFareQuote? totalFareQuote.toFixed(2) : 'Loading....' }}
+              ${{ totalFareQuote ? totalFareQuote.toFixed(2) : 'Loading....' }}
             </td>
           </tr>
           <tr v-if="isRoundTripQuote" class="border-b border-gray-200">
@@ -242,27 +272,31 @@ const space = ' '
               </div>
             </td>
             <td
-            v-if="isPearsonAirportPickupQuote || isPearsonAirportDropoffQuote"
-              class="hidden px-3 py-4 font-sans text-sm text-right text-gray-500 sm:table-cell"
+              v-if="isPearsonAirportPickupQuote || isPearsonAirportDropoffQuote"
+              class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-            {{ serviceTypeLabelQuote === 'From Airport' ? 'To Airport' : serviceTypeLabelQuote }}
+              {{
+                serviceTypeLabelQuote === 'From Airport'
+                  ? 'To Airport'
+                  : serviceTypeLabelQuote
+              }}
             </td>
 
             <td
-            v-else
-              class="hidden px-3 py-4 font-sans text-sm text-right text-gray-500 sm:table-cell"
+              v-else
+              class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-            {{ serviceTypeLabelQuote }}
-          </td>
-          <td
-              class="hidden px-3 py-4 font-sans text-sm text-right text-gray-500 sm:table-cell"
+              {{ serviceTypeLabelQuote }}
+            </td>
+            <td
+              class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
               {{ vehicleTypeLabelQuote }}
             </td>
             <td
-              class="py-4 pl-3 pr-4 font-sans text-sm text-right text-gray-500 sm:pr-6 md:pr-0"
+              class="py-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
-            ${{ totalFareQuote? totalFareQuote.toFixed(2) : 'Loading....' }}
+              ${{ totalFareQuote ? totalFareQuote.toFixed(2) : 'Loading....' }}
             </td>
           </tr>
         </tbody>
@@ -271,18 +305,18 @@ const space = ' '
             <th
               scope="row"
               colspan="3"
-              class="hidden pt-6 pl-6 pr-3 font-sans text-sm font-normal text-right text-gray-500 sm:table-cell md:pl-0"
+              class="hidden pt-6 pl-6 pr-3 text-right font-sans text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
             >
               Subtotal
             </th>
             <th
               scope="row"
-              class="pt-6 pl-4 pr-3 font-sans text-sm font-normal text-left text-gray-500 sm:hidden"
+              class="pt-6 pl-4 pr-3 text-left font-sans text-sm font-normal text-gray-500 sm:hidden"
             >
               Subtotal
             </th>
             <td
-              class="pt-6 pl-3 pr-4 font-sans text-sm text-right text-gray-500 sm:pr-6 md:pr-0"
+              class="pt-6 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
               $0.00
             </td>
@@ -291,38 +325,42 @@ const space = ' '
             <th
               scope="row"
               colspan="3"
-              class="hidden pt-4 pl-6 pr-3 font-sans text-sm font-normal text-right text-gray-500 sm:table-cell md:pl-0"
+              class="hidden pt-4 pl-6 pr-3 text-right font-sans text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
             >
               Airport Fee
             </th>
             <th
               scope="row"
-              class="pt-4 pl-4 pr-3 font-sans text-sm font-normal text-left text-gray-500 sm:hidden"
+              class="pt-4 pl-4 pr-3 text-left font-sans text-sm font-normal text-gray-500 sm:hidden"
             >
-            Airport Fee
+              Airport Fee
             </th>
             <td
-              class="pt-4 pl-3 pr-4 font-sans text-sm text-right text-gray-500 sm:pr-6 md:pr-0"
+              class="pt-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
-              ${{ isPearsonAirportDropoffQuote || isPearsonAirportPickupQuote ? '15.00' : '0.00' }}
+              ${{
+                isPearsonAirportDropoffQuote || isPearsonAirportPickupQuote
+                  ? '15.00'
+                  : '0.00'
+              }}
             </td>
           </tr>
           <tr>
             <th
               scope="row"
               colspan="3"
-              class="hidden pt-4 pl-6 pr-3 font-sans text-sm font-semibold text-right text-gray-900 sm:table-cell md:pl-0"
+              class="hidden pt-4 pl-6 pr-3 text-right font-sans text-sm font-semibold text-gray-900 sm:table-cell md:pl-0"
             >
               Total
             </th>
             <th
               scope="row"
-              class="pt-3 pl-4 pr-3 font-sans text-sm font-semibold text-left text-gray-900 sm:hidden"
+              class="pt-3 pl-4 pr-3 text-left font-sans text-sm font-semibold text-gray-900 sm:hidden"
             >
               Total
             </th>
             <td
-              class="pt-3 pl-3 pr-4 font-sans text-sm font-semibold text-right text-gray-900 sm:pr-6 md:pr-0"
+              class="pt-3 pl-3 pr-4 text-right font-sans text-sm font-semibold text-gray-900 sm:pr-6 md:pr-0"
             >
               ${{ roundTripTotalQuote }}
             </td>
@@ -330,17 +368,17 @@ const space = ' '
         </tfoot>
       </table>
       <table class="mt-4">
-        <tr class="pb-4 border-t border-gray-200">
+        <tr class="border-t border-gray-200 pb-4">
           <td class="py-2">
             <BaseContainer>
               <div
-                class="grid items-start grid-cols-1 gap-4 mt-4 mb-6 md:grid-cols-2"
+                class="mt-4 mb-6 grid grid-cols-1 items-start gap-4 md:grid-cols-2"
               >
-                <div class="flex flex-col mb-2">
+                <div class="mb-2 flex flex-col">
                   <p class="font-sans text-base font-bold text-black">
                     Check your email for your trip confirmation
                   </p>
-                  <p class="text-sm font-sans text-red-700 max-w-[65ch]">
+                  <p class="max-w-[65ch] font-sans text-sm text-red-700">
                     **Please note, due to scheduling you may not receive a
                     confirmation right away. If your trip is not confirmed
                     within 2 hours, please contact us at 1-800-668-8687.

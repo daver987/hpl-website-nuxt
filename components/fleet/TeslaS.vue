@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="grid grid-cols-1 mb-12 place-items-center md:grid-cols-2">
-      <div><h2 class="pt-8 text-center md:text-left heading">Tesla S</h2></div>
+    <div class="mb-12 grid grid-cols-1 place-items-center md:grid-cols-2">
+      <div><h2 class="heading pt-8 text-center md:text-left">Tesla S</h2></div>
       <div>
         <NuxtPicture
           src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/966d3175-0900-4b44-8330-ccfeb264ed00/1920"
@@ -10,7 +10,7 @@
         />
       </div>
     </div>
-    <div class="grid grid-cols-1 mb-12 place-items-center md:grid-cols-2">
+    <div class="mb-12 grid grid-cols-1 place-items-center md:grid-cols-2">
       <BaseCard class="space-y-6">
         <h3 class="subheading">About The Vehicle</h3>
         <p class="font-sans text-gray-500">
@@ -31,7 +31,7 @@
         />
       </div>
     </div>
-    <div class="grid grid-cols-1 gap-4 mb-12">
+    <div class="mb-12 grid grid-cols-1 gap-4">
       <div class="col-span-1">
         <NuxtPicture
           src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/3cfdbe3b-4b0f-4821-d6dd-b4cae64dc000/1920"
@@ -43,7 +43,7 @@
         />
       </div>
     </div>
-    <div class="flex flex-row justify-end w-full">
+    <div class="flex w-full flex-row justify-end">
       <Luggage :peopleAmount="3" :luggageAmount="3" class="md:-mt-48" />
     </div>
   </div>

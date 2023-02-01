@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="grid grid-cols-1 mb-12 place-items-center md:grid-cols-2">
+    <div class="mb-12 grid grid-cols-1 place-items-center md:grid-cols-2">
       <div>
-        <h2 class="pt-8 text-center md:text-left heading">
+        <h2 class="heading pt-8 text-center md:text-left">
           Lincoln Navigator SUV
         </h2>
       </div>
@@ -14,7 +14,7 @@
         />
       </div>
     </div>
-    <div class="grid grid-cols-1 mb-12 place-items-center md:grid-cols-2">
+    <div class="mb-12 grid grid-cols-1 place-items-center md:grid-cols-2">
       <BaseCard class="space-y-6">
         <h3 class="subheading">About The Vehicle</h3>
         <p class="font-sans text-gray-500">
@@ -36,9 +36,9 @@
       </div>
     </div>
     <div
-      class="grid grid-cols-1 mb-12 auto-cols-auto place-items-center md:gap-4 md:grid-cols-12"
+      class="mb-12 grid auto-cols-auto grid-cols-1 place-items-center md:grid-cols-12 md:gap-4"
     >
-      <div class="col-span-1 mb-6 md:mb-0 md:col-span-4">
+      <div class="col-span-1 mb-6 md:col-span-4 md:mb-0">
         <NuxtPicture
           src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/7ab09c99-a398-4c97-6813-5691753f0400/1920"
           alt="Lincoln Navigator"
@@ -53,7 +53,7 @@
         />
       </div>
     </div>
-    <div class="flex flex-row justify-end w-full">
+    <div class="flex w-full flex-row justify-end">
       <Luggage :peopleAmount="6" :luggageAmount="6" class="md:-mt-48" />
     </div>
   </div>

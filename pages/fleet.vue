@@ -84,10 +84,11 @@ const tabs = [
       as="main"
       @change="changeTab"
       :defaultIndex="0"
-      class="px-6 pt-6 mx-auto md:-mt-20 md:px-8 lg:px-12 max-w-7xl"
+      :selectedIndex="selectedTab"
+      class="mx-auto max-w-7xl px-6 pt-6 md:-mt-20 md:px-8 lg:px-12"
     >
       <TabList
-        class="relative z-10 grid grid-cols-2 gap-1 mx-auto mb-12 md:grid-cols-3 lg:grid-cols-6"
+        class="relative z-10 mx-auto mb-12 grid grid-cols-2 gap-1 md:grid-cols-3 lg:grid-cols-6"
       >
         <Tab
           v-slot="{ selected }"
@@ -102,15 +103,11 @@ const tabs = [
             :class="[
               selected ? 'bg-primary text-white' : 'bg-white text-gray-500',
             ]"
-            class="flex flex-col items-center justify-center w-full col-span-1 py-16 space-y-4 border-white hover:bg-primary hover:text-white"
+            class="col-span-1 flex w-full flex-col items-center justify-center space-y-4 border-white py-16 hover:bg-primary hover:text-white"
           >
-            <NuxtPicture
-              :src="`/icons/${tab.icon}.svg`"
-              alt="icon"
-              class="w-16"
-            />
+            <NuxtImg :src="`/icons/${tab.icon}.svg`" alt="icon" class="w-16" />
             <span
-              class="text-sm tracking-widest text-center uppercase hover:text-white"
+              class="text-center text-sm uppercase tracking-widest hover:text-white"
               :class="[selected ? 'bg-primary text-white' : 'text-gray-500']"
             >
               {{ tab.title }}

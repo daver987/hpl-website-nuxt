@@ -266,12 +266,12 @@ export default defineComponent({
 
     watchEffect(
       () =>
-      (input.value =
-        props.modelValue && isValid(props.modelValue)
-          ? format(props.modelValue, props.inputFormat, {
-            locale: props.locale,
-          })
-          : '')
+        (input.value =
+          props.modelValue && isValid(props.modelValue)
+            ? format(props.modelValue, props.inputFormat, {
+                locale: props.locale,
+              })
+            : '')
     )
 
     const renderView = (view: typeof viewShown.value = 'none') => {
@@ -417,9 +417,11 @@ export default defineComponent({
 <style>
 .v3dp__datepicker {
   --popout-bg-color: var(--vdp-bg-color, #fff);
-  --box-shadow: var(--vdp-box-shadow,
-      0 4px 10px 0 rgba(128, 144, 160, 0.1),
-      0 0 1px 0 rgba(128, 144, 160, 0.81));
+  --box-shadow: var(
+    --vdp-box-shadow,
+    0 4px 10px 0 rgba(128, 144, 160, 0.1),
+    0 0 1px 0 rgba(128, 144, 160, 0.81)
+  );
   --text-color: var(--vdp-text-color, #000000);
   --border-radius: var(--vdp-border-radius, 3px);
   --heading-size: var(--vdp-heading-size, 2.5em);

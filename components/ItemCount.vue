@@ -12,14 +12,14 @@ defineProps({
 </script>
 
 <template>
-  <div class="flex flex-col items-center h-full mb-8 space-y-4 md:m-0">
+  <div class="mb-8 flex h-full flex-col items-center space-y-4 md:m-0">
     <slot></slot>
     <h4
-      class="text-base font-semibold tracking-widest text-center text-gray-500 uppercase"
+      class="text-center text-base font-semibold uppercase tracking-widest text-gray-500"
     >
       {{ kind }}
     </h4>
-    <p class="text-5xl text-gray-700 font-heading">
+    <p class="font-heading text-5xl text-gray-700">
       {{ amount }}
     </p>
   </div>

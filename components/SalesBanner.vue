@@ -25,7 +25,7 @@ const dismissBanner = () => {
 
 <template>
   <div v-if="hideBanner" class="bg-brand">
-    <div class="px-3 py-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl px-3 py-2 sm:px-6 lg:px-8">
       <div class="pr-16 sm:px-16 sm:text-center">
         <p class="font-medium text-white">
           <span v-if="true" class="text-sm">{{ bannerLabel }}</span>
@@ -48,10 +48,10 @@ const dismissBanner = () => {
         <button
           type="button"
           @click="dismissBanner"
-          class="flex p-2 rounded-md hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-white"
+          class="flex rounded-md p-2 hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-white"
         >
           <span class="sr-only">Dismiss</span>
-          <XMarkIcon class="w-4 h-4 text-white" aria-hidden="true" />
+          <XMarkIcon class="h-4 w-4 text-white" aria-hidden="true" />
         </button>
       </div>
     </div>

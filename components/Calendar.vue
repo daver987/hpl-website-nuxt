@@ -83,17 +83,17 @@ const emitDate = () => {
 }
 </script>
 <template>
-  <div class="max-w-xs px-4 text-center border-black rounded-md border-1">
+  <div class="border-1 max-w-xs rounded-md border-black px-4 text-center">
     <div class="flex items-center text-gray-900">
       <button
         @click="onLeftArrowClick"
         type="button"
-        class="-m-1.5 flex flex-none items-center cursor-pointer justify-center p-1.5 text-gray-900 hover:text-gray-50 hover:bg-brand-600 rounded-full bg-brand-400"
+        class="-m-1.5 flex flex-none cursor-pointer items-center justify-center rounded-full bg-brand-400 p-1.5 text-gray-900 hover:bg-brand-600 hover:text-gray-50"
       >
         <span class="sr-only">Previous month</span>
         <Icon
           name="heroicons:chevron-left-20-solid"
-          class="w-5 h-5"
+          class="h-5 w-5"
           aria-hidden="true"
         />
       </button>
@@ -103,17 +103,17 @@ const emitDate = () => {
       <button
         @click="onRightArrowClick"
         type="button"
-        class="-m-1.5 flex cursor-pointer flex-none items-center justify-center p-1.5 text-gray-900 hover:text-gray-50 hover:bg-brand-600 rounded-full bg-brand-400"
+        class="-m-1.5 flex flex-none cursor-pointer items-center justify-center rounded-full bg-brand-400 p-1.5 text-gray-900 hover:bg-brand-600 hover:text-gray-50"
       >
         <span class="sr-only">Next month</span>
         <Icon
           name="heroicons:chevron-right-20-solid"
-          class="w-5 h-5"
+          class="h-5 w-5"
           aria-hidden="true"
         />
       </button>
     </div>
-    <div class="grid grid-cols-7 mt-6 text-xs leading-6 text-gray-500">
+    <div class="mt-6 grid grid-cols-7 text-xs leading-6 text-gray-500">
       <div>S</div>
       <div>M</div>
       <div>T</div>
@@ -123,7 +123,7 @@ const emitDate = () => {
       <div>S</div>
     </div>
     <div
-      class="grid grid-cols-7 gap-px mt-2 text-sm bg-gray-200 rounded-lg shadow isolate ring-1 ring-gray-200"
+      class="isolate mt-2 grid grid-cols-7 gap-px rounded-lg bg-gray-200 text-sm shadow ring-1 ring-gray-200"
     >
       <button
         v-for="(day, dayIdx) in calendarDates"
@@ -137,16 +137,16 @@ const emitDate = () => {
           (day.isSelected || day.isToday) && 'font-semibold',
           day.isSelected && 'text-white',
           !day.isSelected &&
-          day.isCurrentMonth &&
-          !day.isToday &&
-          'text-gray-900',
+            day.isCurrentMonth &&
+            !day.isToday &&
+            'text-gray-900',
           !day.isSelected &&
-          !day.isCurrentMonth &&
-          !day.isToday &&
-          'text-gray-400',
+            !day.isCurrentMonth &&
+            !day.isToday &&
+            'text-gray-400',
           day.isToday &&
-          !day.isSelected &&
-          'text-brand bg-gray-100 hover:bg-gray-300 hover:text-brand-700',
+            !day.isSelected &&
+            'bg-gray-100 text-brand hover:bg-gray-300 hover:text-brand-700',
           dayIdx === 0 && 'rounded-tl-lg',
           dayIdx === 6 && 'rounded-tr-lg',
           dayIdx === calendarDates.length - 7 && 'rounded-bl-lg',
@@ -156,7 +156,7 @@ const emitDate = () => {
         <time
           :datetime="day.date"
           :class="[
-            'mx-auto flex h-7 w-7 items-center justify-center rounded-full date',
+            'date mx-auto flex h-7 w-7 items-center justify-center rounded-full',
             day.isSelected && day.isToday && 'bg-brand',
             day.isSelected && !day.isToday && 'bg-brand-600',
           ]"

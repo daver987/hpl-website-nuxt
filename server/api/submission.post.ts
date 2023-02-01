@@ -229,8 +229,8 @@ export default defineEventHandler(async (event) => {
         .eq('id', '1')
       return updatedQuoteNumber
     }
-    const quoteNumber = await incrementedQuoteNumber()
-    console.log('This is the incremented quote number', quoteNumber)
+    const quote_number = await incrementedQuoteNumber()
+    console.log('This is the incremented quote number', quote_number)
 
     //add the quote to the database
     const addQuote = async () => {
@@ -274,7 +274,7 @@ export default defineEventHandler(async (event) => {
           HST: surchargeAmounts.HST,
           userEmail: emailAddress,
           totalFare: totalAmount,
-          quote_number: quoteNumber,
+          quote_number: quote_number,
           firstName,
           lastName,
           phone_number: phoneNumber,
@@ -312,7 +312,7 @@ export default defineEventHandler(async (event) => {
           pickupTime: formatTime(pickupTime),
           returnDate: formatDate(returnDate),
           returnTime: formatTime(returnTime),
-          quoteNumber,
+          quote_number,
           originFormattedAddress: placeDataOrigin.formatted_address,
           destinationFormattedAddress: placeDataDestination.formatted_address,
         },
@@ -388,6 +388,7 @@ export default defineEventHandler(async (event) => {
       calculatedDistance,
       hplUserId: hplUserId.value,
       totalFare: totalAmount,
+      quote_number,
     }
   } catch (error) {
     console.log(error)

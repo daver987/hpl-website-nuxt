@@ -14,13 +14,13 @@ defineProps({
 <template>
   <div :class="grid">
     <div
-      class="flex flex-col px-8 py-12 space-y-6 bg-white shadow-xl md:px-6 lg:px-8"
+      class="flex flex-col space-y-6 bg-white px-8 py-12 shadow-xl md:px-6 lg:px-8"
     >
-      <p class="text-center subheading md:text-left">luxury vehicle</p>
-      <h2 class="text-4xl text-center xl:text-5xl heading md:text-left">
+      <p class="subheading text-center md:text-left">luxury vehicle</p>
+      <h2 class="heading text-center text-4xl md:text-left xl:text-5xl">
         {{ heading }}
       </h2>
-      <div class="flex justify-center max-w-lg md:justify-start">
+      <div class="flex max-w-lg justify-center md:justify-start">
         <BaseButton
           kind="btn-flat"
           label="View More"
@@ -29,7 +29,7 @@ defineProps({
         >
           <Icon
             name="ic:twotone-arrow-right-alt"
-            class="w-auto h-12 text-brand"
+            class="h-12 w-auto text-brand"
           />
         </BaseButton>
       </div>

@@ -80,9 +80,9 @@ const modelValue = ref('')
 
 <template>
   <div
-    class="px-3 bg-white border border-gray-300 rounded shadow-sm focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600"
+    class="rounded border border-gray-300 bg-white px-3 shadow-sm focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600"
   >
-    <label :for="name" class="block text-gray-700 text-xxs font-regular">{{
+    <label :for="name" class="font-regular block text-xxs text-gray-700">{{
       label
     }}</label>
     <input
@@ -94,7 +94,7 @@ const modelValue = ref('')
       :type="type"
       :value="modelValue"
       @input="(event) => (modelValue = event.target?.value)"
-      class="block w-full border-0 p-0 text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-sm pb-0.5 -mt-1 capitalize"
+      class="-mt-1 block w-full border-0 p-0 pb-0.5 capitalize text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-sm"
     />
     <div v-if="showError === null" class="flex">
       <div class="block text-xs text-red-700">

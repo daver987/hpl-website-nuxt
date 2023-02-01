@@ -31,7 +31,7 @@ definePageMeta({
     />
     <section class="px-6">
       <div
-        class="container mx-auto h-[125vh] -mt-16 mb-16 w-full max-w-7xl z-20 relative md:-mt-20"
+        class="container relative z-20 mx-auto -mt-16 mb-16 h-[125vh] w-full max-w-7xl md:-mt-20"
       >
         <NuxtLink
           href="https://book.mylimobiz.com/v4/highpark"

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="grid grid-cols-1 mb-12 place-items-center md:grid-cols-2">
-      <div><h2 class="pt-8 text-center heading">Cadillac XTS Sedan</h2></div>
+    <div class="mb-12 grid grid-cols-1 place-items-center md:grid-cols-2">
+      <div><h2 class="heading pt-8 text-center">Cadillac XTS Sedan</h2></div>
       <div>
         <NuxtPicture
           src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/12f57e26-99ae-4fe0-9579-fa3129277800/1920"
@@ -10,7 +10,7 @@
         />
       </div>
     </div>
-    <div class="grid grid-cols-1 mb-12 place-items-center md:grid-cols-2">
+    <div class="mb-12 grid grid-cols-1 place-items-center md:grid-cols-2">
       <BaseCard class="space-y-6">
         <h3 class="subheading">About The Vehicle</h3>
         <p class="font-sans text-gray-500">
@@ -33,9 +33,9 @@
       </div>
     </div>
     <div
-      class="grid grid-cols-1 mb-12 auto-cols-auto place-items-center md:gap-4 md:grid-cols-12"
+      class="mb-12 grid auto-cols-auto grid-cols-1 place-items-center md:grid-cols-12 md:gap-4"
     >
-      <div class="col-span-2 mb-6 md:mb-0 md:col-span-4">
+      <div class="col-span-2 mb-6 md:col-span-4 md:mb-0">
         <NuxtPicture
           src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/b5750bfa-1cbf-4655-76b5-39214202e000/1920"
           alt="XTS"
@@ -52,7 +52,7 @@
         />
       </div>
     </div>
-    <div class="flex flex-row justify-end w-full">
+    <div class="flex w-full flex-row justify-end">
       <Luggage :peopleAmount="3" :luggageAmount="3" class="md:-mt-48" />
     </div>
   </div>

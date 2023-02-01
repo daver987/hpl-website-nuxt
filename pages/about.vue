@@ -11,8 +11,6 @@ const headerInfo = {
   image:
     'background-image: url("https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/33276e69-8f27-493e-57ee-7e63d9819700/1920")',
 }
-
-// const quality = qualities
 </script>
 
 <template>

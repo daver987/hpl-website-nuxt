@@ -17,7 +17,7 @@
       class="relative px-6 py-16 sm:py-24 lg:mx-auto lg:grid lg:max-w-7xl lg:grid-cols-2 lg:px-8 lg:py-32"
     >
       <div class="lg:pr-8">
-        <div class="max-w-md mx-auto sm:max-w-lg lg:mx-0">
+        <div class="mx-auto max-w-md sm:max-w-lg lg:mx-0">
           <h2 class="font-sans text-3xl font-bold tracking-tight sm:text-4xl">
             Let's work together
           </h2>
@@ -28,7 +28,7 @@
           <form
             action="#"
             method="POST"
-            class="grid grid-cols-1 mt-9 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
+            class="mt-9 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
           >
             <div>
               <label
@@ -42,7 +42,7 @@
                   name="first-name"
                   id="first-name"
                   autocomplete="given-name"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
                 />
               </div>
             </div>
@@ -58,7 +58,7 @@
                   name="last-name"
                   id="last-name"
                   autocomplete="family-name"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
                 />
               </div>
             </div>
@@ -72,7 +72,7 @@
                   name="email"
                   type="email"
                   autocomplete="email"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
                 />
               </div>
             </div>
@@ -94,7 +94,7 @@
                   id="phone"
                   autocomplete="tel"
                   aria-describedby="phone-description"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
                 />
               </div>
             </div>
@@ -117,7 +117,7 @@
                   name="how-can-we-help"
                   aria-describedby="how-can-we-help-description"
                   rows="4"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
                 />
               </div>
             </div>
@@ -132,14 +132,14 @@
                   type="text"
                   name="how-did-you-hear-about-us"
                   id="how-did-you-hear-about-us"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
                 />
               </div>
             </div>
             <div class="text-right sm:col-span-2">
               <button
                 type="submit"
-                class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
+                class="inline-flex justify-center rounded-md border border-transparent bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
               >
                 Submit
               </button>

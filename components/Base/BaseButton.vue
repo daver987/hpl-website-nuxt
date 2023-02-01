@@ -7,10 +7,9 @@ interface Props {
   nuxtLink?: boolean
 }
 const props = defineProps<Props>()
-const emit = defineEmits<{
-  (event: 'clicked'): void
-}>()
-emit('clicked')
+const emit = defineEmits(['click'])
+emit('click')
+
 const btnType = computed(() => {
   if (props.href) {
     return 'a'
@@ -54,13 +53,7 @@ const btnStyle = computed(() => {
 </script>
 
 <template>
-  <component
-    :class="btnStyle"
-    :is="btnType"
-    :href="href"
-    :to="to"
-    @click="$emit('clicked')"
-  >
+  <component :class="btnStyle" :is="btnType" :href="href" :to="to">
     <span class="mx-auto">{{ label }}</span>
     <slot></slot>
   </component>

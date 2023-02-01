@@ -16,13 +16,13 @@ const nav = navigation as NavigationItem[]
       <FooterCta />
     </div>
     <div
-      class="w-full px-6 pt-24 pb-8 bg-background-dark lg:px-10 lg:pt-16 lg:pb-4"
+      class="w-full bg-background-dark px-6 pt-24 pb-8 lg:px-10 lg:pt-16 lg:pb-4"
     >
       <div
-        class="grid grid-cols-1 mx-auto max-w-7xl md:grid-cols-2 lg:grid-cols-3 lg:gap-8"
+        class="mx-auto grid max-w-7xl grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-8"
       >
         <div class="my-8 space-y-10">
-          <NuxtLink to="/" class="max-w-[125px] block">
+          <NuxtLink to="/" class="block max-w-[125px]">
             <NuxtPicture
               :alt="companyName"
               :src="companyLogo"
@@ -37,7 +37,7 @@ const nav = navigation as NavigationItem[]
             <Icon class="mr-8 text-3xl text-primary" name="zmdi:phone" />
             <NuxtLink
               :href="`tel:${companyPhone}`"
-              class="text-base tracking-wider text-white cursor-pointer font-body hover:text-primary"
+              class="cursor-pointer font-body text-base tracking-wider text-white hover:text-primary"
               >{{ companyPhone }}
             </NuxtLink>
           </div>
@@ -45,20 +45,20 @@ const nav = navigation as NavigationItem[]
             <Icon class="mr-8 text-4xl text-primary" name="ic:outline-mail" />
             <NuxtLink
               :href="`mailto:${companyEmail}`"
-              class="text-base tracking-wider text-white cursor-pointer font-body hover:text-primary"
+              class="cursor-pointer font-body text-base tracking-wider text-white hover:text-primary"
               >{{ companyEmail }}
             </NuxtLink>
           </div>
         </div>
         <div class="my-8 space-y-4">
           <h3
-            class="text-xl tracking-widest uppercase font-subheading text-primary"
+            class="font-subheading text-xl uppercase tracking-widest text-primary"
           >
             Quick Links
           </h3>
           <nav>
             <ul
-              class="flex flex-col font-bold leading-relaxed tracking-wider uppercase font-body text-body-light"
+              class="flex flex-col font-body font-bold uppercase leading-relaxed tracking-wider text-body-light"
             >
               <li v-for="myNavigation in nav" :key="myNavigation.id">
                 <NuxtLink
@@ -74,18 +74,18 @@ const nav = navigation as NavigationItem[]
         <div class="my-8 space-y-6 lg:space-y-4">
           <label
             for="email"
-            class="text-xl tracking-widest uppercase font-subheading text-primary"
+            class="font-subheading text-xl uppercase tracking-widest text-primary"
           >
             Sign Up
           </label>
           <EmailInput />
           <BaseButton kind="btn-solid" label="Subscribe" />
           <p
-            class="text-base tracking-wider text-center uppercase font-body text-body-light"
+            class="text-center font-body text-base uppercase tracking-wider text-body-light"
           >
             Socialize With {{ companyName }}
           </p>
-          <div class="flex flex-row justify-center gap-8 mx-auto max-w-40">
+          <div class="max-w-40 mx-auto flex flex-row justify-center gap-8">
             <Icon class="text-3xl text-primary" name="zmdi:facebook" />
             <Icon class="text-3xl text-primary" name="zmdi:twitter" />
             <Icon class="text-3xl text-primary" name="zmdi:instagram" />

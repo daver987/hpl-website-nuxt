@@ -3,7 +3,7 @@
     <input
       id="email"
       aria-describedby="email-description"
-      class="block w-full p-4 border border-white border-solid bg-background-dark h-14 sm:text-sm focus:border-primary focus:ring-primary"
+      class="block h-14 w-full border border-solid border-white bg-background-dark p-4 focus:border-primary focus:ring-primary sm:text-sm"
       name="email"
       placeholder="you@example.com"
       type="text"

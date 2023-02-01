@@ -38,42 +38,42 @@ defineProps({
   >
     <AppNavigation />
     <BaseContainer
-      class="relative grid h-full grid-cols-1 mt-20 md:grid-cols-2"
+      class="relative mt-20 grid h-full grid-cols-1 md:grid-cols-2"
     >
       <div
         :style="image"
-        class="relative py-32 bg-black bg-center bg-no-repeat bg-cover md:col-span-2 md:px-10 bg-opacity-60 bg-blend-darken"
+        class="relative bg-black bg-opacity-60 bg-cover bg-center bg-no-repeat py-32 bg-blend-darken md:col-span-2 md:px-10"
       >
         <div class="space-y-4 text-center md:text-left">
           <p
-            class="text-sm tracking-widest text-center font-subheading text-brand md:text-left"
+            class="text-center font-subheading text-sm tracking-widest text-brand md:text-left"
           >
             {{ aboveHeading }}
           </p>
           <h1
-            class="leading-tight text-center text-white capitalize font-heading md:text-left"
+            class="text-center font-heading capitalize leading-tight text-white md:text-left"
           >
             {{ heading }}
           </h1>
-          <p class="max-w-xs mx-auto md:m-0 md:text-left">
+          <p class="mx-auto max-w-xs md:m-0 md:text-left">
             {{ body }}
           </p>
           <div
-            class="tracking-wide md:transform md:-rotate-90 md:absolute md:-left-20 bottom-1/2"
+            class="bottom-1/2 tracking-wide md:absolute md:-left-20 md:-rotate-90 md:transform"
           >
             <NuxtLink
               :href="`tel:${companyPhone}`"
-              class="text-sm text-center text-gray-300 font-body"
+              class="text-center font-body text-sm text-gray-300"
               ><span class="text-brand">CALL :</span>
               {{ companyPhone }}</NuxtLink
             >
           </div>
           <div
-            class="my-1 md:transform md:rotate-90 md:absolute md:-right-36 bottom-1/2"
+            class="bottom-1/2 my-1 md:absolute md:-right-36 md:rotate-90 md:transform"
           >
             <NuxtLink
               :href="`mailto:${companyEmail}`"
-              class="text-sm tracking-wide text-center text-gray-300 uppercase font-body"
+              class="text-center font-body text-sm uppercase tracking-wide text-gray-300"
               ><span class="text-brand">EMAIL :</span>
               {{ companyEmail }}
             </NuxtLink>
