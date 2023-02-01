@@ -1,7 +1,5 @@
 import { Stripe } from 'stripe'
-import { Session } from '~/types/session'
 
-const YOUR_DOMAIN = useRuntimeConfig().public.WEBSITE_URL
 const STRIPE_SECRET_KEY = useRuntimeConfig().STRIPE_SECRET_KEY
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2022-11-15',
