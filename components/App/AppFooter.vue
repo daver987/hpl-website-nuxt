@@ -79,7 +79,7 @@ const nav = navigation as NavigationItem[]
             Sign Up
           </label>
           <EmailInput />
-          <BaseButton kind="btn-solid" label="Subscribe" />
+          <BaseButton button kind="btn-solid" label="Subscribe" />
           <p
             class="text-center font-body text-base uppercase tracking-wider text-body-light"
           >

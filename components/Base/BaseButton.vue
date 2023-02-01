@@ -4,20 +4,18 @@ interface Props {
   label?: string
   to?: string
   href?: string
+  link?: boolean
   nuxtLink?: boolean
+  button?: boolean
 }
 const props = defineProps<Props>()
-const emit = defineEmits(['click'])
-emit('click')
 
 const btnType = computed(() => {
-  if (props.href) {
-    return 'a'
-  }
-  if (props.nuxtLink) {
-    return 'router-link'
-  }
-  return 'button'
+  if (props.link) {
+    return true
+  } else if (props.nuxtLink) {
+    return true
+  } else return true
 })
 const btnStyle = computed(() => {
   if (props.kind === 'btn-light') {
@@ -53,8 +51,21 @@ const btnStyle = computed(() => {
 </script>
 
 <template>
-  <component :class="btnStyle" :is="btnType" :href="href" :to="to">
+  <button @click="$emit('click')" :class="btnStyle" v-if="button === true">
     <span class="mx-auto">{{ label }}</span>
     <slot></slot>
-  </component>
+  </button>
+  <NuxtLink
+    @click="$emit('click')"
+    v-if="nuxtLink === true"
+    :class="btnStyle"
+    :href="href"
+    :to="to"
+  >
+    <span class="mx-auto">{{ label }}</span>
+    <slot></slot>
+  </NuxtLink>
+  <a v-if="link === true" :class="btnStyle" :href="href">
+    <slot></slot>
+  </a>
 </template>

@@ -95,6 +95,8 @@ export default defineEventHandler(async (event) => {
       min_hours_hourly,
       min_rate_hourly,
       per_hour,
+      vehicle_image,
+      id: vehicleId,
     } = vehicleRates.value
 
     //calculate the base rate
@@ -286,6 +288,8 @@ export default defineEventHandler(async (event) => {
           utm_campaign: gtmValues.utm_campaign,
           utm_term: gtmValues.utm_term,
           gclid: gtmValues.gclid,
+          vehicle_type_id: vehicleId,
+          service_type_id: serviceTypeValue,
         })
         .select()
       if (error) {
@@ -315,6 +319,7 @@ export default defineEventHandler(async (event) => {
           quote_number: quote_number,
           originFormattedAddress: placeDataOrigin.formatted_address,
           destinationFormattedAddress: placeDataDestination.formatted_address,
+          vehicle_image,
         },
       })
       console.log('This is the returned email data', data)
@@ -389,6 +394,7 @@ export default defineEventHandler(async (event) => {
       hplUserId: hplUserId.value,
       totalFare: totalAmount,
       quote_number,
+      vehicle_image,
     }
   } catch (error) {
     console.log(error)

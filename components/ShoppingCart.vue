@@ -47,9 +47,10 @@ const { data: quoteData } = await useAsyncData('quote', async () => {
   console.log('Quote Number in function', quoteNumber())
   const { data } = await supabase
     .from('quotes')
-    .select('*')
+    .select('*, vehicle_type(vehicle_image)')
     .eq('quote_number', quoteNumber())
     .single()
+  console.log('quote data:', data)
   return data
 })
 
@@ -76,8 +77,10 @@ const {
   isPearsonAirportPickup,
   isPearsonAirportDropoff,
   userEmail,
+  vehicle_type,
 } = quoteData.value as Quote
-
+const { vehicle_image: vehicleImageSrc } = vehicle_type
+const vehicleImageAlt = vehicleTypeLabel
 const { addedToCart, loading } = storeToRefs(cartStore)
 
 const returnServiceTypeLabel = computed(() => {
@@ -137,20 +140,6 @@ function getCurrentDate() {
 }
 
 const currentDate = getCurrentDate()
-
-const vehicleImage = () => {
-  if (vehicleTypeLabel === 'Standard Sedan') {
-    return 'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/8c7c6a8d-06ad-4278-1c70-9d497b1cb200/1024'
-  } else if (vehicleTypeLabel === 'Premium Sedan') {
-    return 'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/5d171f30-de2f-447c-a602-95ccf248c600/1024'
-  } else if (vehicleTypeLabel === 'Standard SUV') {
-    return 'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/b4bf6461-ba55-48bd-e0ba-d613ae383000/1024'
-  } else {
-    return 'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/5d80107f-4800-45ae-8e20-c4adf2792f00/1024'
-  }
-}
-const vehicleImageSrc = vehicleImage()
-const vehicleImageAlt = vehicleTypeLabel
 
 //checkout
 const loadingCheckout = ref(false)

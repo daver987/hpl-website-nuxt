@@ -24,13 +24,13 @@ const headerInfo = {
     <main class="px-6">
       <BaseSection class="md:-mt-16">
         <BaseContainer class="md:grid md:grid-cols-2">
-          <div class="relative py-6 -mt-8 overflow-hidden bg-white shadow-xl">
+          <div class="relative -mt-8 overflow-hidden bg-white py-6 shadow-xl">
             <div class="py-5">
-              <p class="text-center subheading">Behind The Wheel</p>
-              <h2 class="mt-6 text-center heading">The Driver</h2>
+              <p class="subheading text-center">Behind The Wheel</p>
+              <h2 class="heading mt-6 text-center">The Driver</h2>
             </div>
             <div class="px-4 py-5 sm:p-6">
-              <p class="font-sans text-gray-500 text-sm">
+              <p class="font-sans text-sm text-gray-500">
                 Our team of chauffeurs is some of the most experienced in the
                 industry. All of our professional chauffeurs are safe,
                 courteous, and fully certified drivers by the city of Toronto.
@@ -44,7 +44,7 @@ const headerInfo = {
             </div>
             <div class="flex justify-center px-4 py-4 sm:px-6">
               <BaseButton
-                kind="btn-primary"
+                kind="btn-brand"
                 class="self-center"
                 label="Reserve Now"
                 to="/reservations"
@@ -67,7 +67,7 @@ const headerInfo = {
         </BaseContainer>
       </BaseSection>
       <BaseSection>
-        <BaseContainer class="md:grid md:grid-cols-2 place-items-center">
+        <BaseContainer class="place-items-center md:grid md:grid-cols-2">
           <NuxtPicture
             alt="Tesla-S-Back-Seat"
             :img-attrs="{
@@ -101,17 +101,17 @@ const headerInfo = {
           loading="lazy"
         />
         <BaseContainer class="bg-white shadow-xl">
-          <div class="py-6 overflow-hidden bg-white md:px-2 lg:px-4">
+          <div class="overflow-hidden bg-white py-6 md:px-2 lg:px-4">
             <div class="px-4 py-5 sm:px-6">
-              <p class="text-center uppercase subheading md:text-left">
+              <p class="subheading text-center uppercase md:text-left">
                 High Park Livery?
               </p>
-              <h2 class="mt-6 text-center text-heading heading md:text-left">
+              <h2 class="heading mt-6 text-center text-heading md:text-left">
                 WHO WE ARE
               </h2>
             </div>
             <div class="px-3 py-4 sm:p-6">
-              <p class="font-sans text-gray-500 text-sm">
+              <p class="font-sans text-sm text-gray-500">
                 High Park Livery is a Toronto-based car service company. We
                 provide luxury transportation to clients in the Greater Toronto
                 and southern Ontario area. In addition to offering a variety of
@@ -119,7 +119,7 @@ const headerInfo = {
                 corporate and non-corporate clients with highly personalized
                 services that aim to exceed all expectations.
               </p>
-              <p class="font-sans text-gray-500 text-sm">
+              <p class="font-sans text-sm text-gray-500">
                 When you choose to work with High Park Livery, you'll work with
                 highly trained professionals who know about the industry. We are
                 committed to customer satisfaction and punctuality in all that
@@ -128,13 +128,13 @@ const headerInfo = {
                 create an atmosphere that ensures passengers feel comfortable
                 and relaxed throughout their journey.
               </p>
-              <p class="font-sans text-gray-500 text-sm">
+              <p class="font-sans text-sm text-gray-500">
                 At High Park Livery, we don't cut corners or skimp on your
                 comfort to offer you a low price. We believe that all of our
                 luxury cars should be maintained to the highest industry
                 standards, ensuring a safe and unforgettable experience.
               </p>
-              <p class="font-sans text-gray-500 text-sm">
+              <p class="font-sans text-sm text-gray-500">
                 Whether it's a night out on the town or a business meeting
                 across downtown Toronto, High Park Livery can provide a
                 luxurious ride that fits perfectly within your schedule and
@@ -143,7 +143,7 @@ const headerInfo = {
             </div>
             <div class="px-4 py-4 sm:px-6">
               <BaseButton
-                kind="btn-primary"
+                kind="btn-brand"
                 label="Contact Us"
                 to="/contact"
                 :nuxtLink="true"

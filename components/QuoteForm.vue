@@ -13,8 +13,6 @@ import Datepicker from '~/components/datepicker/Datepicker.vue'
 import { useQuoteStore } from '~/stores/useQuoteStore'
 const quoteStore = useQuoteStore()
 
-const cookie = useCookie()
-
 const route = useRoute()
 const routeUrl = route.query
 const { utm_medium, utm_source, utm_campaign, utm_term, gclid } = routeUrl

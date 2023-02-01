@@ -52,6 +52,9 @@ export const quoteSchema = z.object({
   utm_campaign: z.string(),
   utm_term: z.string(),
   gclid: z.string(),
+  vehicle_type: z.object({
+    vehicle_image: z.string(),
+  }),
 })
 
 export type Quote = z.infer<typeof quoteSchema>

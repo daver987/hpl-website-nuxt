@@ -99,8 +99,8 @@ export default {
             <BaseButton
               kind="btn-light"
               label="View All"
-              :nuxtLink="true"
               to="/fleet"
+              nuxt-link
             />
           </div>
         </BaseContainer>
