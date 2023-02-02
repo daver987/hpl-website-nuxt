@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import { Field, Form } from 'vee-validate'
+const onSubmit = async (values: any) => {
+  const { data } = await useFetch('/api/post-contact', {
+    method: 'POST',
+    body: values,
+  })
+  console.log(data.value)
+  return data.value
+}
+</script>
+
 <template>
   <div class="relative bg-white">
     <div class="lg:absolute lg:inset-0">
@@ -25,9 +37,8 @@
             We’d love to hear from you! Send us a message using the form
             opposite, or email us. We’ll get back to you as soon as possible.
           </p>
-          <form
-            action="#"
-            method="POST"
+          <Form
+            @submit="onSubmit"
             class="mt-9 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
           >
             <div>
@@ -37,7 +48,7 @@
                 >First name</label
               >
               <div class="mt-1">
-                <input
+                <Field
                   type="text"
                   name="first-name"
                   id="first-name"
@@ -53,7 +64,7 @@
                 >Last name</label
               >
               <div class="mt-1">
-                <input
+                <Field
                   type="text"
                   name="last-name"
                   id="last-name"
@@ -67,7 +78,7 @@
                 >Email</label
               >
               <div class="mt-1">
-                <input
+                <Field
                   id="email"
                   name="email"
                   type="email"
@@ -88,7 +99,7 @@
                 >
               </div>
               <div class="mt-1">
-                <input
+                <Field
                   type="text"
                   name="phone"
                   id="phone"
@@ -112,13 +123,16 @@
                 >
               </div>
               <div class="mt-1">
-                <textarea
-                  id="how-can-we-help"
-                  name="how-can-we-help"
-                  aria-describedby="how-can-we-help-description"
-                  rows="4"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
-                />
+                <Field name="how-we-can-help" v-slot="{ field }">
+                  <textarea
+                    v-bind="field"
+                    id="how-can-we-help"
+                    name="how-can-we-help"
+                    aria-describedby="how-can-we-help-description"
+                    rows="4"
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  />
+                </Field>
               </div>
             </div>
             <div class="sm:col-span-2">
@@ -128,7 +142,7 @@
                 >How did you hear about us?</label
               >
               <div class="mt-1">
-                <input
+                <Field
                   type="text"
                   name="how-did-you-hear-about-us"
                   id="how-did-you-hear-about-us"
@@ -144,7 +158,7 @@
                 Submit
               </button>
             </div>
-          </form>
+          </Form>
         </div>
       </div>
     </div>

@@ -2,14 +2,20 @@
 import { useLocalStorage } from '@vueuse/core'
 import { Database } from '~/types/supabase'
 import { format } from 'date-fns'
+import { useStorage } from '@vueuse/core'
+import { useQuoteStore } from '~/stores/useQuoteStore'
+import { storeToRefs } from 'pinia'
 
-const quote = ref()
+const quoteStore = useQuoteStore()
+const { quote_number, quote } = storeToRefs(quoteStore)
+quote_number.value = useLocalStorage('quote_number', '')
+quoteStore.getQuoteSingle()
+
 let quoteNumber = ref()
 
 const getQuote = async () => {
   try {
     const supabase = useSupabaseClient<Database>()
-    quoteNumber = useLocalStorage('quote_number', '')
     console.log('Quote Number from local storage', quoteNumber.value)
     const { data } = await supabase
       .from('quotes')
@@ -22,6 +28,8 @@ const getQuote = async () => {
     console.log(e)
   }
 }
+
+await getQuote()
 
 const formattedPickupDate = ref()
 const formattedPickupTime = ref()
@@ -42,9 +50,10 @@ const roundTripTotalQuote = ref()
 const isRoundTripQuote = ref()
 
 onMounted(async () => {
-  const quoteData = await getQuote()
-  console.log('Quote Data', quoteData)
-  quote.value = quoteData
+  // const quoteData = await getQuote()
+  // const quoteData = await useStorage('quote_data', {})
+  // console.log('Quote Data', quoteData.value)
+  // quote.value = quoteData.value
   const {
     pickupDate,
     pickupTime,
@@ -65,7 +74,7 @@ onMounted(async () => {
     roundTripTotal,
     isRoundTrip,
     phone_number,
-  } = quote.value
+  } = quote.value[0]
   formattedPickupDate.value = formatDate(pickupDate)
   formattedPickupTime.value = formatTime(pickupTime)
   formattedReturnDate.value = formatDate(returnDate)
@@ -121,7 +130,7 @@ const space = ' '
           ><span
             class="font-sans text-base font-bold leading-relaxed text-red-600"
           >
-            HPL-{{ quoteNumber }}</span
+            HPL-{{ quote_number }}</span
           ><br />
           For:
           <span class="font-sans font-normal"
@@ -245,7 +254,7 @@ const space = ' '
             <td
               class="py-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
-              ${{ totalFareQuote ? totalFareQuote.toFixed(2) : 'Loading....' }}
+              ${{ totalFareQuote ? totalFareQuote?.toFixed(2) : 'Loading....' }}
             </td>
           </tr>
           <tr v-if="isRoundTripQuote" class="border-b border-gray-200">
@@ -296,7 +305,7 @@ const space = ' '
             <td
               class="py-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
-              ${{ totalFareQuote ? totalFareQuote.toFixed(2) : 'Loading....' }}
+              ${{ totalFareQuote ? totalFareQuote?.toFixed(2) : 'Loading....' }}
             </td>
           </tr>
         </tbody>

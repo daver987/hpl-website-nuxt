@@ -5,8 +5,8 @@ export const useQuoteStore = defineStore('useQuoteStore', {
     return {
       loading: false,
       quote: <any | null>null,
-      quote_number: <string | null>null,
-      quoteNumberLatest: <number | null>2521,
+      quote_number: <string | number | null>2455,
+      quoteNumberLatest: <number | null>2455,
     }
   },
   actions: {

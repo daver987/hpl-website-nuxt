@@ -100,7 +100,10 @@ export interface Database {
           deleted_at: string | null
           id: number
           message: string | null
+          message_id: string
+          message_meta: Json | null
           sender_id: string | null
+          statux: string | null
         }
         Insert: {
           conversation_id?: string | null
@@ -108,7 +111,10 @@ export interface Database {
           deleted_at?: string | null
           id?: number
           message?: string | null
+          message_id: string
+          message_meta?: Json | null
           sender_id?: string | null
+          statux?: string | null
         }
         Update: {
           conversation_id?: string | null
@@ -116,7 +122,10 @@ export interface Database {
           deleted_at?: string | null
           id?: number
           message?: string | null
+          message_id?: string
+          message_meta?: Json | null
           sender_id?: string | null
+          statux?: string | null
         }
       }
       profiles: {
@@ -481,6 +490,7 @@ export interface Database {
           per_hour: number | null
           per_km: number | null
           value: number | null
+          vehicle_image: string | null
         }
         Insert: {
           created_at?: string | null
@@ -499,6 +509,7 @@ export interface Database {
           per_hour?: number | null
           per_km?: number | null
           value?: number | null
+          vehicle_image?: string | null
         }
         Update: {
           created_at?: string | null
@@ -517,6 +528,7 @@ export interface Database {
           per_hour?: number | null
           per_km?: number | null
           value?: number | null
+          vehicle_image?: string | null
         }
       }
     }

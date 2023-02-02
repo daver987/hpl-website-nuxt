@@ -12,6 +12,8 @@ import { useGtm } from '@gtm-support/vue-gtm'
 import Datepicker from '~/components/datepicker/Datepicker.vue'
 import { useQuoteStore } from '~/stores/useQuoteStore'
 const quoteStore = useQuoteStore()
+quoteStore.getQuoteSingle()
+quoteStore.getQuoteNumberLatest()
 
 const route = useRoute()
 const routeUrl = route.query
@@ -386,6 +388,7 @@ async function onSubmit(values: any) {
   localStorage.setItem('quote_number', quote_number.toString())
   localStorage.setItem('hplUserId', hplUserId)
   localStorage.setItem('quote_data', JSON.stringify(returnedQuoteValues.value))
+  quoteStore.quote = returnedQuoteValues.value
   console.log('Returned data is:', returnedQuoteValues.value)
 
   if (returnedQuoteValues?.value.statusCode === 200) {

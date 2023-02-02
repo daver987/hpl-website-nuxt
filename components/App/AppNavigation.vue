@@ -14,6 +14,7 @@ import {
 import { navigation, NavigationItem } from '~/data/navigation'
 
 const quoteStore = useQuoteStore()
+//@ts-ignore
 const { isRoundTrip } = storeToRefs(quoteStore)
 
 const nav = navigation as NavigationItem[]
