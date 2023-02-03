@@ -17,7 +17,7 @@ const quoteStore = useQuoteStore()
 //@ts-ignore
 const { isRoundTrip } = storeToRefs(quoteStore)
 
-const nav = navigation as NavigationItem[]
+const nav = navigation
 
 const open = ref<boolean>(false)
 const src =
@@ -175,7 +175,7 @@ const src =
                   class="text-sm font-medium text-gray-900 hover:text-brand"
                   >Sign in
                 </NuxtLink>
-                <span class="h-6 w-px bg-gray-200" aria-hidden="true" />
+                <span class="h-6 w-px bg-gray-700" aria-hidden="true" />
                 <NuxtLink
                   to="/signup"
                   exact-active-class="text-brand hover:text-brand-600"
