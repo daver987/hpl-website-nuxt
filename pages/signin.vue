@@ -146,11 +146,13 @@ const url = useRuntimeConfig().public.WEBSITE_URL
             >
               <NuxtLink to="/" class="self-center">
                 <span class="sr-only">High Park Livery</span>
-                <img
-                  class="h-12 w-auto lg:h-14"
-                  :src="src"
+                <NuxtPicture
+                  src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/6a0f4d3c-3f6a-4e4e-f86b-1face7a5e400/1920"
                   alt="High Park Livery Logo"
                   width="1920"
+                  :img-attrs="{
+                    class: 'h-12 w-auto lg:h-14',
+                  }"
                 />
               </NuxtLink>
             </div>
