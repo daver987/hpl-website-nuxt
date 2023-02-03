@@ -15,7 +15,7 @@ const {
 } = storeToRefs(useUserStore())
 
 const setIsLoading = ref(false)
-
+useScriptTag('https://book.mylimobiz.com/v4/widgets/widget-loader.js')
 async function getUserData() {
   try {
     setIsLoading.value = true

@@ -219,12 +219,12 @@ const url = useRuntimeConfig().public.WEBSITE_URL
           Sign in to your account
         </h2>
       </div>
-      <div class="min-h-96 relative mx-auto max-w-sm">
+      <div class="relative mx-auto min-h-[75vh] max-w-sm">
         <iframe
           width="100%"
           height="100%"
           class="absolute inset-0"
-          :src="`https://book.mylimobiz.com/v4/luxridesvc/Widget/Login?redirectUrl=${url}/reservations`"
+          :src="`https://book.mylimobiz.com/v4/luxridesvc//widget/login?redirectUrl=${url}/reservations`"
         />
       </div>
     </div>
