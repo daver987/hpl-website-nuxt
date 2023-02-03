@@ -1,22 +1,221 @@
 <script setup lang="ts">
+import { useQuoteStore } from '~/stores/useQuoteStore'
+import { storeToRefs } from 'pinia'
+import {
+  Dialog,
+  DialogPanel,
+  TransitionChild,
+  TransitionRoot,
+} from '@headlessui/vue'
+import { navigation } from '~/data/navigation'
 definePageMeta({
   title: 'Sign Up',
   layout: 'auth',
+  name: 'signup',
 })
+const quoteStore = useQuoteStore()
+//@ts-ignore
+const { isRoundTrip } = storeToRefs(quoteStore)
+
+const nav = navigation as NavigationItem[]
+
+const open = ref<boolean>(false)
+const src =
+  'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/6a0f4d3c-3f6a-4e4e-f86b-1face7a5e400/1920'
 </script>
 
 <template>
-  <div class="flex min-h-screen dark:bg-grey-900">
-    <div
-      class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24"
-    >
-      <SignupForm />
-    </div>
-    <div class="relative hidden w-0 flex-1 lg:block">
-      <NuxtPicture
-        :img-attrs="{ class: 'absolute inset-0 h-full w-full object-cover' }"
-        src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/d0f63a6f-1d68-49fe-b643-224003dd5f00/1920"
-        alt="Toronto skyline"
+  <div class="h-full px-4 lg:px-2">
+    <TransitionRoot as="template" :show="open">
+      <Dialog as="div" class="relative z-40 lg:hidden" @close="open = false">
+        <TransitionChild
+          as="template"
+          enter="transition-opacity ease-linear duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="transition-opacity ease-linear duration-300"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black bg-opacity-25" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 z-40 flex">
+          <TransitionChild
+            as="template"
+            enter="transition ease-in-out duration-300 transform"
+            enter-from="-translate-x-full"
+            enter-to="translate-x-0"
+            leave="transition ease-in-out duration-300 transform"
+            leave-from="translate-x-0"
+            leave-to="-translate-x-full"
+          >
+            <DialogPanel
+              class="relative flex w-full max-w-xs flex-col overflow-y-auto bg-white pb-12 shadow-xl"
+            >
+              <div class="flex px-4 pt-5 pb-2">
+                <button
+                  type="button"
+                  class="-m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400"
+                  @click="open = false"
+                >
+                  <span class="sr-only">Close menu</span>
+                  <Icon
+                    name="heroicons:x-mark"
+                    class="h-6 w-6"
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
+
+              <div class="space-y-6 border-t border-gray-200 px-4 py-6">
+                <template v-for="page in nav" :key="page.id">
+                  <div class="flow-root">
+                    <NuxtLink
+                      exact-active-class="dark:text-brand dark:hover:text-brand-600"
+                      :to="page.href"
+                      class="-m-2 block p-2 font-medium capitalize"
+                      >{{ page.name }}
+                    </NuxtLink>
+                  </div>
+                </template>
+              </div>
+
+              <div class="space-y-6 border-t border-gray-200 px-4 py-6">
+                <div class="flow-root">
+                  <NuxtLink
+                    exact-active-class="text-brand hover:text-brand-600"
+                    to="/signin"
+                    class="-m-2 block p-2 font-medium text-gray-900"
+                    >Sign in
+                  </NuxtLink>
+                </div>
+                <div class="flow-root">
+                  <NuxtLink
+                    exact-active-class="text-brand hover:text-brand-600"
+                    to="/signup"
+                    class="-m-2 block p-2 font-medium text-gray-900"
+                    >Create account
+                  </NuxtLink>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-200 px-4 py-6">
+                <NuxtLink class="-m-2 flex items-center p-2">
+                  <NuxtPicture
+                    src="https://tailwindui.com/img/flags/flag-canada.svg"
+                    alt="Canada flag"
+                    :img-attrs="{
+                      class: 'flex-shrink-0 block w-5 h-auto',
+                    }"
+                  />
+                  <span class="ml-3 block text-base font-medium text-brand-600"
+                    >CAD</span
+                  >
+                  <span class="sr-only">, change currency</span>
+                </NuxtLink>
+              </div>
+            </DialogPanel>
+          </TransitionChild>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+    <header class="relative bg-transparent">
+      <nav aria-label="Top" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="border-b border-gray-400 py-2">
+          <div class="flex h-16 w-full justify-center lg:items-center">
+            <button
+              type="button"
+              class="flex-shrink-0 rounded bg-transparent p-2 text-gray-400 hover:text-gray-500 lg:hidden"
+              @click="open = true"
+            >
+              <span class="sr-only">Open menu</span>
+              <Icon
+                name="heroicons:bars-3"
+                class="h-6 w-6"
+                aria-hidden="true"
+              />
+            </button>
+
+            <!-- Logo -->
+            <div
+              class="ml-2 flex w-full justify-center lg:ml-0 lg:w-auto lg:justify-start"
+            >
+              <NuxtLink to="/" class="self-center">
+                <span class="sr-only">High Park Livery</span>
+                <img
+                  class="h-12 w-auto lg:h-14"
+                  :src="src"
+                  alt="High Park Livery Logo"
+                  width="1920"
+                />
+              </NuxtLink>
+            </div>
+
+            <div class="hidden lg:ml-8 lg:block lg:self-stretch">
+              <div class="flex h-full space-x-8">
+                <template v-for="page in nav" :key="page.id">
+                  <NuxtLink
+                    exact-active-class="text-brand hover:text-brand-600"
+                    :to="page.href"
+                    class="flex items-center text-sm font-medium capitalize tracking-wider text-gray-900 hover:text-brand"
+                    >{{ page.name }}
+                  </NuxtLink>
+                </template>
+              </div>
+            </div>
+
+            <div class="ml-auto flex items-center">
+              <div
+                class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6"
+              >
+                <NuxtLink
+                  to="/signin"
+                  exact-active-class="text-brand hover:text-brand-600"
+                  class="text-sm font-medium text-gray-900 hover:text-brand"
+                  >Sign in
+                </NuxtLink>
+                <span class="h-6 w-px bg-gray-200" aria-hidden="true" />
+                <NuxtLink
+                  to="/signup"
+                  exact-active-class="text-brand hover:text-brand-600"
+                  :class="linkClasses"
+                  class="text-sm font-medium text-gray-900 hover:text-brand"
+                  >Create account
+                </NuxtLink>
+              </div>
+
+              <div class="hidden lg:ml-8 lg:flex">
+                <a
+                  href="#"
+                  class="flex items-center text-gray-500 text-gray-900 hover:text-brand"
+                >
+                  <NuxtPicture
+                    src="https://tailwindui.com/img/flags/flag-canada.svg"
+                    alt="Canada Flag"
+                    :img-attrs="{
+                      class: 'flex-shrink-0 block w-5 h-auto',
+                    }"
+                  />
+                  <span class="ml-3 block text-sm font-medium">CAD</span>
+                  <span class="sr-only">, change currency</span>
+                </a>
+              </div>
+              <!-- Cart -->
+              <div class="ml-4 flow-root lg:ml-6">
+                <MiniCart />
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <div class="relative min-h-[125vh]">
+      <iframe
+        width="100%"
+        height="100%"
+        class="absolute inset-0"
+        src="https://book.mylimobiz.com/v4/highpark/Account/Registration"
       />
     </div>
   </div>

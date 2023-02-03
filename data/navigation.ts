@@ -17,7 +17,7 @@ export const navigation = <NavigationItem[]>[
     id: 2,
   },
   {
-    name: 'services',
+    name: 'Services',
     href: '/services',
     id: 3,
   },
@@ -29,6 +29,11 @@ export const navigation = <NavigationItem[]>[
   {
     name: 'Contact',
     href: '/contact',
+    id: 5,
+  },
+  {
+    name: 'Reservations',
+    href: '/reservations',
     id: 5,
   },
 ]
