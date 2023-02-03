@@ -179,7 +179,6 @@ const src =
                 <NuxtLink
                   to="/signup"
                   exact-active-class="text-brand hover:text-brand-600"
-                  :class="linkClasses"
                   class="text-sm font-medium text-gray-900 hover:text-brand"
                   >Create account
                 </NuxtLink>
@@ -215,7 +214,7 @@ const src =
         width="100%"
         height="100%"
         class="absolute inset-0"
-        src="https://book.mylimobiz.com/v4/highpark/Account/Registration"
+        src="https://book.mylimobiz.com/v4/luxridesvc/Account/Registration"
       />
     </div>
   </div>
