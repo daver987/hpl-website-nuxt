@@ -176,7 +176,7 @@ const src =
                   class="text-sm font-medium text-gray-900 hover:text-brand"
                   >Sign in
                 </NuxtLink>
-                <span class="h-6 w-px bg-gray-200" aria-hidden="true" />
+                <span class="h-6 w-px bg-gray-900" aria-hidden="true" />
                 <NuxtLink
                   to="/signup"
                   exact-active-class="text-brand hover:text-brand-600"
@@ -215,7 +215,7 @@ const src =
         width="100%"
         height="100%"
         class="absolute inset-0"
-        src="https://book.mylimobiz.com/v4/luxridesvc/"
+        src="https://book.mylimobiz.com/v4/luxridesvc"
       />
     </div>
   </div>

@@ -17,6 +17,7 @@ definePageMeta({
 const quoteStore = useQuoteStore()
 //@ts-ignore
 const { isRoundTrip } = storeToRefs(quoteStore)
+useScriptTag('https://book.mylimobiz.com/v4/widgets/widget-loader.js')
 
 const nav = navigation
 
@@ -224,7 +225,7 @@ const url = useRuntimeConfig().public.WEBSITE_URL
           width="100%"
           height="100%"
           class="absolute inset-0"
-          :src="`https://book.mylimobiz.com/v4/luxridesvc//widget/login?redirectUrl=${url}/reservations`"
+          :src="`https://book.mylimobiz.com/v4/luxridesvc/widget/login?redirectUrl=${url}/reservations`"
         />
       </div>
     </div>
