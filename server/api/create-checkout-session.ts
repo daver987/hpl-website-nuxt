@@ -11,35 +11,21 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    if (!body.stripeCustomerId) {
+    const { stripeCustomerId, customerId } = body
+    let stripeCustomer = stripeCustomerId
+    if (stripeCustomerId !== true) {
       const customer = await stripe.customers.create({
         email: body.emailAddress,
         name: `${body.firstName} ${body.lastName}`,
         phone: body.phoneNumber,
         metadata: {
-          customer_id: body.customerId,
+          customer_id: customerId,
         },
       })
+      stripeCustomer = customer.id
       console.log('customer info', customer)
-
-      const session = <Session>await stripe.checkout.sessions.create({
-        billing_address_collection: 'auto',
-        mode: 'setup',
-        payment_method_types: ['card'],
-        success_url: `${YOUR_DOMAIN}/success`,
-        cancel_url: `${YOUR_DOMAIN}/cancel`,
-        automatic_tax: { enabled: false },
-        customer: customer.id,
-      })
-      console.log('session info', session)
-
-      return {
-        statusCode: 200,
-        url: session.url,
-        stripeCustomerId: customer.id,
-        sessionId: session.id,
-      }
     }
+
     const session = <Session>await stripe.checkout.sessions.create({
       billing_address_collection: 'auto',
       mode: 'setup',
@@ -47,15 +33,33 @@ export default defineEventHandler(async (event) => {
       success_url: `${YOUR_DOMAIN}/success`,
       cancel_url: `${YOUR_DOMAIN}/cancel`,
       automatic_tax: { enabled: false },
-      customer: body.stripeCustomerId,
+      customer: stripeCustomer,
     })
     console.log('session info', session)
+
     return {
       statusCode: 200,
       url: session.url,
-      stripeCustomerId: body.stripeCustomerId,
+      stripeCustomerId: stripeCustomer,
       sessionId: session.id,
     }
+    // } else {
+    //   const session = <Session>await stripe.checkout.sessions.create({
+    //     billing_address_collection: 'auto',
+    //     mode: 'setup',
+    //     payment_method_types: ['card'],
+    //     success_url: `${YOUR_DOMAIN}/success`,
+    //     cancel_url: `${YOUR_DOMAIN}/cancel`,
+    //     automatic_tax: { enabled: false },
+    //     customer: body.stripeCustomerId,
+    //   })
+    //   console.log('session info', session)
+    //   return {
+    //     statusCode: 200,
+    //     url: session.url,
+    //     stripeCustomerId: body.stripeCustomerId,
+    //     sessionId: session.id,
+    //   }
   } catch (error) {
     console.log('error', error)
     return {
