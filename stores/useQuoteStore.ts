@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
-export const useQuoteStore = defineStore('useQuoteStore', {
+export const useQuoteStore = defineStore('quoteStore', {
   state: () => {
     return {
       loading: false,

@@ -83,54 +83,26 @@ export const formSchema = z.object({
     .default('+1'),
   isRoundTrip: z.boolean(),
   isItHourly: z.boolean(),
-  tripData: z.object({
-    distanceValue: z.number(),
-    distanceText: z.string(),
-    durationValue: z.number(),
-    durationText: z.string(),
-    startLat: z.number(),
-    startLng: z.number(),
-    endLat: z.number(),
-    endLng: z.number(),
-  }),
-  placeDataOrigin: z
-    .object(
-      {
-        formatted_address: z.string(),
-        name: z.string(),
-        place_id: z.string(),
-        types: z.array(z.string()),
-        isPearsonAirportOrigin: z.boolean(),
-      },
-      {
-        required_error: 'Pickup Location is Required',
-        invalid_type_error: 'Pickup Location is Required',
-      }
-    )
+  tripData: z
+    .object({
+      origin_formatted_address: z.string(),
+      origin_name: z.string(),
+      origin_place_id: z.string(),
+      origin_types: z.array(z.string()),
+      destination_formatted_address: z.string(),
+      destination_name: z.string(),
+      destination_place_id: z.string(),
+      destination_types: z.array(z.string()),
+      distanceValue: z.number(),
+      distanceText: z.string(),
+      durationValue: z.number(),
+      durationText: z.string(),
+      startLat: z.number(),
+      startLng: z.number(),
+      endLat: z.number(),
+      endLng: z.number(),
+    })
     .strip(),
-  placeDataDestination: z
-    .object(
-      {
-        formatted_address: z.string(),
-        name: z.string(),
-        place_id: z.string(),
-        types: z.array(z.string()),
-        isPearsonAirportDestination: z.boolean(),
-      },
-      {
-        required_error: 'Drop off Locaction is Required',
-        invalid_type_error: 'Drop off Locaction is Required',
-      }
-    )
-    .strip(),
-  calculatedDistance: z.number(),
-  gtmValues: z.object({
-    utm_medium: z.string().default(''),
-    utm_source: z.string().default(''),
-    utm_campaign: z.string().default(''),
-    utm_term: z.string().default(''),
-    gclid: z.string().default(''),
-  }),
 })
 
 export type ValidationSchema = z.infer<typeof formSchema>

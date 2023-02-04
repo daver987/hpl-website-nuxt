@@ -56,6 +56,7 @@ onMounted(async () => {
 
 //npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types/supabase.ts
 //npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types.ts
+//
 </script>
 
 <template>

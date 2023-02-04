@@ -11,8 +11,12 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     console.log('This is the body', body)
+    const bodyValues = { ...body }
+    console.log('body values:', bodyValues)
     const {
-      calculatedDistance,
+      selectedVehicleType: { value: selectedVehicleValue },
+    } = bodyValues
+    const {
       firstName,
       lastName,
       emailAddress,
@@ -24,39 +28,35 @@ export default defineEventHandler(async (event) => {
       pickupTime,
       returnDate,
       returnTime,
-      placeDataDestination,
-      placeDataOrigin,
       selectedServiceType,
       selectedNumberOfHours,
       tripData,
       selectedPassengers,
-      gtmValues,
     } = body
 
     const {
-      distanceText,
+      origin_formatted_address,
+      origin_name,
+      origin_place_id,
+      origin_types,
+      destination_formatted_address,
+      destination_name,
+      destination_place_id,
+      destination_types,
       distanceValue,
-      durationText,
+      distanceText,
       durationValue,
-      endLat,
-      endLng,
+      durationText,
       startLat,
       startLng,
+      endLat,
+      endLng,
+      utm_medium,
+      utm_source,
+      utm_campaign,
+      utm_term,
+      gclid,
     } = tripData
-
-    const {
-      formatted_address: originFormattedAddress,
-      name: originName,
-      place_id: originPlaceId,
-      isPearsonAirportOrigin,
-    } = placeDataOrigin
-
-    const {
-      formatted_address: destinationFormattedAddress,
-      name: destinationName,
-      place_id: destinationPlaceId,
-      isPearsonAirportDestination,
-    } = placeDataDestination
 
     const { value: hoursValue, label: hoursLabel } = selectedNumberOfHours || {
       value: 0,
@@ -74,18 +74,30 @@ export default defineEventHandler(async (event) => {
 
     const { value: selectedHours, label: selectedHoursLabel } =
       selectedNumberOfHours || { value: 0, label: 'Hours Not Selected' }
-    const vehicleRates = ref({} as any)
+
+    let vehicleRates = {}
+    console.log('Vehicle Type Value:', selectedVehicleValue)
     //get the vehicle type from the vehicle type value
     try {
       const { data: vehicleTypeValues } = await supabase
         .from('vehicle_type')
         .select('*')
-        .eq('value', vehicleTypeValue)
+        .eq('value', selectedVehicleValue)
       console.log('This is the Vehicle Type', vehicleTypeValues)
       //@ts-ignore
-      vehicleRates.value = vehicleTypeValues[0]
+      vehicleRates = vehicleTypeValues[0]
     } catch (e) {
       console.log(e)
+    }
+
+    interface VehicleRate {
+      min_distance: number
+      min_rate_distance: number
+      per_km: number
+      min_hours_hourly: number
+      min_rate_hourly: number
+      per_hour: number
+      vehicle_image: number
     }
 
     const {
@@ -96,9 +108,10 @@ export default defineEventHandler(async (event) => {
       min_rate_hourly,
       per_hour,
       vehicle_image,
-    } = vehicleRates.value
+    } = vehicleRates as VehicleRate
 
     //calculate the base rate
+    const calculatedDistance = distanceValue / 1000
     const baseRateDistance = () => {
       if (calculatedDistance < min_distance) {
         return min_rate_distance
@@ -119,7 +132,7 @@ export default defineEventHandler(async (event) => {
       console.log('This is the Surcharge Data', data)
       return data
     }
-    const surcharges = (await getSurcharges()) as Surcharges[]
+    const surcharges = (await getSurcharges()) as unknown as Surcharges[]
 
     const baseAmount = () => {
       if (isItHourly) {
@@ -127,10 +140,12 @@ export default defineEventHandler(async (event) => {
       }
       return baseRateDistance()
     }
-    const surchargeAmounts = {} as any
+
+    const surchargeAmounts = {}
     let totalAmount = baseAmount()
 
     for (const surcharge of surcharges) {
+      // @ts-ignore
       if (surcharge.is_active) {
         let amount = 0
         if (surcharge.is_percentage) {
@@ -138,29 +153,34 @@ export default defineEventHandler(async (event) => {
         } else if (surcharge.is_flat) {
           amount = surcharge.amount
         }
+        // @ts-ignore
         if (surchargeAmounts[surcharge.name]) {
+          // @ts-ignore
           surchargeAmounts[surcharge.name] += amount
         } else {
+          // @ts-ignore
           surchargeAmounts[surcharge.name] = amount
         }
         totalAmount += amount
       }
     }
-
+    let isPearsonAirportPickup = false
+    let isPearsonAirportDropoff = false
     const setPearsonAirportFee = () => {
       if (isRoundTrip) {
         if (
-          placeDataOrigin.isPearsonAirportOrigin ||
-          placeDataDestination.isPearsonAirportDestination
+          origin_types.includes('airport') ||
+          destination_types.includes('airport')
         ) {
+          isPearsonAirportPickup = true
           return 15
         }
-      } else if (placeDataOrigin.isPearsonAirportOrigin) {
+      } else if (origin_types.includes('airport')) {
+        isPearsonAirportPickup = true
         return 15
       }
       return 0
     }
-
     const pearsonFee = ref(0)
     const roundTripAmount = () => {
       if (isRoundTrip) {
@@ -174,9 +194,10 @@ export default defineEventHandler(async (event) => {
 
     // convert values to strings with 2 decimal places
     for (const key in surchargeAmounts) {
+      // @ts-ignore
       surchargeAmounts[key] = surchargeAmounts[key].toFixed(2)
     }
-    totalAmount = totalAmount.toFixed(2)
+    const newTotalAmount = totalAmount.toFixed(2)
 
     console.log(surchargeAmounts) // {surcharge1: "20.00", surcharge2: "10.00", tax: "10.00"}
     console.log(totalAmount) // "130.00"
@@ -235,6 +256,8 @@ export default defineEventHandler(async (event) => {
 
     //add the quote to the database
     const addQuote = async () => {
+      // @ts-ignore
+      // @ts-ignore
       const { data, error } = await supabase
         .from('quotes')
         .upsert({
@@ -243,16 +266,14 @@ export default defineEventHandler(async (event) => {
           isRoundTrip,
           returnDate,
           returnTime,
-          originFormattedAddress: placeDataOrigin.formatted_address,
-          originName: placeDataOrigin.name,
-          originPlaceId: placeDataOrigin.place_id,
-          isPearsonAirportPickup: isPearsonAirportOrigin,
+          origin_formatted_address,
+          origin_name,
+          origin_place_id,
           startLat: tripData.startLat,
           startLng: tripData.startLng,
-          destinationFormattedAddress: placeDataDestination.formatted_address,
-          destinationName: placeDataDestination.name,
-          destinationPlaceId: placeDataDestination.place_id,
-          isPearsonAirportDropoff: isPearsonAirportDestination,
+          destination_formatted_address,
+          destination_name,
+          destination_place_id,
           endLat: tripData.endLat,
           endLng: tripData.endLng,
           vehicleTypeLabel: selectedVehicleType.label,
@@ -270,11 +291,15 @@ export default defineEventHandler(async (event) => {
           durationValue: tripData.durationValue,
           calculatedDistance,
           baseRate: isItHourly ? baseRateHourly() : baseRateDistance(),
+          //@ts-ignore
           fuelSurcharge: surchargeAmounts['Fuel Surcharge'],
+          //@ts-ignore
           gratuity: surchargeAmounts.Gratuity,
+          //@ts-ignore
           HST: surchargeAmounts.HST,
           userEmail: emailAddress,
-          totalFare: totalAmount,
+          //@ts-ignore
+          totalFare: newTotalAmount,
           quote_number: quote_number,
           firstName,
           lastName,
@@ -282,11 +307,13 @@ export default defineEventHandler(async (event) => {
           userId: hplUserId.value,
           roundTripTotal: roundTripAmount(),
           airportFee: setPearsonAirportFee(),
-          utm_medium: gtmValues.utm_medium,
-          utm_source: gtmValues.utm_source,
-          utm_campaign: gtmValues.utm_campaign,
-          utm_term: gtmValues.utm_term,
-          gclid: gtmValues.gclid,
+          isPearsonAirportPickup,
+          isPearsonAirportDropoff,
+          utm_medium,
+          utm_source,
+          utm_campaign,
+          utm_term,
+          gclid,
         })
         .select()
       if (error) {
@@ -303,19 +330,19 @@ export default defineEventHandler(async (event) => {
           lastName,
           emailAddress,
           roundTripTotal: roundTripAmount(),
-          totalFare: totalAmount as number,
+          totalFare: newTotalAmount,
           vehicleTypeLabel: selectedVehicleType.label,
           serviceTypeLabel: selectedServiceType.label,
           isItRoundTrip: isRoundTrip,
-          destinationName: placeDataDestination.name,
-          originName: placeDataOrigin.name,
+          destination_name,
+          origin_name,
           pickupDate: formatDate(pickupDate),
           pickupTime: formatTime(pickupTime),
           returnDate: formatDate(returnDate),
           returnTime: formatTime(returnTime),
           quote_number: quote_number,
-          originFormattedAddress: placeDataOrigin.formatted_address,
-          destinationFormattedAddress: placeDataDestination.formatted_address,
+          origin_formatted_address,
+          destination_formatted_address,
           vehicle_image,
           visibility: isRoundTrip
             ? 'visibility: visible;'
@@ -362,14 +389,14 @@ export default defineEventHandler(async (event) => {
       pickupTime,
       returnDate,
       returnTime,
-      originName,
-      originFormattedAddress,
-      originPlaceId,
+      origin_name,
+      origin_formatted_address,
+      origin_place_id,
       startLat,
       startLng,
-      destinationName,
-      destinationFormattedAddress,
-      destinationPlaceId,
+      destination_name,
+      destination_formatted_address,
+      destination_place_id,
       endLat,
       endLng,
       serviceTypeLabel,

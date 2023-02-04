@@ -1,38 +1,38 @@
 <script setup lang="ts">
-import { ShoppingBagIcon } from '@heroicons/vue/24/outline'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { useQuoteStore } from '~/stores/useQuoteStore'
-import { storeToRefs } from 'pinia'
 import { useCartStore } from '~/stores/useCartStore'
+import { storeToRefs } from 'pinia'
 import { useStorage } from '@vueuse/core'
 
-const supabase = useSupabaseClient()
-
 const { addedToCart } = storeToRefs(useCartStore())
-const { isRoundTrip } = storeToRefs(useQuoteStore())
+const quoteStore = useQuoteStore()
+const {
+  quote: { isRoundTrip, serviceTypeLabel, vehicleTypeLabel },
+} = storeToRefs(quoteStore)
 const removeFromCart = useCartStore().removeFromCart()
 
 const cartData = useStorage('quote_data', {})
 console.log('Mini Cart Data', cartData.value)
 
-//@ts-ignore
-const { serviceTypeLabel, vehicleTypeLabel } = cartData.value
+// const { serviceTypeLabel, vehicleTypeLabel } = cartData.value
 
-const itemsInCart = () => {
-  if (addedToCart.value && isRoundTrip.value) {
+const itemsInCart = computed(() => {
+  if (addedToCart.value && isRoundTrip) {
     return 2
   }
-  if (addedToCart.value && !isRoundTrip.value) {
+  if (addedToCart.value && !isRoundTrip) {
     return 1
   }
   return 0
-}
+})
 </script>
 
 <template>
   <Popover class="ml-4 flow-root text-sm lg:relative lg:ml-8">
     <PopoverButton class="group -m-2 flex items-center p-2">
-      <ShoppingBagIcon
+      <Icon
+        name="heroicons:shopping-bag"
         class="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
         aria-hidden="true"
       />
@@ -43,7 +43,7 @@ const itemsInCart = () => {
             : 'text-brand-600 group-hover:text-brand-700',
         ]"
         class="ml-2 text-sm font-medium"
-        >{{ itemsInCart() }}</span
+        >{{ itemsInCart }}</span
       >
       <span class="sr-only">items in cart, view bag</span>
     </PopoverButton>

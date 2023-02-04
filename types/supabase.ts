@@ -181,6 +181,176 @@ export interface Database {
           baseRate: number
           calculatedDistance: number
           createdAt: string
+          destination_formatted_address: string
+          destination_name: string
+          destination_place_id: string
+          distanceText: string
+          distanceValue: number
+          durationText: string
+          durationValue: number
+          endLat: number
+          endLng: number
+          firstName: string
+          fuelSurcharge: number
+          gclid: string | null
+          gratuity: number
+          hoursLabel: string
+          hoursValue: number
+          HST: number
+          id: string
+          isBooked: boolean
+          isItHourly: boolean
+          isPearsonAirportDropoff: boolean
+          isPearsonAirportPickup: boolean
+          isRoundTrip: boolean
+          lastName: string
+          origin_formatted_address: string
+          origin_name: string
+          origin_place_id: string
+          passengersLabel: string
+          passengersValue: number
+          phone_number: string | null
+          pickupDate: string
+          pickupTime: string
+          quote_number: number
+          returnDate: string | null
+          returnTime: string | null
+          roundTripTotal: number | null
+          serviceTypeLabel: string
+          serviceTypeValue: number
+          startLat: number
+          startLng: number
+          totalFare: number
+          updatedAt: string
+          userEmail: string
+          userId: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          vehicleTypeLabel: string
+          vehicleTypeValue: number
+        }
+        Insert: {
+          addedToCart?: boolean
+          airportFee?: number | null
+          baseRate: number
+          calculatedDistance: number
+          createdAt?: string
+          destination_formatted_address: string
+          destination_name: string
+          destination_place_id: string
+          distanceText: string
+          distanceValue: number
+          durationText: string
+          durationValue: number
+          endLat: number
+          endLng: number
+          firstName: string
+          fuelSurcharge: number
+          gclid?: string | null
+          gratuity: number
+          hoursLabel: string
+          hoursValue?: number
+          HST: number
+          id?: string
+          isBooked?: boolean
+          isItHourly?: boolean
+          isPearsonAirportDropoff?: boolean
+          isPearsonAirportPickup?: boolean
+          isRoundTrip?: boolean
+          lastName: string
+          origin_formatted_address: string
+          origin_name: string
+          origin_place_id: string
+          passengersLabel?: string
+          passengersValue?: number
+          phone_number?: string | null
+          pickupDate: string
+          pickupTime: string
+          quote_number: number
+          returnDate?: string | null
+          returnTime?: string | null
+          roundTripTotal?: number | null
+          serviceTypeLabel: string
+          serviceTypeValue: number
+          startLat: number
+          startLng: number
+          totalFare: number
+          updatedAt?: string
+          userEmail: string
+          userId?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          vehicleTypeLabel: string
+          vehicleTypeValue: number
+        }
+        Update: {
+          addedToCart?: boolean
+          airportFee?: number | null
+          baseRate?: number
+          calculatedDistance?: number
+          createdAt?: string
+          destination_formatted_address?: string
+          destination_name?: string
+          destination_place_id?: string
+          distanceText?: string
+          distanceValue?: number
+          durationText?: string
+          durationValue?: number
+          endLat?: number
+          endLng?: number
+          firstName?: string
+          fuelSurcharge?: number
+          gclid?: string | null
+          gratuity?: number
+          hoursLabel?: string
+          hoursValue?: number
+          HST?: number
+          id?: string
+          isBooked?: boolean
+          isItHourly?: boolean
+          isPearsonAirportDropoff?: boolean
+          isPearsonAirportPickup?: boolean
+          isRoundTrip?: boolean
+          lastName?: string
+          origin_formatted_address?: string
+          origin_name?: string
+          origin_place_id?: string
+          passengersLabel?: string
+          passengersValue?: number
+          phone_number?: string | null
+          pickupDate?: string
+          pickupTime?: string
+          quote_number?: number
+          returnDate?: string | null
+          returnTime?: string | null
+          roundTripTotal?: number | null
+          serviceTypeLabel?: string
+          serviceTypeValue?: number
+          startLat?: number
+          startLng?: number
+          totalFare?: number
+          updatedAt?: string
+          userEmail?: string
+          userId?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          vehicleTypeLabel?: string
+          vehicleTypeValue?: number
+        }
+      }
+      quotes_duplicate: {
+        Row: {
+          addedToCart: boolean
+          airportFee: number | null
+          baseRate: number
+          calculatedDistance: number
+          createdAt: string
           destinationFormattedAddress: string
           destinationName: string
           destinationPlaceId: string
@@ -210,11 +380,11 @@ export interface Database {
           passengersLabel: string
           passengersValue: number
           phone_number: string | null
-          pickupDate: string
-          pickupTime: string
+          pickup_date: string
+          pickup_time: string
           quote_number: number
-          returnDate: string | null
-          returnTime: string | null
+          return_date: string | null
+          return_time: string | null
           roundTripTotal: number | null
           serviceTypeLabel: string
           serviceTypeValue: number
@@ -266,11 +436,11 @@ export interface Database {
           passengersLabel?: string
           passengersValue?: number
           phone_number?: string | null
-          pickupDate: string
-          pickupTime: string
+          pickup_date: string
+          pickup_time: string
           quote_number: number
-          returnDate?: string | null
-          returnTime?: string | null
+          return_date?: string | null
+          return_time?: string | null
           roundTripTotal?: number | null
           serviceTypeLabel: string
           serviceTypeValue: number
@@ -322,11 +492,181 @@ export interface Database {
           passengersLabel?: string
           passengersValue?: number
           phone_number?: string | null
-          pickupDate?: string
-          pickupTime?: string
+          pickup_date?: string
+          pickup_time?: string
           quote_number?: number
-          returnDate?: string | null
-          returnTime?: string | null
+          return_date?: string | null
+          return_time?: string | null
+          roundTripTotal?: number | null
+          serviceTypeLabel?: string
+          serviceTypeValue?: number
+          startLat?: number
+          startLng?: number
+          totalFare?: number
+          updatedAt?: string
+          userEmail?: string
+          userId?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          vehicleTypeLabel?: string
+          vehicleTypeValue?: number
+        }
+      }
+      quotes_duplicate_duplicate: {
+        Row: {
+          addedToCart: boolean
+          airportFee: number | null
+          baseRate: number
+          calculatedDistance: number
+          createdAt: string
+          destinationFormattedAddress: string
+          destinationName: string
+          destinationPlaceId: string
+          distanceText: string
+          distanceValue: number
+          durationText: string
+          durationValue: number
+          endLat: number
+          endLng: number
+          firstName: string
+          fuelSurcharge: number
+          gclid: string | null
+          gratuity: number
+          hoursLabel: string
+          hoursValue: number
+          HST: number
+          id: string
+          isBooked: boolean
+          isItHourly: boolean
+          isPearsonAirportDropoff: boolean
+          isPearsonAirportPickup: boolean
+          isRoundTrip: boolean
+          lastName: string
+          originFormattedAddress: string
+          originName: string
+          originPlaceId: string
+          passengersLabel: string
+          passengersValue: number
+          phone_number: string | null
+          pickup_date: string
+          pickup_time: string
+          quote_number: number
+          return_date: string | null
+          return_time: string | null
+          roundTripTotal: number | null
+          serviceTypeLabel: string
+          serviceTypeValue: number
+          startLat: number
+          startLng: number
+          totalFare: number
+          updatedAt: string
+          userEmail: string
+          userId: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          vehicleTypeLabel: string
+          vehicleTypeValue: number
+        }
+        Insert: {
+          addedToCart?: boolean
+          airportFee?: number | null
+          baseRate: number
+          calculatedDistance: number
+          createdAt?: string
+          destinationFormattedAddress: string
+          destinationName: string
+          destinationPlaceId: string
+          distanceText: string
+          distanceValue: number
+          durationText: string
+          durationValue: number
+          endLat: number
+          endLng: number
+          firstName: string
+          fuelSurcharge: number
+          gclid?: string | null
+          gratuity: number
+          hoursLabel: string
+          hoursValue?: number
+          HST: number
+          id?: string
+          isBooked?: boolean
+          isItHourly?: boolean
+          isPearsonAirportDropoff?: boolean
+          isPearsonAirportPickup?: boolean
+          isRoundTrip?: boolean
+          lastName: string
+          originFormattedAddress: string
+          originName: string
+          originPlaceId: string
+          passengersLabel?: string
+          passengersValue?: number
+          phone_number?: string | null
+          pickup_date: string
+          pickup_time: string
+          quote_number: number
+          return_date?: string | null
+          return_time?: string | null
+          roundTripTotal?: number | null
+          serviceTypeLabel: string
+          serviceTypeValue: number
+          startLat: number
+          startLng: number
+          totalFare: number
+          updatedAt?: string
+          userEmail: string
+          userId?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          vehicleTypeLabel: string
+          vehicleTypeValue: number
+        }
+        Update: {
+          addedToCart?: boolean
+          airportFee?: number | null
+          baseRate?: number
+          calculatedDistance?: number
+          createdAt?: string
+          destinationFormattedAddress?: string
+          destinationName?: string
+          destinationPlaceId?: string
+          distanceText?: string
+          distanceValue?: number
+          durationText?: string
+          durationValue?: number
+          endLat?: number
+          endLng?: number
+          firstName?: string
+          fuelSurcharge?: number
+          gclid?: string | null
+          gratuity?: number
+          hoursLabel?: string
+          hoursValue?: number
+          HST?: number
+          id?: string
+          isBooked?: boolean
+          isItHourly?: boolean
+          isPearsonAirportDropoff?: boolean
+          isPearsonAirportPickup?: boolean
+          isRoundTrip?: boolean
+          lastName?: string
+          originFormattedAddress?: string
+          originName?: string
+          originPlaceId?: string
+          passengersLabel?: string
+          passengersValue?: number
+          phone_number?: string | null
+          pickup_date?: string
+          pickup_time?: string
+          quote_number?: number
+          return_date?: string | null
+          return_time?: string | null
           roundTripTotal?: number | null
           serviceTypeLabel?: string
           serviceTypeValue?: number
@@ -536,11 +876,11 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      get_new_quote_number: {
+      increment_quote_number: {
         Args: Record<PropertyKey, never>
         Returns: number
       }
-      increment_quote_number: {
+      update_base_rate: {
         Args: Record<PropertyKey, never>
         Returns: number
       }

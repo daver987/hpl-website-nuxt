@@ -27,13 +27,7 @@ export default defineNuxtConfig({
   ],
   extends: ['nuxt-seo-kit'],
   build: {
-    transpile: [
-      '@googlemaps/js-api-loader',
-      '@heroicons/vue',
-      '@headlessui/vue',
-      'libphonenumber-js',
-      'vue-tel-input',
-    ],
+    transpile: ['@heroicons/vue', '@headlessui/vue', 'vue-tel-input'],
   },
   css: ['vue-tel-input/dist/vue-tel-input.css'],
   runtimeConfig: {

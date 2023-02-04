@@ -1,21 +1,18 @@
-import { defineStore, acceptHMRUpdate } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 
 export const useServiceTypeStore = defineStore({
   id: 'serviceTypeStore',
   state: () => {
     return {
       loading: false,
-      serviceTypes: null,
+      serviceTypes: [],
     }
   },
   actions: {
     async getServiceTypes() {
       try {
-        const data = await $fetch('/api/get-service-type')
-        this.loading = true
-        this.serviceTypes = data
+        this.serviceTypes = await $fetch('/api/get-service-type')
         console.log('Vehicle Types:', this.serviceTypes)
-        this.loading = false
       } catch (error) {
         alert(error)
       }

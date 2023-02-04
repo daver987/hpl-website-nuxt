@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ClockIcon, XMarkIcon } from '@heroicons/vue/20/solid'
+import { ClockIcon } from '@heroicons/vue/20/solid'
 import { PlusIcon as PlusIconMini } from '@heroicons/vue/20/solid'
 import { MinusIcon as MinusIconMini } from '@heroicons/vue/20/solid'
 import {
@@ -133,7 +133,11 @@ const changeAmPm = () => {
                     @click="open = false"
                   >
                     <span class="sr-only">Close</span>
-                    <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                    <Icon
+                      name="heroicons:x-mark"
+                      class="h-6 w-6"
+                      aria-hidden="true"
+                    />
                   </button>
                 </div>
                 <div class="flex flex-row justify-around space-x-6">
@@ -144,7 +148,11 @@ const changeAmPm = () => {
                         type="button"
                         class="inline-flex items-center rounded-none border border-transparent bg-brand-600 p-1 text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
                       >
-                        <PlusIconMini class="h-5 w-5" aria-hidden="true" />
+                        <Icon
+                          name="heroicons:plus"
+                          class="h-5 w-5"
+                          aria-hidden="true"
+                        />
                       </button>
                       <span>{{ hours }}</span>
                       <button
@@ -152,7 +160,11 @@ const changeAmPm = () => {
                         type="button"
                         class="inline-flex items-center rounded-none border border-transparent bg-brand-600 p-1 text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
                       >
-                        <MinusIconMini class="h-5 w-5" aria-hidden="true" />
+                        <Icon
+                          name="heroicons:minus"
+                          class="h-5 w-5"
+                          aria-hidden="true"
+                        />
                       </button>
                     </div>
                     <span class="self-center">:</span>

@@ -11,22 +11,21 @@ import { TripData } from '~~/types/data'
 import { useGtm } from '@gtm-support/vue-gtm'
 import Datepicker from '~/components/datepicker/Datepicker.vue'
 import { useQuoteStore } from '~/stores/useQuoteStore'
+import { useServiceTypeStore } from '~/stores/useServiceTypeStore'
+import { useVehicleTypeStore } from '~/stores/useVehicleTypeStore'
+
 const quoteStore = useQuoteStore()
 quoteStore.getQuoteSingle()
 quoteStore.getQuoteNumberLatest()
+const vehicleTypeStore = useVehicleTypeStore()
+vehicleTypeStore.getVehicleTypes()
+const vehicleTypeOptionsArray = vehicleTypeStore.vehicleTypes
 
 const route = useRoute()
-const routeUrl = route.query
-const { utm_medium, utm_source, utm_campaign, utm_term, gclid } = routeUrl
-const gtmValues = ref({
-  utm_medium,
-  utm_source,
-  utm_campaign,
-  utm_term,
-  gclid,
-})
+const gtmValues = route.query
 
 const gtm = useGtm()
+
 function triggerEvent() {
   gtm?.trackEvent({
     event: 'submitQuote',
@@ -62,40 +61,36 @@ const dropdownOptions = ref({
 const userStore = useUserStore()
 const { hplUserId } = storeToRefs(userStore)
 
-const extractOptions = (originalArray: {
+interface OptionsArray {
   label: string
   value: number
   isDisabled: boolean
-}) => {
-  //@ts-ignore
-  return originalArray.map(
-    (obj: { label: any; value: any; isDisabled: any }) => ({
-      label: obj.label,
-      value: obj.value,
-      isDisabled: obj.isDisabled,
-    })
-  )
+}
+
+const extractOptions = (originalArray: OptionsArray[]) => {
+  return originalArray.map((obj) => ({
+    label: obj.label,
+    value: obj.value,
+    isDisabled: obj.isDisabled,
+  }))
 }
 
 const origin = ref<Place | null>(null)
 const originPlaceId = ref<string>('')
 const destination = ref<Place | null>(null)
 const destinationPlaceId = ref<string>('')
-const calculatedDistance = ref<number | null>(null)
 const pickupDate = ref(undefined)
 const pickupTime = ref(undefined)
 const returnDate = ref(new Date())
 const returnTime = ref(new Date())
 const isItHourly = ref<boolean>(false)
-const placeDataOrigin = ref<Place | null>(null)
-const placeDataDestination = ref<Place | null>(null)
 const isRoundTrip = ref<boolean>(false)
 const firstName = ref<string>('')
 const lastName = ref<string>('')
 const emailAddress = ref<string>('')
 const phoneNumber = ref<string>('')
 const disabled = ref<boolean>(true)
-const tripData = ref<TripData | null>(null)
+const tripData = ref<any>(null)
 
 const buildPassengerOptions = (numPassengers: number) => {
   let options = [
@@ -150,17 +145,13 @@ console.log(serviceTypeOptions.value)
 const selectedServiceType = ref(serviceTypeOptions.value[0])
 
 watch(selectedServiceType, () => {
-  if (selectedServiceType.value.value === 4) {
-    isItHourly.value = true
-    disabled.value = false
-    hoursRequiredClasses.value = 'text-gray-400'
-    selectedNumberOfHours.value = hoursRequiredOptions.value[0]
-  } else {
-    isItHourly.value = false
-    disabled.value = true
-    hoursRequiredClasses.value = 'cursor-not-allowed opacity-50 text-gray-300'
-    selectedNumberOfHours.value = hoursRequiredOptions.value[0]
-  }
+  const value = selectedServiceType.value.value === 4
+  isItHourly.value = value
+  disabled.value = !value
+  hoursRequiredClasses.value = value
+    ? 'text-gray-400'
+    : 'cursor-not-allowed opacity-50 text-gray-300'
+  selectedNumberOfHours.value = hoursRequiredOptions.value[0]
 })
 
 const { data: vehicleTypes } = await useFetch('/api/get-vehicle-type')
@@ -170,220 +161,94 @@ console.log(vehicleTypeOptions.value)
 const selectedVehicleType = ref(vehicleTypeOptions.value[0])
 
 watch(selectedVehicleType, () => {
-  if (selectedVehicleType.value?.value === 1 || 2) {
-    passengerOptions.value = buildPassengerOptions(3)
-    selectedPassengers.value = passengerOptions.value[0]
-  }
+  let passengerLimit = 3
   if (selectedVehicleType.value?.value === 3) {
-    passengerOptions.value = buildPassengerOptions(7)
-    selectedPassengers.value = passengerOptions.value[0]
+    passengerLimit = 7
+  } else if (selectedVehicleType.value.value === 4) {
+    passengerLimit = 6
   }
-  if (selectedVehicleType.value.value === 4) {
-    passengerOptions.value = buildPassengerOptions(6)
-    selectedPassengers.value = passengerOptions.value[0]
-  }
+  passengerOptions.value = buildPassengerOptions(passengerLimit)
+  selectedPassengers.value = passengerOptions.value[0]
 })
 
 const originType = ref<string[]>([])
-const isPearsonAirportOrigin = ref<boolean>(false)
-const onOriginChange = async (evt: Place) => {
-  origin.value = evt
-  console.log('Origin:', origin.value)
-  const { place_id, types, name } = origin.value
-  originType.value = types
-  name === 'Toronto Pearson International Airport'
-    ? (isPearsonAirportOrigin.value = true)
-    : (isPearsonAirportOrigin.value = false)
-  console.log('Is it PearsonAirport:', isPearsonAirportOrigin.value)
-  console.log('Origin Type:', originType.value)
-  origin.value.isPearsonAirportOrigin = isPearsonAirportOrigin.value
-  if (origin.value && destination.value) {
-    console.log('origin and destination are both set')
-    const { data } = await useFetch('/api/get-distance', {
-      query: {
-        origin: originPlaceId.value,
-        destination: place_id,
-      },
-    })
-    console.log('query', {
-      origin: originPlaceId.value,
-      destination: place_id,
-    })
-    placeDataOrigin.value = origin.value
-    placeDataDestination.value = destination.value
-    tripData.value = data.value
-    console.log('Trip data:', data)
-    console.log('Origin data:', placeDataOrigin.value)
-    console.log('Destination data:', placeDataDestination.value)
-    const {
-      distanceText,
-      distanceValue,
-      durationText,
-      durationValue,
-      endLat,
-      endLng,
-      startLat,
-      startLng,
-    } = tripData.value as TripData
-    const {
-      place_id: originPlaceIdValue,
-      formatted_address: originFormattedAddress,
-      name: originName,
-    } = placeDataOrigin.value as Place
-    const {
-      place_id: destinationPlaceId,
-      formatted_address: destinationFormattedAddress,
-      name: destinationName,
-    } = placeDataDestination.value as Place
-    calculatedDistance.value = distanceValue / 1000
-    console.log('calculated distance is:', calculatedDistance.value)
-    return {
-      distanceText,
-      distanceValue,
-      durationText,
-      durationValue,
-      endLat,
-      endLng,
-      startLat,
-      startLng,
-      originPlaceIdValue,
-      originFormattedAddress,
-      originName,
-      destinationPlaceId,
-      destinationFormattedAddress,
-      destinationName,
-      calculatedDistance,
-    }
-  } else {
-    const { place_id } = origin.value
-    console.log('only origin is set')
-    console.log('place id is:', place_id)
-    return (originPlaceId.value = place_id)
-  }
-}
-
 const destinationType = ref<string[]>([])
-const isPearsonAirportDestination = ref(false)
-const onDestinationChange = async (evt: Place) => {
-  destination.value = evt
-  const { place_id, types, name } = destination.value
-  destinationType.value = types
-  name === 'Toronto Pearson International Airport'
-    ? (isPearsonAirportDestination.value = true)
-    : (isPearsonAirportDestination.value = false)
-  console.log('Is it PearsonAirport:', isPearsonAirportDestination.value)
-  destination.value.isPearsonAirportDestination =
-    isPearsonAirportDestination.value
-  console.log('Destination Type:', destinationType.value)
-  console.log('Destination:', destination.value)
+const onPlaceChange = async (evt: Place, placeType: string) => {
+  const place = evt
+  const { place_id, types } = place
+  console.log(`${placeType === 'origin' ? 'Origin' : 'Destination'}:`, place)
+  placeType === 'origin' ? (origin.value = place) : (destination.value = place)
   if (origin.value && destination.value) {
     console.log('origin and destination are both set')
     const { data } = await useFetch('/api/get-distance', {
       query: {
-        origin: originPlaceId.value,
-        destination: place_id,
+        origin: origin.value.place_id,
+        destination: destination.value.place_id,
       },
     })
 
-    placeDataOrigin.value = origin.value
-    placeDataDestination.value = destination.value
-    tripData.value = data.value
-    console.log('Trip data:', tripData.value)
-    console.log('Origin data:', placeDataOrigin.value)
-    console.log('Destination data:', placeDataDestination.value)
-    const {
-      distanceText,
-      distanceValue,
-      durationText,
-      durationValue,
-      endLat,
-      endLng,
-      startLat,
-      startLng,
-    } = tripData.value as TripData
-    const {
-      place_id: originPlaceIdValue,
-      formatted_address: originFormattedAddress,
-      name: originName,
-    } = placeDataOrigin.value
-    const {
-      place_id: destinationPlaceId,
-      formatted_address: destinationFormattedAddress,
-      name: destinationName,
-    } = placeDataDestination.value
-    calculatedDistance.value = distanceValue / 1000
-    console.log('calculated distance is:', calculatedDistance.value)
-    return {
-      distanceText,
-      distanceValue,
-      durationText,
-      durationValue,
-      endLat,
-      endLng,
-      startLat,
-      startLng,
-      originPlaceIdValue,
-      originFormattedAddress,
-      originName,
-      destinationPlaceId,
-      destinationFormattedAddress,
-      destinationName,
-      tripData,
-      calculatedDistance,
+    tripData.value = {
+      ...Object.entries(origin.value).reduce(
+        (obj, [key, value]) => ({ ...obj, [`origin_${key}`]: value }),
+        {}
+      ),
+      ...Object.entries(destination.value).reduce(
+        (obj, [key, value]) => ({ ...obj, [`destination_${key}`]: value }),
+        {}
+      ),
+      ...data.value,
+      ...gtmValues,
     }
+    console.log('Combined Data:', tripData.value)
   } else {
-    console.log('only destination is set')
-    const { place_id } = destination.value
-    console.log('destination place id is:', place_id)
-    return (destinationPlaceId.value = place_id)
+    console.log(
+      `only ${placeType === 'origin' ? 'origin' : 'destination'} is set`
+    )
+    console.log(
+      `${placeType === 'origin' ? 'origin' : 'destination'} place id is:`,
+      place_id
+    )
+    if (placeType === 'origin') {
+      originPlaceId.value = place_id
+      originType.value = types
+    } else {
+      destinationPlaceId.value = place_id
+      destinationType.value = types
+    }
   }
 }
 
-watch(originType, () => {
-  if (originType.value.includes('airport')) {
-    selectedServiceType.value = serviceTypeOptions.value[3]
-  }
-  if (destinationType.value.includes('airport')) {
-    selectedServiceType.value = serviceTypeOptions.value[2]
-  }
-  if (
-    originType.value.includes('airport') &&
-    destinationType.value.includes('airport')
-  ) {
-    selectedServiceType.value = serviceTypeOptions.value[3]
-  }
-})
+watch([originType, destinationType], () => {
+  let serviceTypeIndex = 0
 
-watch(destinationType, () => {
   if (originType.value.includes('airport')) {
-    selectedServiceType.value = serviceTypeOptions.value[3]
+    serviceTypeIndex = 3
   }
   if (destinationType.value.includes('airport')) {
-    selectedServiceType.value = serviceTypeOptions.value[2]
+    serviceTypeIndex = 2
   }
   if (
     originType.value.includes('airport') &&
     destinationType.value.includes('airport')
   ) {
-    selectedServiceType.value = serviceTypeOptions.value[3]
+    serviceTypeIndex = 3
   }
+
+  selectedServiceType.value = serviceTypeOptions.value[serviceTypeIndex]
 })
 
 const validationSchema = toFormValidator(formSchema)
-
 const loading = ref(false)
 const openAlert = ref(false)
-const returnedQuoteValues = ref()
 
 async function onSubmit(values: any) {
   loading.value = true
   console.log('values are:', values)
-  const { data } = await useFetch('/api/submission', {
+  const { data: returnedQuoteValues } = await useFetch('/api/submission', {
     method: 'POST',
     body: values,
   })
-  returnedQuoteValues.value = data?.value
-  const { hplUserId, quote_number } = returnedQuoteValues.value
+  const { hplUserId, quote_number } = returnedQuoteValues?.value as any
   quoteStore.quote_number = quote_number.toString()
   localStorage.setItem('quote_number', quote_number.toString())
   localStorage.setItem('hplUserId', hplUserId)
@@ -391,7 +256,7 @@ async function onSubmit(values: any) {
   quoteStore.quote = returnedQuoteValues.value
   console.log('Returned data is:', returnedQuoteValues.value)
 
-  if (returnedQuoteValues?.value.statusCode === 200) {
+  if (returnedQuoteValues?.value?.statusCode === 200) {
     setTimeout(async () => {
       triggerEvent()
       loading.value = false
@@ -428,7 +293,7 @@ async function onSubmit(values: any) {
           label="Pick Up Location:"
           name="originLocation"
           placeholder="Enter pick up location"
-          @change="onOriginChange"
+          @change="onPlaceChange($event, 'origin')"
         />
         <ErrorMessage class="text-sm text-red-600" name="placeDataOrigin" />
       </div>
@@ -437,7 +302,7 @@ async function onSubmit(values: any) {
           label="Drop Off Location:"
           name="destinationLocation"
           placeholder="Enter drop off location"
-          @change="onDestinationChange"
+          @change="onPlaceChange($event, 'destination')"
         />
         <ErrorMessage
           class="text-sm text-red-600"
@@ -637,20 +502,14 @@ async function onSubmit(values: any) {
             >
           </div>
         </div>
-        <Field v-model="placeDataOrigin" name="placeDataOrigin" type="hidden" />
-        <Field
-          v-model="placeDataDestination"
-          name="placeDataDestination"
-          type="hidden"
-        />
+        <!--        <Field v-model="placeDataOrigin" name="placeDataOrigin" type="hidden" />-->
+        <!--        <Field-->
+        <!--          v-model="placeDataDestination"-->
+        <!--          name="placeDataDestination"-->
+        <!--          type="hidden"-->
+        <!--        />-->
         <Field v-model="tripData" name="tripData" type="hidden" />
-        <Field
-          v-model="calculatedDistance"
-          name="calculatedDistance"
-          type="hidden"
-        />
         <Field v-model="isItHourly" name="isItHourly" type="hidden" />
-        <Field v-model="gtmValues" name="gtmValues" type="hidden" />
         <Field v-model="pickupDate" name="pickupDate" type="hidden" />
         <Field v-model="pickupTime" name="pickupTime" type="hidden" />
         <Field v-model="isRoundTrip" name="isRoundTrip" type="hidden" />

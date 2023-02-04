@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia'
 
-export const useCartStore = defineStore('useCartStore', {
+export const useCartStore = defineStore('cartStore', {
   state: () => ({ addedToCart: false, loading: false }),
   getters: {
     //

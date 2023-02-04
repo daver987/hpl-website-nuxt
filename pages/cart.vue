@@ -175,6 +175,22 @@ const products = [
 
               <div class="mt-6">
                 <label
+                  for="full=name"
+                  class="block text-sm font-medium text-gray-700"
+                  >Full Name</label
+                >
+                <div class="mt-1">
+                  <input
+                    type="text"
+                    id="full=name"
+                    name="full-name"
+                    autocomplete="fullname"
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  />
+                </div>
+              </div>
+              <div class="mt-1">
+                <label
                   for="email-address"
                   class="block text-sm font-medium text-gray-700"
                   >Email address</label
@@ -191,10 +207,10 @@ const products = [
               </div>
             </div>
 
-            <div class="mt-10">
+            <div class="mt-6">
               <h3
                 id="payment-heading"
-                class="text-lg font-medium text-gray-900"
+                class="mb-4 text-lg font-medium text-gray-900"
               >
                 Payment details
               </h3>

@@ -1,5 +1,4 @@
 <script setup>
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 import {
   Listbox,
   ListboxButton,
@@ -79,7 +78,11 @@ defineEmits(['update:modelValue'])
         <span
           class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
         >
-          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+          <Icon
+            name="heroicons:chevron-up-down"
+            class="h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          />
         </span>
       </ListboxButton>
 
@@ -126,7 +129,11 @@ defineEmits(['update:modelValue'])
                   'absolute inset-y-0 left-0 flex items-center pl-1.5',
                 ]"
               >
-                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                <Icon
+                  name="heroicons:check"
+                  class="h-5 w-5"
+                  aria-hidden="true"
+                />
               </span>
             </li>
           </ListboxOption>

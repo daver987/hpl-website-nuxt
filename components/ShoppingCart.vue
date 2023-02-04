@@ -4,7 +4,7 @@ import { Quote } from '~/schema/quote'
 import { useCartStore } from '~/stores/useCartStore'
 import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 import { Database } from '~/types/supabase'
 import { useQuoteStore } from '~/stores/useQuoteStore'
 import { useStorage } from '@vueuse/core'
@@ -34,7 +34,7 @@ console.log('Stored Quote Number:', storedQuoteNumber.value)
 const { data: quoteData } = await useAsyncData('quote', async () => {
   let quoteNumber: () => any
   quoteNumber = () => {
-    if (route.path === '/checkout') {
+    if (route.name === 'checkout') {
       return route.query.quote_number
         ? route.query.quote_number
         : route.query.quotenumber
@@ -64,10 +64,10 @@ const {
   passengersLabel,
   serviceTypeLabel,
   totalFare,
-  originName,
-  originFormattedAddress,
-  destinationName,
-  destinationFormattedAddress,
+  origin_name,
+  origin_formatted_address,
+  destination_name,
+  destination_formatted_address,
   baseRate,
   gratuity,
   HST,
@@ -78,7 +78,7 @@ const {
   isPearsonAirportDropoff,
   userEmail,
   vehicle_type,
-} = quoteData.value as Quote
+} = quoteData.value as unknown as Quote
 const { vehicle_image: vehicleImageSrc } = vehicle_type
 const vehicleImageAlt = vehicleTypeLabel
 const { addedToCart, loading } = storeToRefs(cartStore)
@@ -90,10 +90,10 @@ const returnServiceTypeLabel = computed(() => {
     : serviceTypeLabel
 })
 
-const pickupAddress = formatAddress(originName, originFormattedAddress)
+const pickupAddress = formatAddress(origin_name, origin_formatted_address)
 const dropOffAddress = formatAddress(
-  destinationName,
-  destinationFormattedAddress
+  destination_name,
+  destination_formatted_address
 )
 
 const roundTripFare = (roundTrip: boolean | null, fare: number | null) => {
@@ -131,15 +131,7 @@ const totalFareWithAirportFee = () => {
   return addPearsonFee === 15 ? totalFare + addPearsonFee : totalFare
 }
 
-function getCurrentDate() {
-  const date = new Date()
-  const month = date.toLocaleString('default', { month: 'long' })
-  const day = date.getDate()
-  const year = date.getFullYear()
-  return `${month} ${day}, ${year}`
-}
-
-const currentDate = getCurrentDate()
+const currentDate = format(new Date(), 'MMMM dd, yyyy')
 
 //checkout
 const loadingCheckout = ref(false)
@@ -197,6 +189,35 @@ const createSession = async () => {
     })
   }, 1500)
 }
+
+const formattedPickupDate = computed(() => {
+  if (isValid(new Date(pickupDate))) {
+    return formatDateNew(pickupDate)
+  } else {
+    return 'January 1, 2023'
+  }
+})
+const formattedPickupTime = computed(() => {
+  if (isValid(new Date(pickupTime))) {
+    return format(new Date(pickupTime), 'hh:mm a')
+  } else {
+    return '12:00'
+  }
+})
+const formattedReturnDate = computed(() => {
+  if (isValid(new Date(returnDate))) {
+    return formatDateNew(returnDate)
+  } else {
+    return 'January 1, 2023'
+  }
+})
+const formattedReturnTime = computed(() => {
+  if (isValid(new Date(returnTime))) {
+    return format(new Date(returnTime), 'hh:mm a')
+  } else {
+    return '12:00'
+  }
+})
 </script>
 
 <template>
@@ -276,9 +297,9 @@ const createSession = async () => {
                   <div class="mt-2 flex flex-col space-y-1 text-sm">
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Date: </span
-                      >{{ formatDateNew(pickupDate) }}
+                      >{{ formattedPickupDate }}
                       <span class="text-brand-400">Time: </span>
-                      {{ format(new Date(pickupTime), 'hh:mm a') }}
+                      {{ formattedPickupTime }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span
@@ -370,9 +391,9 @@ const createSession = async () => {
                   <div class="mt-2 flex flex-col space-y-1 text-sm">
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Date: </span
-                      >{{ formatDateNew(returnDate) }}
+                      >{{ formattedReturnDate }}
                       <span class="text-brand-400">Time: </span>
-                      {{ format(new Date(returnTime), 'hh:mm a') }}
+                      {{ formattedReturnTime }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span
