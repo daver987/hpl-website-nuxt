@@ -144,11 +144,11 @@ const open = ref<boolean>(false)
           >
             <NuxtLink to="/" class="self-center">
               <span class="sr-only">High Park Livery</span>
-              <img
-                class="h-12 w-auto lg:h-14"
+              <NuxtPicture
                 :src="src"
                 alt="High Park Livery Logo"
                 width="1920"
+                :img-attrs="{ class: 'h-12 w-auto lg:h-14' }"
               />
             </NuxtLink>
           </div>
@@ -189,8 +189,7 @@ const open = ref<boolean>(false)
             </div>
 
             <div class="hidden lg:ml-8 lg:flex">
-              <a
-                href="#"
+              <div
                 class="flex items-center text-gray-500 text-gray-100 hover:text-brand"
               >
                 <NuxtPicture
@@ -202,7 +201,7 @@ const open = ref<boolean>(false)
                 />
                 <span class="ml-3 block text-sm font-medium">CAD</span>
                 <span class="sr-only">, change currency</span>
-              </a>
+              </div>
             </div>
             <!-- Cart -->
             <div class="ml-4 flow-root lg:ml-6">

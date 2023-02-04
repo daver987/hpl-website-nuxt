@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+
 useHead({
   title: 'Cancel',
   meta: [
@@ -16,6 +18,18 @@ definePageMeta({
 <template>
   <div>
     <Vehicle />
+    <TabGroup>
+      <TabList>
+        <Tab>A</Tab>
+        <Tab>B</Tab>
+        <Tab>C</Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel>Panel 1</TabPanel>
+        <TabPanel>Panel 1</TabPanel>
+        <TabPanel>Panel 1</TabPanel>
+      </TabPanels>
+    </TabGroup>
   </div>
   <!--  <section class="min-h-screen bg-primary">-->
   <!--    <AppNavigation />-->

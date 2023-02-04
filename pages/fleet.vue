@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import {
+  TabGroup,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  TransitionRoot,
+} from '@headlessui/vue'
 
 definePageMeta({
   layout: 'default',
@@ -21,9 +28,9 @@ interface Vehicles {
   to: string
 }
 const selectedTab = ref(0)
+
 function changeTab(index: number) {
   selectedTab.value = index
-  console.log(selectedTab.value)
 }
 
 const tabs = [
@@ -81,10 +88,9 @@ const tabs = [
       :image="headerInfo.image"
     />
     <TabGroup
-      as="main"
+      :selected-index="selectedTab"
       @change="changeTab"
-      :defaultIndex="0"
-      :selectedIndex="selectedTab"
+      as="main"
       class="mx-auto max-w-7xl px-6 pt-6 md:-mt-20 md:px-8 lg:px-12"
     >
       <TabList
@@ -97,15 +103,12 @@ const tabs = [
           as="template"
         >
           <button
-            ref="tabRef"
-            :id="tab.id"
-            :data-vehicle="tab.tag"
             :class="[
               selected ? 'bg-primary text-white' : 'bg-white text-gray-500',
             ]"
-            class="col-span-1 flex w-full flex-col items-center justify-center space-y-4 border-white py-16 hover:bg-primary hover:text-white"
+            class="col-span-1 flex w-full flex-col items-center justify-center space-y-4 border-white px-2 py-16 hover:bg-primary hover:text-white"
           >
-            <NuxtImg :src="`/icons/${tab.icon}.svg`" alt="icon" class="w-16" />
+            <img :src="`/icons/${tab.icon}.svg`" alt="icon" class="w-16" />
             <span
               class="text-center text-sm uppercase tracking-widest hover:text-white"
               :class="[selected ? 'bg-primary text-white' : 'text-gray-500']"
@@ -115,18 +118,24 @@ const tabs = [
           </button>
         </Tab>
       </TabList>
-      <TabPanels as="div">
-        <TabPanel v-for="tab in tabs" :key="tab.id">
-          <transition
-            enter-active-class="transition duration-500 ease-out"
-            enter-from-class="translate-y-1 opacity-0"
-            enter-to-class="translate-y-0 opacity-100"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="translate-y-0 opacity-100"
-            leave-to-class="translate-y-1 opacity-0"
-          >
-            <component :is="tab.tag" />
-          </transition>
+      <TabPanels>
+        <TabPanel>
+          <FleetCadillacXts />
+        </TabPanel>
+        <TabPanel>
+          <FleetLincolnContinental />
+        </TabPanel>
+        <TabPanel>
+          <FleetCadillacEscalade />
+        </TabPanel>
+        <TabPanel>
+          <FleetLincolnNavigator />
+        </TabPanel>
+        <TabPanel>
+          <FleetTeslaS />
+        </TabPanel>
+        <TabPanel>
+          <FleetOther />
         </TabPanel>
       </TabPanels>
     </TabGroup>
