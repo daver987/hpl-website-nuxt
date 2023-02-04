@@ -1,40 +1,14 @@
 <script setup lang="ts">
-import { useLocalStorage } from '@vueuse/core'
-import { Database } from '~/types/supabase'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 import { useStorage } from '@vueuse/core'
 import { useQuoteStore } from '~/stores/useQuoteStore'
 import { storeToRefs } from 'pinia'
 
 const quoteStore = useQuoteStore()
 const { quote_number, quote } = storeToRefs(quoteStore)
-quote_number.value = useLocalStorage('quote_number', '')
+quote_number.value = useStorage('quote_number', '')
 quoteStore.getQuoteSingle()
 
-let quoteNumber = ref()
-
-const getQuote = async () => {
-  try {
-    const supabase = useSupabaseClient<Database>()
-    console.log('Quote Number from local storage', quoteNumber.value)
-    const { data } = await supabase
-      .from('quotes')
-      .select('*')
-      .eq('quote_number', quoteNumber.value)
-    console.log('Returned Quote:', data)
-    //@ts-ignore
-    return data[0]
-  } catch (e) {
-    console.log(e)
-  }
-}
-
-await getQuote()
-
-const formattedPickupDate = ref()
-const formattedPickupTime = ref()
-const formattedReturnDate = ref()
-const formattedReturnTime = ref()
 const firstNameQuote = ref()
 const lastNameQuote = ref()
 const userEmailQuote = ref()
@@ -49,62 +23,75 @@ const totalFareQuote = ref()
 const roundTripTotalQuote = ref()
 const isRoundTripQuote = ref()
 
-onMounted(async () => {
-  // const quoteData = await getQuote()
-  // const quoteData = await useStorage('quote_data', {})
-  // console.log('Quote Data', quoteData.value)
-  // quote.value = quoteData.value
-  const {
-    pickupDate,
-    pickupTime,
-    returnDate,
-    returnTime,
-    firstName,
-    lastName,
-    userEmail,
-    originName,
-    originFormattedAddress,
-    destinationName,
-    destinationFormattedAddress,
-    serviceTypeLabel,
-    vehicleTypeLabel,
-    isPearsonAirportDropoff,
-    isPearsonAirportPickup,
-    totalFare,
-    roundTripTotal,
-    isRoundTrip,
-    phone_number,
-  } = quote.value[0]
-  formattedPickupDate.value = formatDate(pickupDate)
-  formattedPickupTime.value = formatTime(pickupTime)
-  formattedReturnDate.value = formatDate(returnDate)
-  formattedReturnTime.value = formatTime(returnTime)
-  firstNameQuote.value = firstName
-  lastNameQuote.value = lastName
-  userEmailQuote.value = userEmail
-  phoneNumber.value = phone_number
-  originNameQuote.value = formatAddress(originName, originFormattedAddress)
-  destinationNameQuote.value = formatAddress(
-    destinationName,
-    destinationFormattedAddress
-  )
-  serviceTypeLabelQuote.value = serviceTypeLabel
-  vehicleTypeLabelQuote.value = vehicleTypeLabel
-  isPearsonAirportDropoffQuote.value = isPearsonAirportDropoff
-  isPearsonAirportPickupQuote.value = isPearsonAirportPickup
-  totalFareQuote.value = totalFare
-  roundTripTotalQuote.value = roundTripTotal
-  isRoundTripQuote.value = isRoundTrip
-})
+const {
+  pickupDate,
+  pickupTime,
+  returnDate,
+  returnTime,
+  firstName,
+  lastName,
+  userEmail,
+  origin_name,
+  origin_formatted_address,
+  destination_name,
+  destination_formatted_address,
+  serviceTypeLabel,
+  vehicleTypeLabel,
+  isPearsonAirportDropoff,
+  isPearsonAirportPickup,
+  totalFare,
+  roundTripTotal,
+  isRoundTrip,
+  phone_number,
+} = quote.value[0]
+
+firstNameQuote.value = firstName
+lastNameQuote.value = lastName
+userEmailQuote.value = userEmail
+phoneNumber.value = phone_number
+originNameQuote.value = formatAddress(origin_name, origin_formatted_address)
+destinationNameQuote.value = formatAddress(
+  destination_name,
+  destination_formatted_address
+)
+serviceTypeLabelQuote.value = serviceTypeLabel
+vehicleTypeLabelQuote.value = vehicleTypeLabel
+isPearsonAirportDropoffQuote.value = isPearsonAirportDropoff
+isPearsonAirportPickupQuote.value = isPearsonAirportPickup
+totalFareQuote.value = totalFare
+roundTripTotalQuote.value = roundTripTotal
+isRoundTripQuote.value = isRoundTrip
 
 console.log('Returned Quote from summary', quote.value)
 
-const formatDate = (date: string) => {
-  return format(new Date(date), 'MMMM dd, yyyy')
-}
-const formatTime = (date: string) => {
-  return format(new Date(date), 'hh:mm a')
-}
+const formattedPickupDate = computed(() => {
+  if (isValid(new Date(pickupDate))) {
+    return formatDateNew(pickupDate)
+  } else {
+    return 'January 1, 2023'
+  }
+})
+const formattedPickupTime = computed(() => {
+  if (isValid(new Date(pickupTime))) {
+    return format(new Date(pickupTime), 'hh:mm a')
+  } else {
+    return '12:00'
+  }
+})
+const formattedReturnDate = computed(() => {
+  if (isValid(new Date(returnDate))) {
+    return formatDateNew(returnDate)
+  } else {
+    return 'January 1, 2023'
+  }
+})
+const formattedReturnTime = computed(() => {
+  if (isValid(new Date(returnTime))) {
+    return format(new Date(returnTime), 'hh:mm a')
+  } else {
+    return '12:00'
+  }
+})
 
 function formatAddress(name: string, address: string) {
   return address.includes(name) ? address : `${name}, ${address}`
@@ -136,7 +123,7 @@ const space = ' '
           <span class="font-sans font-normal"
             >{{ firstNameQuote }} {{ lastNameQuote }}</span
           >
-          <span class="font-sans font-normal"> {{ lastNameQuote }}</span
+          <span class="font-sans font-normal"> {{ phoneNumber }}</span
           ><br />
           Email:
           <span class="font-sans font-normal">{{ userEmailQuote }}</span

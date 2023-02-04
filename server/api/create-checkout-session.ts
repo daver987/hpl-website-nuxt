@@ -11,8 +11,9 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { stripeCustomerId, customerId } = body
+    const { stripeCustomerId, customerId, quoteData } = body
     let stripeCustomer = stripeCustomerId
+    const quote = { ...quoteData }
     if (stripeCustomerId !== true) {
       const customer = await stripe.customers.create({
         email: body.emailAddress,
@@ -20,9 +21,11 @@ export default defineEventHandler(async (event) => {
         phone: body.phoneNumber,
         metadata: {
           customer_id: customerId,
+          quote,
         },
       })
       stripeCustomer = customer.id
+      console.log('The Body:', body)
       console.log('customer info', customer)
     }
 
@@ -34,6 +37,7 @@ export default defineEventHandler(async (event) => {
       cancel_url: `${YOUR_DOMAIN}/cancel`,
       automatic_tax: { enabled: false },
       customer: stripeCustomer,
+      metadata: { quote },
     })
     console.log('session info', session)
 

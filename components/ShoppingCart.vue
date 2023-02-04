@@ -146,6 +146,7 @@ const createSession = async () => {
     customerId: id,
     phoneNumber: phone_number.value,
     quoteNumber: quote_number,
+    quote: quoteData.value,
   }
   const { data: stripeData } = await useFetch(`/api/create-checkout-session`, {
     //@ts-ignore
