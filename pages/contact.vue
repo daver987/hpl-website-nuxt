@@ -24,7 +24,7 @@ const headerInfo = {
       :heading="headerInfo.heading"
       :image="headerInfo.image"
     />
-    <BaseSection class="pt-0">
+    <BaseSection class="-mt-20 pt-0">
       <ContactForm />
     </BaseSection>
     <Notification />

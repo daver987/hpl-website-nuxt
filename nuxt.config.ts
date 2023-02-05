@@ -1,14 +1,18 @@
 export default defineNuxtConfig({
-  typescript: {
-    shim: false,
-  },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: { name: 'layout', mode: 'out-in' },
   },
-  nitro: {
-    preset: 'netlify',
+  build: {
+    transpile: [
+      '@heroicons/vue',
+      '@headlessui/vue',
+      'vue-tel-input',
+      '@googlemaps/js-api-loader',
+    ],
   },
+  css: ['vue-tel-input/dist/vue-tel-input.css'],
+  extends: ['nuxt-seo-kit'],
   modules: [
     '@vueuse/nuxt',
     '@nuxtjs/fontaine',
@@ -25,16 +29,9 @@ export default defineNuxtConfig({
       },
     ],
   ],
-  extends: ['nuxt-seo-kit'],
-  build: {
-    transpile: [
-      '@heroicons/vue',
-      '@headlessui/vue',
-      'vue-tel-input',
-      '@googlemaps/js-api-loader',
-    ],
+  nitro: {
+    preset: 'netlify',
   },
-  css: ['vue-tel-input/dist/vue-tel-input.css'],
   runtimeConfig: {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
@@ -54,5 +51,8 @@ export default defineNuxtConfig({
       language: 'en-CA',
       titleSeparator: '|',
     },
+  },
+  typescript: {
+    shim: false,
   },
 })
