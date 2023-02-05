@@ -1,5 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { qualities } from '~/data/qualities'
+
 definePageMeta({
   layout: 'default',
   title: 'High Park Livery | About Us',
@@ -44,11 +45,11 @@ const headerInfo = {
             </div>
             <div class="flex justify-center px-4 py-4 sm:px-6">
               <BaseButton
-                kind="btn-brand"
+                :nuxtLink="true"
                 class="self-center"
+                kind="btn-brand"
                 label="Reserve Now"
                 to="/reservations"
-                :nuxtLink="true"
               />
             </div>
           </div>
@@ -59,9 +60,9 @@ const headerInfo = {
                   'object-center object-cover h-64 w-full md:object-left md:min-h-[18rem]',
               }"
               alt="Chauffeur Service"
+              loading="lazy"
               src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/81877055-3d82-4ba5-cef9-ba7f0148dc00/1920"
               width="1920"
-              loading="lazy"
             />
           </div>
         </BaseContainer>
@@ -69,14 +70,14 @@ const headerInfo = {
       <BaseSection>
         <BaseContainer class="place-items-center md:grid md:grid-cols-2">
           <NuxtPicture
-            alt="Tesla-S-Back-Seat"
             :img-attrs="{
               class:
                 'object-center object-cover w-full min-h-[18rem] self-center md:object-left',
             }"
+            alt="Tesla-S-Back-Seat"
+            loading="lazy"
             src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/f56d5571-1af0-4986-7db7-bd29dc818200/4200"
             width="1920"
-            loading="lazy"
           />
           <div class="bg-white shadow-xl">
             <IconBlockAbout
@@ -92,13 +93,13 @@ const headerInfo = {
       </BaseSection>
       <BaseSection>
         <NuxtPicture
-          alt="Toronto-evening-skyline"
           :img-attrs="{
             class: 'object-cover object-center w-full min-h-[16rem]',
           }"
+          alt="Toronto-evening-skyline"
+          loading="lazy"
           src="https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/d0f63a6f-1d68-49fe-b643-224003dd5f00/4200"
           width="4200"
-          loading="lazy"
         />
         <BaseContainer class="bg-white shadow-xl">
           <div class="overflow-hidden bg-white py-6 md:px-2 lg:px-4">
@@ -143,10 +144,10 @@ const headerInfo = {
             </div>
             <div class="px-4 py-4 sm:px-6">
               <BaseButton
+                :nuxtLink="true"
                 kind="btn-brand"
                 label="Contact Us"
                 to="/contact"
-                :nuxtLink="true"
               />
             </div>
           </div>

@@ -1,31 +1,19 @@
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { useQuoteStore } from '~/stores/useQuoteStore'
 import { useCartStore } from '~/stores/useCartStore'
 import { storeToRefs } from 'pinia'
 import { useStorage } from '@vueuse/core'
 
 const { addedToCart } = storeToRefs(useCartStore())
-const quoteStore = useQuoteStore()
-const {
-  quote: { isRoundTrip, serviceTypeLabel, vehicleTypeLabel },
-} = storeToRefs(quoteStore)
-const removeFromCart = useCartStore().removeFromCart()
-
 const cartData = useStorage('quote_data', {})
 console.log('Mini Cart Data', cartData.value)
+//@ts-ignore
+const { isRoundTrip, serviceTypeLabel, vehicleTypeLabel } = cartData.value
+const removeFromCart = useCartStore().removeFromCart()
 
-// const { serviceTypeLabel, vehicleTypeLabel } = cartData.value
-
-const itemsInCart = computed(() => {
-  if (addedToCart.value && isRoundTrip) {
-    return 2
-  }
-  if (addedToCart.value && !isRoundTrip) {
-    return 1
-  }
-  return 0
-})
+const itemsInCart = computed(() =>
+  addedToCart.value ? (isRoundTrip ? 2 : 1) : 0
+)
 </script>
 
 <template>

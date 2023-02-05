@@ -1,3 +1,4 @@
+// @ts-ignore
 export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
@@ -13,6 +14,7 @@ export default defineNuxtConfig({
   },
   css: ['vue-tel-input/dist/vue-tel-input.css'],
   extends: ['nuxt-seo-kit'],
+  //@ts-ignore
   modules: [
     '@vueuse/nuxt',
     '@nuxtjs/fontaine',

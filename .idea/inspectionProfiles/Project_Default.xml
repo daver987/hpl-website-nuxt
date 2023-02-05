@@ -131,12 +131,14 @@
       <option name="m_minLength" value="4" />
       <option name="m_maxLength" value="32" />
     </inspection_tool>
-    <inspection_tool class="FunctionWithInconsistentReturnsJS" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="FunctionWithInconsistentReturnsJS" enabled="true" level="WARNING" enabled_by_default="true">
+      <scope name="Project Files" level="WARNING" enabled="true" />
+    </inspection_tool>
     <inspection_tool class="FunctionWithMultipleLoopsJS" enabled="true" level="WARNING" enabled_by_default="false">
       <scope name="Project Files" level="WARNING" enabled="true" />
     </inspection_tool>
-    <inspection_tool class="FunctionWithMultipleReturnPointsJS" enabled="true" level="WARNING" enabled_by_default="false">
-      <scope name="Project Files" level="WARNING" enabled="true" />
+    <inspection_tool class="FunctionWithMultipleReturnPointsJS" enabled="false" level="WARNING" enabled_by_default="false">
+      <scope name="Project Files" level="WARNING" enabled="false" />
     </inspection_tool>
     <inspection_tool class="HtmlRequiredSummaryAttribute" enabled="true" level="INFORMATION" enabled_by_default="true" />
     <inspection_tool class="HtmlRequiredTitleAttribute" enabled="true" level="INFORMATION" enabled_by_default="true" />
@@ -308,8 +310,8 @@
     <inspection_tool class="JSXUnresolvedComponent" enabled="true" level="WEAK WARNING" enabled_by_default="false">
       <scope name="Project Files" level="WEAK WARNING" enabled="true" />
     </inspection_tool>
-    <inspection_tool class="LocalVariableNamingConventionJS" enabled="true" level="WARNING" enabled_by_default="false">
-      <scope name="Project Files" level="WARNING" enabled="true">
+    <inspection_tool class="LocalVariableNamingConventionJS" enabled="false" level="WARNING" enabled_by_default="false">
+      <scope name="Project Files" level="WARNING" enabled="false">
         <option name="m_regex" value="[a-z][A-Za-z]*" />
         <option name="m_minLength" value="1" />
         <option name="m_maxLength" value="32" />
@@ -333,14 +335,14 @@
     <inspection_tool class="NestedAssignmentJS" enabled="true" level="WARNING" enabled_by_default="false">
       <scope name="Project Files" level="WARNING" enabled="true" />
     </inspection_tool>
-    <inspection_tool class="NestedConditionalExpressionJS" enabled="true" level="WARNING" enabled_by_default="false">
-      <scope name="Project Files" level="WARNING" enabled="true" />
+    <inspection_tool class="NestedConditionalExpressionJS" enabled="false" level="WARNING" enabled_by_default="false">
+      <scope name="Project Files" level="WARNING" enabled="false" />
     </inspection_tool>
     <inspection_tool class="NestedFunctionCallJS" enabled="false" level="WARNING" enabled_by_default="false">
       <scope name="Project Files" level="WARNING" enabled="false" />
     </inspection_tool>
-    <inspection_tool class="NestedFunctionJS" enabled="true" level="WARNING" enabled_by_default="false">
-      <scope name="Project Files" level="WARNING" enabled="true">
+    <inspection_tool class="NestedFunctionJS" enabled="false" level="WARNING" enabled_by_default="false">
+      <scope name="Project Files" level="WARNING" enabled="false">
         <option name="m_includeAnonymousFunctions" value="false" />
       </scope>
       <option name="m_includeAnonymousFunctions" value="false" />
@@ -371,8 +373,8 @@
       </scope>
       <option name="m_limit" value="3" />
     </inspection_tool>
-    <inspection_tool class="ParameterNamingConventionJS" enabled="true" level="WARNING" enabled_by_default="false">
-      <scope name="Project Files" level="WARNING" enabled="true">
+    <inspection_tool class="ParameterNamingConventionJS" enabled="false" level="WARNING" enabled_by_default="false">
+      <scope name="Project Files" level="WARNING" enabled="false">
         <option name="m_regex" value="[a-z][A-Za-z]*" />
         <option name="m_minLength" value="1" />
         <option name="m_maxLength" value="32" />
