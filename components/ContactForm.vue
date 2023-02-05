@@ -269,7 +269,7 @@ const onSubmit = handleSubmit(async (values: ValidationSchema) => {
                   <div>
                     <InputTextContact
                       autocomplete="tel"
-                      type="text"
+                      type="tel"
                       name="phone_number"
                       label="Phone Number"
                     />
