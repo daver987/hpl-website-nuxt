@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Field } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
+import { useForm, ErrorMessage, Field } from 'vee-validate'
 import { z } from 'zod'
 
 const schema = toFormValidator(
@@ -17,12 +16,32 @@ const schema = toFormValidator(
 
 type ValidationSchema = z.infer<typeof schema>
 
-const { handleSubmit, errors } = useForm({
+const { handleSubmit, errors, resetForm } = useForm({
   validationSchema: schema,
 })
 
-const onSubmit = handleSubmit((values: ValidationSchema) => {
-  alert(JSON.stringify(values, null, 2))
+const isShown = ref(false)
+const loading = ref(false)
+const onSubmit = handleSubmit(async (values: ValidationSchema) => {
+  try {
+    loading.value = true
+    const { data } = await useFetch('/api/post-contact', {
+      method: 'POST',
+      body: values,
+    })
+    console.log('Contact Form Data:', data.value)
+    setTimeout(() => {
+      isShown.value = true
+      loading.value = false
+      resetForm()
+    }, 1500)
+    setTimeout(() => {
+      isShown.value = false
+    }, 7500)
+    return
+  } catch (e) {
+    console.log(e)
+  }
 })
 </script>
 
@@ -290,9 +309,9 @@ const onSubmit = handleSubmit((values: ValidationSchema) => {
                   <div class="sm:col-span-2 sm:flex sm:justify-end">
                     <button
                       type="submit"
-                      class="mt-2 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-brand px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 sm:w-auto"
+                      class="mt-2 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-brand px-6 py-2 text-base font-medium uppercase tracking-wider text-white shadow-sm hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 sm:w-auto"
                     >
-                      Submit
+                      {{ loading ? 'Submitting....' : 'Submit' }}
                     </button>
                   </div>
                 </form>
@@ -302,5 +321,10 @@ const onSubmit = handleSubmit((values: ValidationSchema) => {
         </div>
       </section>
     </main>
+    <Notification
+      message1="Your Message has been submitted"
+      message2="Someone from our team will get back to you shortly"
+      :show="isShown"
+    />
   </div>
 </template>
