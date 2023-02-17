@@ -1,12 +1,4 @@
-import { Session } from '~/types/session'
-import { Stripe } from 'stripe'
-
-const YOUR_DOMAIN = useRuntimeConfig().public.WEBSITE_URL
-const STRIPE_SECRET_KEY = useRuntimeConfig().STRIPE_SECRET_KEY
-
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2022-11-15',
-})
+import { stripe } from '~/server/api/services/stripeInit'
 
 export default defineEventHandler(async (event) => {
   const price = await stripe.prices.create({

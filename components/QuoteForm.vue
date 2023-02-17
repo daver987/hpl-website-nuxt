@@ -5,21 +5,28 @@ import { VueTelInput } from 'vue-tel-input'
 import 'vue-tel-input/dist/vue-tel-input.css'
 import { ErrorMessage, Field, Form } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
-import { useUserStore } from '~/stores/useUserStore'
+import { useQuoteStore } from '~/stores/useQuoteStore'
+import { useServiceTypesStore } from '~/stores/useServiceTypesStore'
+import { useVehicleTypeStore } from '~/stores/useVehicleTypeStore'
+import { useTripStore } from '~/stores/useTripStore'
 import { storeToRefs } from 'pinia'
-import { TripData } from '~~/types/data'
 import { useGtm } from '@gtm-support/vue-gtm'
 import Datepicker from '~/components/datepicker/Datepicker.vue'
-import { useQuoteStore } from '~/stores/useQuoteStore'
-import { useServiceTypeStore } from '~/stores/useServiceTypeStore'
-import { useVehicleTypeStore } from '~/stores/useVehicleTypeStore'
+import { OptionsArray } from '~/utils/extractOptions'
 
-const quoteStore = useQuoteStore()
-quoteStore.getQuoteSingle()
-quoteStore.getQuoteNumberLatest()
+const tripStore = useTripStore()
+const { origin, destination, tripData } = storeToRefs(tripStore)
+
+// const quoteStore = useQuoteStore()
+// const { quote } = storeToRefs(quoteStore)
+
 const vehicleTypeStore = useVehicleTypeStore()
-vehicleTypeStore.getVehicleTypes()
-const vehicleTypeOptionsArray = vehicleTypeStore.vehicleTypes
+await vehicleTypeStore.getVehicleTypes()
+const { vehicleTypes } = storeToRefs(vehicleTypeStore)
+
+const serviceTypesStore = useServiceTypesStore()
+await serviceTypesStore.getServiceTypes()
+const { serviceTypeOptions } = storeToRefs(serviceTypesStore)
 
 const route = useRoute()
 const gtmValues = route.query
@@ -44,7 +51,7 @@ const inputOptions = ref({
   styleClasses:
     'block w-full border-0 p-0 text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-sm pl-1',
   showDialCode: true,
-  name: 'phoneNumber',
+  name: 'phone_number',
   type: 'tel',
   ariaDescribedby: 'name',
   ariaLabeledBy: 'placeholder',
@@ -58,26 +65,7 @@ const dropdownOptions = ref({
   showDialCodeInList: true,
 })
 
-const userStore = useUserStore()
-const { hplUserId } = storeToRefs(userStore)
-
-interface OptionsArray {
-  label: string
-  value: number
-  isDisabled: boolean
-}
-
-const extractOptions = (originalArray: OptionsArray[]) => {
-  return originalArray.map((obj) => ({
-    label: obj.label,
-    value: obj.value,
-    isDisabled: obj.isDisabled,
-  }))
-}
-
-const origin = ref<Place | null>(null)
 const originPlaceId = ref<string>('')
-const destination = ref<Place | null>(null)
 const destinationPlaceId = ref<string>('')
 const pickupDate = ref(undefined)
 const pickupTime = ref(undefined)
@@ -85,12 +73,11 @@ const returnDate = ref(new Date())
 const returnTime = ref(new Date())
 const isItHourly = ref<boolean>(false)
 const isRoundTrip = ref<boolean>(false)
-const firstName = ref<string>('')
-const lastName = ref<string>('')
-const emailAddress = ref<string>('')
-const phoneNumber = ref<string>('')
+const first_name = ref<string>('')
+const last_name = ref<string>('')
+const email_address = ref<string>('')
+const phone_number = ref<string>('')
 const disabled = ref<boolean>(true)
-const tripData = ref<any>(null)
 
 const buildPassengerOptions = (numPassengers: number) => {
   let options = [
@@ -138,11 +125,7 @@ const hoursRequiredClasses = ref('cursor-not-allowed opacity-50 text-gray-300')
 const hoursRequiredOptions = ref(buildHoursRequiredOptions())
 const selectedNumberOfHours = ref(hoursRequiredOptions.value[0])
 
-const { data: serviceTypes } = await useFetch('/api/get-service-type')
-//@ts-ignore
-const serviceTypeOptions = ref(extractOptions(serviceTypes.value))
-console.log(serviceTypeOptions.value)
-const selectedServiceType = ref(serviceTypeOptions.value[0])
+const selectedServiceType = ref(serviceTypeOptions.value![0])
 
 watch(selectedServiceType, () => {
   const value = selectedServiceType.value.value === 4
@@ -154,11 +137,8 @@ watch(selectedServiceType, () => {
   selectedNumberOfHours.value = hoursRequiredOptions.value[0]
 })
 
-const { data: vehicleTypes } = await useFetch('/api/get-vehicle-type')
-//@ts-ignore
 const vehicleTypeOptions = ref(extractOptions(vehicleTypes.value))
-console.log(vehicleTypeOptions.value)
-const selectedVehicleType = ref(vehicleTypeOptions.value[0])
+const selectedVehicleType = ref(vehicleTypeOptions.value![0])
 
 watch(selectedVehicleType, () => {
   let passengerLimit = 3
@@ -173,6 +153,7 @@ watch(selectedVehicleType, () => {
 
 const originType = ref<string[]>([])
 const destinationType = ref<string[]>([])
+
 const onPlaceChange = async (evt: Place, placeType: string) => {
   const place = evt
   const { place_id, types } = place
@@ -180,7 +161,8 @@ const onPlaceChange = async (evt: Place, placeType: string) => {
   placeType === 'origin' ? (origin.value = place) : (destination.value = place)
   if (origin.value && destination.value) {
     console.log('origin and destination are both set')
-    const { data } = await useFetch('/api/get-distance', {
+    const { data } = await useFetch('/api/directions', {
+      method: 'GET',
       query: {
         origin: origin.value.place_id,
         destination: destination.value.place_id,
@@ -233,13 +215,15 @@ watch([originType, destinationType], () => {
   ) {
     serviceTypeIndex = 3
   }
-
-  selectedServiceType.value = serviceTypeOptions.value[serviceTypeIndex]
+  selectedServiceType.value = serviceTypeOptions.value![serviceTypeIndex]
 })
 
 const validationSchema = toFormValidator(formSchema)
 const loading = ref(false)
 const openAlert = ref(false)
+
+const quoteStore = useQuoteStore()
+const { quote: cartData } = storeToRefs(quoteStore)
 
 async function onSubmit(values: any) {
   loading.value = true
@@ -250,10 +234,10 @@ async function onSubmit(values: any) {
   })
   const { hplUserId, quote_number } = returnedQuoteValues?.value as any
   quoteStore.quote_number = quote_number.toString()
-  localStorage.setItem('quote_number', quote_number.toString())
   localStorage.setItem('hplUserId', hplUserId)
+  localStorage.setItem('quote_number', quote_number.toString())
   localStorage.setItem('quote_data', JSON.stringify(returnedQuoteValues.value))
-  quoteStore.quote = returnedQuoteValues.value
+  cartData.value = returnedQuoteValues.value!
   console.log('Returned data is:', returnedQuoteValues.value)
 
   if (returnedQuoteValues?.value?.statusCode === 200) {
@@ -276,15 +260,15 @@ async function onSubmit(values: any) {
 
 <template>
   <div
-    class="border-1 rounded border border-white bg-black sm:mx-auto sm:w-full sm:max-w-lg sm:overflow-hidden sm:rounded-lg"
+    class="bg-black border border-white rounded border-1 sm:mx-auto sm:w-full sm:max-w-lg sm:overflow-hidden sm:rounded-lg"
   >
-    <h2 class="pt-5 text-center text-3xl uppercase text-white">
+    <h2 class="pt-5 text-3xl text-center text-white uppercase">
       Instant Quote
     </h2>
     <Form
       id="lead_form"
       :validation-schema="validationSchema"
-      class="space-y-3 p-5"
+      class="p-5 space-y-3"
       name="lead_form"
       @submit="onSubmit"
     >
@@ -314,7 +298,7 @@ async function onSubmit(values: any) {
           <Datepicker
             v-model="pickupDate"
             :lower-limit="new Date()"
-            class="mt-1 w-full cursor-pointer rounded border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-gray-900 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="MMM dd, yyyy"
             name="pickupDate"
             placeholder="Enter A Pickup Date"
@@ -324,7 +308,7 @@ async function onSubmit(values: any) {
         <div class="md:col-span-1">
           <Datepicker
             v-model="pickupTime"
-            class="mt-1 w-full cursor-pointer rounded border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-gray-900 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             inputFormat="hh:mm a"
             minimum-view="time"
             name="pickupTime"
@@ -344,7 +328,7 @@ async function onSubmit(values: any) {
             v-model="returnDate"
             :lower-limit="new Date()"
             allow-outside-interval
-            class="mt-1 w-full cursor-pointer rounded border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-gray-900 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="MMM dd, yyyy"
             name="returnDate"
             placeholder="Enter A Return Date"
@@ -354,7 +338,7 @@ async function onSubmit(values: any) {
         <div class="col-span-1">
           <Datepicker
             v-model="returnTime"
-            class="mt-1 w-full cursor-pointer rounded border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-gray-900 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="hh:mm a"
             minimum-view="time"
             name="returnTime"
@@ -432,36 +416,36 @@ async function onSubmit(values: any) {
       <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
         <div class="col-span-1">
           <InputText
-            v-model="firstName"
+            v-model="first_name"
             label="First Name:"
-            name="firstName"
+            name="first_name"
             placeholder="Enter first name"
             type="text"
           />
-          <ErrorMessage class="text-sm text-red-600" name="firstName" />
+          <ErrorMessage class="text-sm text-red-600" name="first_name" />
         </div>
 
         <div class="col-span-1">
           <InputText
-            v-model="lastName"
+            v-model="last_name"
             label="Last Name:"
-            name="lastName"
+            name="last_name"
             placeholder="Enter last name"
             type="text"
           />
-          <ErrorMessage class="text-sm text-red-600" name="lastName" />
+          <ErrorMessage class="text-sm text-red-600" name="last_name" />
         </div>
       </div>
       <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
         <div class="col-span-1">
           <InputText
-            v-model="emailAddress"
+            v-model="email_address"
             label="Email Address:"
-            name="emailAddress"
+            name="email_address"
             placeholder="Enter Email Address"
             type="email"
           />
-          <ErrorMessage class="text-sm text-red-600" name="emailAddress" />
+          <ErrorMessage class="text-sm text-red-600" name="email_address" />
         </div>
         <div class="col-span-1">
           <Field
@@ -470,28 +454,28 @@ async function onSubmit(values: any) {
             :validateOnChange="false"
             :validateOnInput="false"
             :validateOnModelUpdate="false"
-            name="phoneNumber"
+            name="phone_number"
           >
             <VueTelInput
-              v-model="phoneNumber"
+              v-model="phone_number"
               :dropdown-options="dropdownOptions"
               :input-options="inputOptions"
               aria-label="phone input"
               style-classes="rounded border border-gray-300 pr-1 bg-white shadow-sm focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600"
               v-bind="field"
             />
-            <ErrorMessage class="text-sm text-red-600" name="phoneNumber" />
+            <ErrorMessage class="text-sm text-red-600" name="phone_number" />
           </Field>
         </div>
       </div>
       <div class="flex flex-row">
         <div class="relative flex items-start">
-          <div class="flex h-5 items-center">
+          <div class="flex items-center h-5">
             <input
               id="round_trip"
               v-model="isRoundTrip"
               aria-describedby="comments-description"
-              class="focus:ring-brand-500 h-4 w-4 rounded border-gray-300 text-brand-600"
+              class="w-4 h-4 border-gray-300 rounded focus:ring-brand-500 text-brand-600"
               name="round_trip"
               type="checkbox"
             />
@@ -502,12 +486,6 @@ async function onSubmit(values: any) {
             >
           </div>
         </div>
-        <!--        <Field v-model="placeDataOrigin" name="placeDataOrigin" type="hidden" />-->
-        <!--        <Field-->
-        <!--          v-model="placeDataDestination"-->
-        <!--          name="placeDataDestination"-->
-        <!--          type="hidden"-->
-        <!--        />-->
         <Field v-model="tripData" name="tripData" type="hidden" />
         <Field v-model="isItHourly" name="isItHourly" type="hidden" />
         <Field v-model="pickupDate" name="pickupDate" type="hidden" />
@@ -519,11 +497,11 @@ async function onSubmit(values: any) {
       <div class="flex flex-row">
         <button
           id="submit_button"
-          class="inline-flex w-full items-center rounded border border-transparent bg-red-600 px-4 py-2 text-sm font-medium uppercase text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          class="inline-flex items-center w-full px-4 py-2 text-sm font-medium text-white uppercase bg-red-600 border border-transparent rounded shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           type="submit"
         >
-          <span class="mx-auto self-center">{{
-            loading ? 'Processing.....' : 'Get Prices & Availability'
+          <span class="self-center mx-auto">{{
+  loading? 'Processing.....': 'Get Prices & Availability'
           }}</span>
         </button>
       </div>

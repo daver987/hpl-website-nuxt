@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useQuoteStore } from '~/stores/useQuoteStore'
-import { storeToRefs } from 'pinia'
 import {
   Dialog,
   DialogPanel,
@@ -20,10 +18,6 @@ defineProps({
       'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/c6c7415a-d52d-46fa-a85e-1ba5153b2000/1920',
   },
 })
-
-const quoteStore = useQuoteStore()
-//@ts-ignore
-const { isRoundTrip } = storeToRefs(quoteStore)
 
 const nav = navigation as NavigationItem[]
 

@@ -55,6 +55,12 @@ export const quoteSchema = z.object({
   vehicle_type: z.object({
     vehicle_image: z.string(),
   }),
+  vehicle_image: z.string(),
+  first_name: z.string(),
+  last_name: z.string(),
+  email_address: z.string(),
+  phone_number: z.string(),
+  hplUserId: z.string(),
 })
 
 export type Quote = z.infer<typeof quoteSchema>

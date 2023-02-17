@@ -2,10 +2,11 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { useCartStore } from '~/stores/useCartStore'
 import { storeToRefs } from 'pinia'
-import { useStorage } from '@vueuse/core'
+import { useQuoteStore } from '~/stores/useQuoteStore'
 
 const { addedToCart } = storeToRefs(useCartStore())
-const cartData = useStorage('quote_data', {})
+const quoteStore = useQuoteStore()
+const { quote: cartData } = storeToRefs(quoteStore)
 console.log('Mini Cart Data', cartData.value)
 //@ts-ignore
 const { isRoundTrip, serviceTypeLabel, vehicleTypeLabel } = cartData.value

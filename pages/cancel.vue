@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+// import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 
 useHead({
   title: 'Cancel',
@@ -16,21 +16,12 @@ definePageMeta({
 </script>
 
 <template>
-  <div>
-    <Vehicle />
-    <TabGroup>
-      <TabList>
-        <Tab>A</Tab>
-        <Tab>B</Tab>
-        <Tab>C</Tab>
-      </TabList>
-      <TabPanels>
-        <TabPanel>Panel 1</TabPanel>
-        <TabPanel>Panel 1</TabPanel>
-        <TabPanel>Panel 1</TabPanel>
-      </TabPanels>
-    </TabGroup>
-  </div>
+  <n-grid :cols="1">
+    <n-grid-item :span="1">
+      <QuoteFormTwo />
+    </n-grid-item>
+  </n-grid>
+
   <!--  <section class="min-h-screen bg-primary">-->
   <!--    <AppNavigation />-->
   <!--    <div class="p-6 text-center">-->

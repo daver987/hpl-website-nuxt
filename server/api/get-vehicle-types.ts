@@ -4,15 +4,14 @@ import { Database } from '~/types/supabase'
 export default defineEventHandler(async (event) => {
   try {
     const supabase = serverSupabaseClient<Database>(event)
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('vehicle_type')
       .select('*')
       .order('value', { ascending: true })
-    const vehicleTypes = data
-    console.log('Vehicle Types SSR:', vehicleTypes)
-    return vehicleTypes
-  } catch (e) {
-    console.log('Vehicle Types Error:', e)
+    // console.log('Vehicle Types SSR:', vehicleTypes)
+    return data
+  } catch (error) {
+    console.log('Vehicle Types Error:', error)
     return 'Error Getting Vehicle Types'
   }
 })

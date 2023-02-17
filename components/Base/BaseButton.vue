@@ -10,13 +10,13 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const btnType = computed(() => {
-  if (props.link) {
-    return true
-  } else if (props.nuxtLink) {
-    return true
-  } else return true
-})
+// const btnType = computed(() => {
+//   if (props.link) {
+//     return true
+//   } else if (props.nuxtLink) {
+//     return true
+//   } else return true
+// })
 const btnStyle = computed(() => {
   if (props.kind === 'btn-light') {
     return [
@@ -55,13 +55,7 @@ const btnStyle = computed(() => {
     <span class="mx-auto">{{ label }}</span>
     <slot></slot>
   </button>
-  <NuxtLink
-    @click="$emit('click')"
-    v-if="nuxtLink === true"
-    :class="btnStyle"
-    :href="href"
-    :to="to"
-  >
+  <NuxtLink @click="$emit('click')" v-if="nuxtLink === true" :class="btnStyle" :href="href" :to="to">
     <span class="mx-auto">{{ label }}</span>
     <slot></slot>
   </NuxtLink>

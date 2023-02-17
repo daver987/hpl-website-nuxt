@@ -1,11 +1,6 @@
-import { Stripe } from 'stripe'
-import { getHeaders, readRawBody, defineEventHandler } from 'h3'
-import { StripeResponse } from '~/types/StripeResponse'
+import { stripe } from '~/server/api/services/stripeInit'
 import twilio from 'twilio'
 
-const stripe = new Stripe(useRuntimeConfig().STRIPE_SECRET_KEY, {
-  apiVersion: '2022-11-15',
-})
 const TWILIO_ACCOUNT_SID = useRuntimeConfig().TWILIO_ACCOUNT_SID
 const TWILIO_AUTH_TOKEN = useRuntimeConfig().TWILIO_AUTH_TOKEN
 const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)

@@ -1,25 +1,25 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { VehicleType, vehicleTypeSchema } from '~/schema/vehicleType'
+import { VehicleType } from '~/schema/vehicleType'
 
-export const useVehicleTypeStore = defineStore({
-  id: 'vehicleTypeStore',
-  state: () => {
-    return {
-      loading: false,
-      vehicleTypes: <VehicleType[] | null>null,
+export const useVehicleTypeStore = defineStore('vehicleTypeStore', () => {
+  const vehicleTypes = ref<VehicleType[] | null>(null)
+
+  const getVehicleTypes = async () => {
+    try {
+      const { data: vehicleTypesData } = await useFetch(
+        '/api/get-vehicle-types'
+      )
+      // @ts-ignore
+      vehicleTypes.value = vehicleTypesData.value
+      return vehicleTypesData.value
+    } catch (error) {
+      alert(error)
     }
-  },
-  actions: {
-    async getVehicleTypes() {
-      try {
-        this.vehicleTypes = await $fetch('/api/get-vehicle-type')
-        vehicleTypeSchema.safeParse(this.vehicleTypes[0])
-        console.log('Vehicle Types:', this.vehicleTypes)
-      } catch (error) {
-        alert(error)
-      }
-    },
-  },
+  }
+  return {
+    vehicleTypes,
+    getVehicleTypes,
+  }
 })
 
 if (import.meta.hot) {

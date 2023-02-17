@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Loader } from '@googlemaps/js-api-loader'
-import { Ref } from 'vue'
 
 const props = defineProps({
   type: {
@@ -39,11 +38,9 @@ const props = defineProps({
 })
 
 const mapsApiKey = useRuntimeConfig().public.GOOGLE_MAPS_API_KEY
-const autocomplete = ref(
-  null
-) as unknown as Ref<google.maps.places.Autocomplete>
-const inputField = ref(null) as unknown as Ref<HTMLInputElement>
-const place = ref(null) as unknown as Ref<google.maps.places.PlaceResult>
+const autocomplete = ref<google.maps.places.Autocomplete | null>(null)
+const inputField = ref<HTMLInputElement | null>(null)
+const place = ref<google.maps.places.PlaceResult | null>(null)
 
 const loader = new Loader({
   apiKey: mapsApiKey,
@@ -53,16 +50,19 @@ const loader = new Loader({
 
 const initAutocomplete = async () => {
   await loader.load().then(() => {
-    autocomplete.value = new google.maps.places.Autocomplete(inputField.value, {
-      componentRestrictions: { country: ['us', 'ca'] },
-      fields: ['place_id', 'formatted_address', 'name', 'types'],
-    })
+    autocomplete.value = new google.maps.places.Autocomplete(
+      inputField.value!,
+      {
+        componentRestrictions: { country: ['us', 'ca'] },
+        fields: ['place_id', 'formatted_address', 'name', 'types'],
+      }
+    )
     autocomplete.value.addListener('place_changed', getAutocompleteComponents)
   })
 }
 
 const getAutocompleteComponents = () => {
-  place.value = autocomplete.value.getPlace()
+  place.value = autocomplete.value!.getPlace()
   console.log('Returned place components:', place.value)
   const { place_id } = place.value
   console.log(place_id)

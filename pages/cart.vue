@@ -5,8 +5,7 @@ definePageMeta({
   layout: 'auth',
 })
 
-const clientSec =
-  'seti_1MWgziEm9nnVhePIDDuEYtiE_secret_NHFU4iarMgelRQl01On2W98cb0wPS9U'
+const config = useRuntimeConfig()
 
 const stripe = await loadStripe(
   'pk_test_51LB1WyEm9nnVhePI7x5av80XBdGNV7C6jt27HgDHJ7sHQEVbzQccJwrXRT8LphTIEFSwGebIMwkGRCHoIUI2xiGU00rvazE9dK'

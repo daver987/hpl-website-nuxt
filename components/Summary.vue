@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { format, isValid } from 'date-fns'
-import { useStorage } from '@vueuse/core'
+// import { useStorage } from '@vueuse/core'
 import { useQuoteStore } from '~/stores/useQuoteStore'
 import { storeToRefs } from 'pinia'
 
 const quoteStore = useQuoteStore()
 const { quote_number, quote } = storeToRefs(quoteStore)
-quote_number.value = useStorage('quote_number', '')
+// quote_number.value = useStorage('quote_number', '')
 quoteStore.getQuoteSingle()
 
 const firstNameQuote = ref()

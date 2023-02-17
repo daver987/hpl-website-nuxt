@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-  TabGroup,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
-  TransitionRoot,
-} from '@headlessui/vue'
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 
 definePageMeta({
   layout: 'default',

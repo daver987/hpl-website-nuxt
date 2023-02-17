@@ -1,42 +1,43 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
-export const useQuoteStore = defineStore('quoteStore', {
-  state: () => {
-    return {
-      loading: false,
-      quote: <any | null>null,
-      quote_number: <string | number | null>2455,
-      quoteNumberLatest: <number | null>2455,
+export const useQuoteStore = defineStore('quoteStore', () => {
+  const quote = useStorageAsync('quote_data', {})
+  const quote_number = useStorageAsync('quote_number', 2455)
+  const quoteNumberLatest = ref<number | null>(2455)
+
+  const getQuoteSingle = async () => {
+    try {
+      const { data: quoteData } = await useFetch('/api/get-quote-single', {
+        query: { quote_number: 2562 },
+      })
+      console.log('Single Quote:', quoteData.value)
+      quote.value = quoteData.value
+      return quote.value
+    } catch (error) {
+      alert(error)
     }
-  },
-  actions: {
-    async getQuoteSingle() {
-      try {
-        const data = await $fetch('/api/get-quote-single', {
-          query: { quote_number: this.quote_number },
-        })
-        console.log('Single Quote:', data)
-        this.quote = data
-        return data
-      } catch (error) {
-        alert(error)
-      }
-    },
-    async getQuoteNumberLatest() {
-      try {
-        const data = await $fetch('/api/get-quotenumber')
-        console.log('Latest Quote Number:', this.quoteNumberLatest)
-        this.quoteNumberLatest = data
-        return data
-      } catch (error) {
-        alert(error)
-      }
-    },
-    getters: {},
-  },
+  }
+
+  const getQuoteNumberLatest = async () => {
+    try {
+      const { data: quoteNumber } = await useFetch('/api/get-quotenumber')
+      console.log('Latest Quote Number:', quoteNumber.value)
+      quoteNumberLatest.value = quoteNumber.value
+      return quoteNumber
+    } catch (error) {
+      alert(error)
+    }
+  }
+
+  return {
+    getQuoteNumberLatest,
+    getQuoteSingle,
+    quoteNumberLatest,
+    quote,
+    quote_number,
+  }
 })
 
 if (import.meta.hot) {
-  //@ts-ignore
   import.meta.hot.accept(acceptHMRUpdate(useQuoteStore, import.meta.hot))
 }

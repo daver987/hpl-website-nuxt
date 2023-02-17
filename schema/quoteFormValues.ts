@@ -66,16 +66,16 @@ export const formSchema = z.object({
       value: z.number().int().gte(1).lte(7),
     })
     .strip(),
-  firstName: z.string().min(1, {
+  first_name: z.string().min(1, {
     message: 'Please enter a valid first name',
   }),
-  lastName: z.string().min(1, {
+  last_name: z.string().min(1, {
     message: 'Please enter a valid last name',
   }),
-  emailAddress: z
+  email_address: z
     .string()
     .email({ message: 'Please enter a valid email address' }),
-  phoneNumber: z
+  phone_number: z
     .string()
     .min(7, {
       message: 'Please enter a valid phone number',

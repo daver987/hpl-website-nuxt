@@ -25,21 +25,18 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const { origin, destination } = query
   const data = await $fetch<DirectionsSchema>(
-    `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&key=AIzaSyDJJhVTuoRoXVJA6VvmltFvUCIqvVpRZSA
-      `,
-    {
-      method: 'POST',
-    }
+    `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&key=AIzaSyDJJhVTuoRoXVJA6VvmltFvUCIqvVpRZSA`
   )
   const response = directionsSchema.parse(data)
   console.log('Directions Response', response)
-  const { value: distanceValue, text: distanceText } =
-    response.routes[0].legs[0].distance
-  const { value: durationValue, text: durationText } =
-    response.routes[0].legs[0].duration
-  const { lat: startLat, lng: startLng } =
-    response.routes[0].legs[0].start_location
-  const { lat: endLat, lng: endLng } = response.routes[0].legs[0].end_location
+
+  const {
+    distance: { value: distanceValue, text: distanceText },
+    duration: { value: durationValue, text: durationText },
+    start_location: { lat: startLat, lng: startLng },
+    end_location: { lat: endLat, lng: endLng },
+  } = response.routes[0].legs[0]
+
   return {
     distanceValue,
     distanceText,

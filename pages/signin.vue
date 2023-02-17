@@ -16,7 +16,8 @@ definePageMeta({
 })
 const quoteStore = useQuoteStore()
 //@ts-ignore
-const { isRoundTrip } = storeToRefs(quoteStore)
+const { quote } = storeToRefs(quoteStore)
+const isRoundTrip = quote.value.isRoundTrip as boolean
 useScriptTag('https://book.mylimobiz.com/v4/widgets/widget-loader.js')
 
 const nav = navigation

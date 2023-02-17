@@ -14,8 +14,8 @@ definePageMeta({
   name: 'signup',
 })
 const quoteStore = useQuoteStore()
-//@ts-ignore
-const { isRoundTrip } = storeToRefs(quoteStore)
+const { quote } = storeToRefs(quoteStore)
+const isRoundTrip = quote.value.isRoundTrip as unknown as boolean
 
 const nav = navigation
 

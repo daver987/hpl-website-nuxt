@@ -8,11 +8,10 @@ export default defineNuxtConfig({
     transpile: [
       '@heroicons/vue',
       '@headlessui/vue',
-      'vue-tel-input',
       '@googlemaps/js-api-loader',
     ],
   },
-  css: ['vue-tel-input/dist/vue-tel-input.css'],
+  css: [],
   extends: ['nuxt-seo-kit'],
   //@ts-ignore
   modules: [
@@ -24,6 +23,7 @@ export default defineNuxtConfig({
     'nuxt-icon',
     '@nuxtjs/supabase',
     'nuxt-vitest',
+    '@huntersofbook/naive-ui-nuxt',
     [
       '@pinia/nuxt',
       {
@@ -54,7 +54,15 @@ export default defineNuxtConfig({
       titleSeparator: '|',
     },
   },
-  typescript: {
-    shim: false,
+  // typescript: {
+  //   shim: false,
+  // },
+  naiveUI: {
+    themeOverrides: {
+      common: {
+        primaryColor: '#9f6c27',
+        primaryColorHover: '#674D32',
+      },
+    },
   },
 })

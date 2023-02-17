@@ -5,7 +5,102 @@ import { ref } from 'vue'
 import { formatDate } from '~/utils/formatDate'
 import { formatTime } from '~/utils/formatTime'
 
+interface SurchargeAmounts {
+  [name: string]: number
+}
+
+interface VehicleRate {
+  min_distance: number
+  min_rate_distance: number
+  per_km: number
+  min_hours_hourly: number
+  min_rate_hourly: number
+  per_hour: number
+  vehicle_image: string
+}
+
+function calculateDistanceBasedRate(
+  distanceValue: number,
+  min_distance: number,
+  per_km: number,
+  min_rate_distance: number
+): number {
+  const calculatedDistance = distanceValue / 1000
+  if (calculatedDistance < min_distance) {
+    return min_rate_distance
+  }
+  return (calculatedDistance - min_distance) * per_km + min_rate_distance
+}
+
+function calculateHourlyBasedRate(
+  selectedHours: number,
+  min_hours_hourly: number,
+  per_hour: number,
+  min_rate_hourly: number
+): number {
+  if (selectedHours < min_hours_hourly) {
+    return min_rate_hourly
+  }
+  return selectedHours * per_hour
+}
+
+function calculateSurchargeAmounts(
+  surcharges: Surcharges[],
+  baseAmount: number
+): SurchargeAmounts {
+  const surchargeAmounts: SurchargeAmounts = {}
+  for (const surcharge of surcharges) {
+    if (surcharge.is_active) {
+      let amount = 0
+      if (surcharge.is_percentage) {
+        amount = baseAmount * surcharge.amount
+      } else if (surcharge.is_flat) {
+        amount = surcharge.amount
+      }
+      if (surchargeAmounts[surcharge.name]) {
+        surchargeAmounts[surcharge.name] += amount
+      } else {
+        surchargeAmounts[surcharge.name] = amount
+      }
+    }
+  }
+  return surchargeAmounts
+}
+
+function calculatePearsonAirportFee(
+  isRoundTrip: boolean,
+  origin_types: string[],
+  destination_types: string[]
+): number {
+  if (isRoundTrip) {
+    if (
+      origin_types.includes('airport') ||
+      destination_types.includes('airport')
+    ) {
+      return 15
+    }
+  } else if (origin_types.includes('airport')) {
+    return 15
+  }
+  return 0
+}
+
+function calculateTotalAmount(
+  baseAmount: number,
+  surchargeAmounts: SurchargeAmounts
+): number {
+  let totalAmount = baseAmount
+  for (const key in surchargeAmounts) {
+    totalAmount += surchargeAmounts[key]
+  }
+  return totalAmount
+}
+
+function formatAmount(amount: number): string {
+  return amount.toFixed(2)
+}
 const zapierSecret = useRuntimeConfig().ZAPIER_WEBHOOK_SECRET
+
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseClient<Database>(event)
   try {
@@ -16,11 +111,12 @@ export default defineEventHandler(async (event) => {
     const {
       selectedVehicleType: { value: selectedVehicleValue },
     } = bodyValues
+
     const {
-      firstName,
-      lastName,
-      emailAddress,
-      phoneNumber,
+      first_name,
+      last_name,
+      email_address,
+      phone_number,
       selectedVehicleType,
       isItHourly,
       isRoundTrip,
@@ -84,20 +180,9 @@ export default defineEventHandler(async (event) => {
         .select('*')
         .eq('value', selectedVehicleValue)
       console.log('This is the Vehicle Type', vehicleTypeValues)
-      //@ts-ignore
-      vehicleRates = vehicleTypeValues[0]
+      vehicleRates = vehicleTypeValues![0]
     } catch (e) {
       console.log(e)
-    }
-
-    interface VehicleRate {
-      min_distance: number
-      min_rate_distance: number
-      per_km: number
-      min_hours_hourly: number
-      min_rate_hourly: number
-      per_hour: number
-      vehicle_image: number
     }
 
     const {
@@ -110,97 +195,135 @@ export default defineEventHandler(async (event) => {
       vehicle_image,
     } = vehicleRates as VehicleRate
 
-    //calculate the base rate
-    const calculatedDistance = distanceValue / 1000
-    const baseRateDistance = () => {
-      if (calculatedDistance < min_distance) {
-        return min_rate_distance
-      }
-      return (calculatedDistance - min_distance) * per_km + min_rate_distance
-    }
-
-    const baseRateHourly = () => {
-      if (selectedHours < min_hours_hourly) {
-        return min_rate_hourly
-      }
-      return selectedHours * per_hour
-    }
-
-    //get the surcharges
     const getSurcharges = async () => {
-      const { data } = await supabase.from('surcharges').select()
-      console.log('This is the Surcharge Data', data)
-      return data
-    }
-    const surcharges = (await getSurcharges()) as unknown as Surcharges[]
-
-    const baseAmount = () => {
-      if (isItHourly) {
-        return baseRateHourly()
-      }
-      return baseRateDistance()
-    }
-
-    const surchargeAmounts = {}
-    let totalAmount = baseAmount()
-
-    for (const surcharge of surcharges) {
-      // @ts-ignore
-      if (surcharge.is_active) {
-        let amount = 0
-        if (surcharge.is_percentage) {
-          amount = baseAmount() * surcharge.amount
-        } else if (surcharge.is_flat) {
-          amount = surcharge.amount
-        }
-        // @ts-ignore
-        if (surchargeAmounts[surcharge.name]) {
-          // @ts-ignore
-          surchargeAmounts[surcharge.name] += amount
-        } else {
-          // @ts-ignore
-          surchargeAmounts[surcharge.name] = amount
-        }
-        totalAmount += amount
-      }
-    }
-    let isPearsonAirportPickup = false
-    let isPearsonAirportDropoff = false
-    const setPearsonAirportFee = () => {
-      if (isRoundTrip) {
-        if (
-          origin_types.includes('airport') ||
-          destination_types.includes('airport')
-        ) {
-          isPearsonAirportPickup = true
-          return 15
-        }
-      } else if (origin_types.includes('airport')) {
-        isPearsonAirportPickup = true
-        return 15
-      }
-      return 0
-    }
-    const pearsonFee = ref(0)
-    const roundTripAmount = () => {
-      if (isRoundTrip) {
-        pearsonFee.value = setPearsonAirportFee()
-        // @ts-ignore
-        return pearsonFee.value + totalAmount * 2
-      } else {
-        return totalAmount
+      try {
+        const { data } = await supabase.from('surcharges').select()
+        console.log('This is the Surcharge Data', data)
+        return data ?? []
+      } catch (error) {
+        console.error(error)
+        return []
       }
     }
 
-    // convert values to strings with 2 decimal places
-    for (const key in surchargeAmounts) {
-      // @ts-ignore
-      surchargeAmounts[key] = surchargeAmounts[key].toFixed(2)
-    }
-    const newTotalAmount = totalAmount.toFixed(2)
+    const surcharges = await getSurcharges()
+    const baseAmount = isItHourly
+      ? calculateHourlyBasedRate(
+          selectedHours,
+          min_hours_hourly,
+          per_hour,
+          min_rate_hourly
+        )
+      : calculateDistanceBasedRate(
+          distanceValue,
+          min_distance,
+          per_km,
+          min_rate_distance
+        )
+    const surchargeAmounts = calculateSurchargeAmounts(surcharges, baseAmount)
+    const pearsonFee = calculatePearsonAirportFee(
+      isRoundTrip,
+      origin_types,
+      destination_types
+    )
+    const totalAmount = calculateTotalAmount(baseAmount, surchargeAmounts)
+    const formattedSurchargeAmounts = Object.fromEntries(
+      Object.entries(surchargeAmounts).map(([name, amount]) => [
+        name,
+        formatAmount(amount),
+      ])
+    )
+    const formattedTotalAmount = formatAmount(totalAmount)
 
-    console.log(surchargeAmounts) // {surcharge1: "20.00", surcharge2: "10.00", tax: "10.00"}
-    console.log(totalAmount) // "130.00"
+    console.log(formattedSurchargeAmounts)
+    console.log(formattedTotalAmount)
+
+    //calculate the base rate
+    // const calculatedDistance = distanceValue / 1000
+    // const baseRateDistance = () => {
+    //   if (calculatedDistance < min_distance) {
+    //     return min_rate_distance
+    //   }
+    //   return (calculatedDistance - min_distance) * per_km + min_rate_distance
+    // }
+
+    // const baseRateHourly = () => {
+    //   if (selectedHours < min_hours_hourly) {
+    //     return min_rate_hourly
+    //   }
+    //   return selectedHours * per_hour
+    // }
+
+    // //get the surcharges
+    // const getSurcharges = async () => {
+    //   const { data } = await supabase.from('surcharges').select()
+    //   console.log('This is the Surcharge Data', data)
+    //   return data
+    // }
+    // const surcharges = await getSurcharges()
+
+    // const baseAmount = () => {
+    //   if (isItHourly) {
+    //     return baseRateHourly()
+    //   }
+    //   return baseRateDistance()
+    // }
+
+    // const surchargeAmounts = ref<Surcharges>({})
+
+    // let totalAmount = baseAmount()
+
+    // for (const surcharge of surcharges!) {
+    //   if (surcharge.is_active) {
+    //     let amount = 0
+    //     if (surcharge.is_percentage) {
+    //       amount = baseAmount() * surcharge.amount!
+    //     } else if (surcharge.is_flat) {
+    //       amount = surcharge.amount!
+    //     }
+    //     if (surchargeAmounts[surcharge.name]) {
+    //       surchargeAmounts[surcharge.name] += amount
+    //     } else {
+    //       surchargeAmounts[surcharge.name] = amount
+    //     }
+    //     totalAmount += amount
+    //   }
+    // }
+    // let isPearsonAirportPickup = false
+    // let isPearsonAirportDropoff = false
+    // const setPearsonAirportFee = () => {
+    //   if (isRoundTrip) {
+    //     if (
+    //       origin_types.includes('airport') ||
+    //       destination_types.includes('airport')
+    //     ) {
+    //       isPearsonAirportPickup = true
+    //       return 15
+    //     }
+    //   } else if (origin_types.includes('airport')) {
+    //     isPearsonAirportPickup = true
+    //     return 15
+    //   }
+    //   return 0
+    // }
+    // const pearsonFee = ref(0)
+    // const roundTripAmount = () => {
+    //   if (isRoundTrip) {
+    //     pearsonFee.value = setPearsonAirportFee()
+    //     return pearsonFee.value + totalAmount * 2
+    //   } else {
+    //     return totalAmount
+    //   }
+    // }
+
+    // // convert values to strings with 2 decimal places
+    // for (const key in surchargeAmounts) {
+    //   surchargeAmounts[key] = surchargeAmounts[key].toFixed(2)
+    // }
+    // const newTotalAmount = totalAmount.toFixed(2)
+
+    // console.log(surchargeAmounts)
+    // console.log(newTotalAmount)
 
     const hplUserId = ref('')
     // add a user to the database
@@ -209,20 +332,19 @@ export default defineEventHandler(async (event) => {
         .from('user')
         .upsert(
           {
-            firstName,
-            lastName,
-            emailAddress,
-            phoneNumber,
+            first_name,
+            last_name,
+            email_address,
+            phone_number,
           },
-          { onConflict: 'emailAddress' }
+          { onConflict: 'email_address' }
         )
         .select()
       if (error) {
         console.log('Error', error)
       }
       console.log('This is the User Data', data)
-      //@ts-ignore
-      hplUserId.value = data[0].id
+      hplUserId.value = data![0].id
       console.log('This is the hplUserId', hplUserId.value)
     }
 
@@ -256,10 +378,8 @@ export default defineEventHandler(async (event) => {
 
     //add the quote to the database
     const addQuote = async () => {
-      // @ts-ignore
-      // @ts-ignore
       const { data, error } = await supabase
-        .from('quotes')
+        .from('new_quotes')
         .upsert({
           pickupDate,
           pickupTime,
@@ -291,19 +411,15 @@ export default defineEventHandler(async (event) => {
           durationValue: tripData.durationValue,
           calculatedDistance,
           baseRate: isItHourly ? baseRateHourly() : baseRateDistance(),
-          //@ts-ignore
           fuelSurcharge: surchargeAmounts['Fuel Surcharge'],
-          //@ts-ignore
           gratuity: surchargeAmounts.Gratuity,
-          //@ts-ignore
           HST: surchargeAmounts.HST,
-          userEmail: emailAddress,
-          //@ts-ignore
+          userEmail: email_address,
           totalFare: newTotalAmount,
           quote_number: quote_number,
-          firstName,
-          lastName,
-          phone_number: phoneNumber,
+          first_name,
+          last_name,
+          phone_number: phone_number,
           userId: hplUserId.value,
           roundTripTotal: roundTripAmount(),
           airportFee: setPearsonAirportFee(),
@@ -326,9 +442,9 @@ export default defineEventHandler(async (event) => {
       const data = await $fetch(zapierSecret, {
         method: 'POST',
         body: {
-          firstName,
-          lastName,
-          emailAddress,
+          first_name,
+          last_name,
+          email_address,
           roundTripTotal: roundTripAmount(),
           totalFare: newTotalAmount,
           vehicleTypeLabel: selectedVehicleType.label,
@@ -359,19 +475,19 @@ export default defineEventHandler(async (event) => {
             'Basic N2U0MWNlYmVmYzljNjZkYjVjMzE2NDNiMjgzYzZiZGQ6MTc0YjMwYWE1OTBiMWQxMWYwMmI2NjFhMWMxZjViODA=',
         },
         body: {
-          first_name: firstName,
-          last_name: lastName,
+          first_name: first_name,
+          last_name: last_name,
           information: hplUserId.value,
           phone_numbers: [
             {
               label: 'Phone Number',
-              value: phoneNumber,
+              value: phone_number,
             },
           ],
           emails: [
             {
               label: 'Email Address',
-              value: emailAddress,
+              value: email_address,
             },
           ],
         },
@@ -408,10 +524,10 @@ export default defineEventHandler(async (event) => {
       isItHourly,
       hoursValue,
       hoursLabel,
-      firstName,
-      lastName,
-      emailAddress,
-      phoneNumber,
+      first_name,
+      last_name,
+      email_address,
+      phone_number,
       isRoundTrip,
       distanceValue,
       distanceText,
@@ -422,6 +538,16 @@ export default defineEventHandler(async (event) => {
       totalFare: totalAmount,
       quote_number,
       vehicle_image,
+      isPearsonAirportPickup,
+      isPearsonAirportDropoff,
+      baseRate: isItHourly ? baseRateHourly() : baseRateDistance(),
+      //@ts-ignore
+      fuelSurcharge: surchargeAmounts['Fuel Surcharge'],
+      //@ts-ignore
+      gratuity: surchargeAmounts.Gratuity,
+      //@ts-ignore
+      HST: surchargeAmounts.HST,
+      roundTripTotal: roundTripAmount(),
     }
   } catch (error) {
     console.log(error)

@@ -8,9 +8,8 @@ export default defineEventHandler(async (event) => {
       .from('service_type')
       .select('*')
       .order('value', { ascending: true })
-    const serviceTypes = data
-    console.log('Service Types SSR:', serviceTypes)
-    return serviceTypes
+    // console.log('Service Types SSR:', serviceTypes)
+    return data
   } catch (e) {
     console.log('Service Types Error:', e)
     return 'Error Getting Service Types'

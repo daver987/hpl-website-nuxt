@@ -10,6 +10,7 @@ const cartStore = useCartStore()
 const { addedToCart } = storeToRefs(cartStore)
 const route = useRoute()
 const notification = ref<boolean>(false)
+
 const showNotification = () => {
   if (route.fullPath === '/quoted' && !addedToCart.value) {
     setTimeout(() => {

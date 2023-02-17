@@ -2,89 +2,124 @@
 import { ReturnType } from '~/types/ReturnType'
 import { Quote } from '~/schema/quote'
 import { useCartStore } from '~/stores/useCartStore'
-import { useUserStore } from '~/stores/useUserStore'
+// import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
 import { format, isValid } from 'date-fns'
 import { Database } from '~/types/supabase'
 import { useQuoteStore } from '~/stores/useQuoteStore'
-import { useStorage } from '@vueuse/core'
 
-const route = useRoute()
+// const route = useRoute()
 const supabase = useSupabaseClient<Database>()
 
 const cartStore = useCartStore()
-const userStore = useUserStore()
 const quoteStore = useQuoteStore()
-const { hplUserId, first_name, last_name, phone_number, email_address } =
-  storeToRefs(userStore)
-console.log('Store User ID in cart:', hplUserId.value)
+const { quote: cartData } = storeToRefs(quoteStore)
+console.log('Shopping Cart Data', cartData.value)
+// const userStore = useUserStore()
+// await userStore.getUser()
+// const { userData } = storeToRefs(userStore)
 
-console.log(
-  'Shopping Cart User Data:',
-  hplUserId.value,
-  first_name.value,
-  last_name.value,
-  email_address.value,
-  phone_number.value
-)
+//@ts-ignore
+// const {
+//   first_name,
+//   last_name,
+//   email_address,
+//   phone_number,
+//   id: hplUserId,
+//   //@ts-ignore
+// } = userData.value[0]
 
-const storedQuoteNumber = useStorage('quote_number', '2583')
-console.log('Stored Quote Number:', storedQuoteNumber.value)
+// const quoteStore = useQuoteStore()
+// const { quote: quoteData } = storeToRefs(quoteStore)
 
-const { data: quoteData } = await useAsyncData('quote', async () => {
-  let quoteNumber: () => any
-  quoteNumber = () => {
-    if (route.name === 'checkout') {
-      return route.query.quote_number
-        ? route.query.quote_number
-        : route.query.quotenumber
-    } else if (quoteStore.quote_number === null) {
-      return useStorage('quote_number', 2583)
-    } else {
-      return quoteStore.quote_number
-    }
-  }
-  console.log('Quote Number in function', quoteNumber())
-  const { data } = await supabase
-    .from('quotes')
-    .select('*, vehicle_type(vehicle_image)')
-    .eq('quote_number', quoteNumber())
-    .single()
-  console.log('quote data:', data)
-  return data
-})
+// const quoteNumberToNumber = useToNumber(quote_number)
+
+// const {
+//   first_name,
+//   last_name,
+//   email_address,
+//   phone_number,
+//   id: hplUserId,
+// } = storage.value
+
+// const storeQuoteData = await quoteStore.getQuoteSingle(
+//   quoteNumberToNumber.value
+// )
+
+// const { data: quoteData } = await useAsyncData('quote', async () => {
+//   const quoteNumber: () => any = () => {
+//     if (route.name === 'checkout') {
+//       return route.query.quote_number
+//         ? route.query.quote_number
+//         : route.query.quotenumber
+//     } else if (quoteStore.quote_number === null) {
+//       // return useStorage('quote_number', 2583)
+//     } else {
+//       return quoteStore.quote_number
+//     }
+//   }
+//   console.log('Quote Number in function', quoteNumber())
+//   const { data } = await supabase
+//     .from('quotes')
+//     .select('*, vehicle_type(vehicle_image)')
+//     .eq('quote_number', quoteNumber())
+//     .single()
+//   console.log('quote data:', data)
+//   return data
+// })
 
 const {
+  calculatedDistance,
+  destination_formatted_address,
+  destination_name,
+  destination_place_id,
+  distanceText,
+  distanceValue,
+  durationText,
+  durationValue,
+  email_address,
+  endLat,
+  endLng,
+  first_name,
+  hoursLabel,
+  hoursValue,
+  hplUserId,
+  isItHourly,
+  isRoundTrip,
+  last_name,
+  origin_formatted_address,
+  origin_name,
+  origin_place_id,
+  passengersLabel,
+  passengersValue,
+  phone_number,
   pickupDate,
   pickupTime,
+  quote_number,
   returnDate,
   returnTime,
-  isRoundTrip,
-  vehicleTypeLabel,
-  passengersLabel,
   serviceTypeLabel,
+  serviceTypeValue,
+  startLat,
+  startLng,
   totalFare,
-  origin_name,
-  origin_formatted_address,
-  destination_name,
-  destination_formatted_address,
+  vehicleTypeLabel,
+  vehicleTypeValue,
+  vehicle_image,
+  isPearsonAirportDropoff,
+  isPearsonAirportPickup,
   baseRate,
+  fuelSurcharge,
   gratuity,
   HST,
-  fuelSurcharge,
-  id,
-  quote_number,
-  isPearsonAirportPickup,
-  isPearsonAirportDropoff,
-  userEmail,
-  vehicle_type,
-} = quoteData.value as unknown as Quote
-const { vehicle_image: vehicleImageSrc } = vehicle_type
-const vehicleImageAlt = vehicleTypeLabel
+} = cartData.value as unknown as Quote
+
 const { addedToCart, loading } = storeToRefs(cartStore)
 
 const returnServiceTypeLabel = computed(() => {
-  if (isRoundTrip && serviceTypeLabel === 'To Airport') return 'From Airport'
+  if (isRoundTrip && serviceTypeLabel === 'To Airport') {
+    return 'From Airport'
+  }
   return isRoundTrip && serviceTypeLabel === 'From Airport'
     ? 'To Airport'
     : serviceTypeLabel
@@ -96,40 +131,63 @@ const dropOffAddress = formatAddress(
   destination_formatted_address
 )
 
-const roundTripFare = (roundTrip: boolean | null, fare: number | null) => {
-  if (roundTrip === null || fare === null) return 0
-  return roundTrip ? fare * 2 : fare
-}
+// const roundTripFare = (roundTrip: boolean | null, fare: number | null) => {
+//   if (roundTrip === null || fare === null) {
+//     return 0
+//   }
+//   return roundTrip ? fare * 2 : fare
+// }
 const pearsonAirportFee = (
   isPickup: boolean | null,
   isDropoff: boolean | null
 ) => {
-  if (isPickup) return 15
-  else if (isDropoff && isRoundTrip) return 15
-  else return 0
+  if (isPickup) {
+    return 15
+  } else if (isDropoff && isRoundTrip) {
+    return 15
+  } else {
+    return 0
+  }
 }
 const addPearsonFee = pearsonAirportFee(
   isPearsonAirportPickup,
   isPearsonAirportDropoff
 )
-const roundTripBaseRate = roundTripFare(isRoundTrip, baseRate).toFixed(2)
-const roundTripGratuity = roundTripFare(isRoundTrip, gratuity).toFixed(2)
-const roundTripHST = roundTripFare(isRoundTrip, HST).toFixed(2)
-const roundTripFuelSurcharge = roundTripFare(
-  isRoundTrip,
-  fuelSurcharge
-).toFixed(2)
-const roundTripFareSubtotal = roundTripFare(isRoundTrip, totalFare)
-const roundTripTotalFare = () => {
-  return addPearsonFee === 15
-    ? roundTripFareSubtotal + addPearsonFee
-    : roundTripFareSubtotal
-}
+const roundTripBaseRate = computed(() => {
+  const fare = isRoundTrip ? baseRate * 2 : 0
+  return fare.toFixed(2)
+})
 
-const totalFareWithAirportFee = () => {
-  if (!totalFare) return 0
+const roundTripGratuity = computed(() => {
+  const fare = isRoundTrip ? gratuity * 2 : 0
+  return fare.toFixed(2)
+})
+
+const roundTripHST = computed(() => {
+  const fare = isRoundTrip ? HST * 2 : 0
+  return fare.toFixed(2)
+})
+
+const roundTripFuelSurcharge = computed(() => {
+  const fare = isRoundTrip ? fuelSurcharge * 2 : 0
+  return fare.toFixed(2)
+})
+const roundTripFareSubtotal = computed(() => {
+  const fare = isRoundTrip ? totalFare * 2 : 0
+  return fare
+})
+const roundTripTotalFare = computed(() => {
+  return addPearsonFee === 15
+    ? roundTripFareSubtotal.value + addPearsonFee
+    : roundTripFareSubtotal
+})
+
+const totalFareWithAirportFee = computed(() => {
+  if (!totalFare) {
+    return 0
+  }
   return addPearsonFee === 15 ? totalFare + addPearsonFee : totalFare
-}
+})
 
 const currentDate = format(new Date(), 'MMMM dd, yyyy')
 
@@ -137,27 +195,35 @@ const currentDate = format(new Date(), 'MMMM dd, yyyy')
 const loadingCheckout = ref(false)
 const createSession = async () => {
   loadingCheckout.value = true
-  //@ts-ignore
-  localStorage.setItem('quote_number', quote_number.toString())
+
   const checkoutBody = {
-    firstName: first_name.value,
-    lastName: last_name.value,
-    userEmail,
-    customerId: id,
-    phoneNumber: phone_number.value,
+    firstName: first_name,
+    lastName: last_name,
+    emailAddress: email_address,
+    customerId: hplUserId,
+    phoneNumber: phone_number,
     quoteNumber: quote_number,
-    quote: quoteData.value,
-  }
-  const { data: stripeData } = await useFetch(`/api/create-checkout-session`, {
+    vehicle_image,
     //@ts-ignore
+    quote: cartData.value,
+  }
+  const { data: stripeCustomer } = await useFetch('/api/create-customer', {
     method: 'POST',
     body: checkoutBody,
   })
+  //@ts-ignore
+  const { id: stripCustomerId } = stripeCustomer.value.data
+  const { data: stripeData } = await useFetch(`/api/create-checkout-session`, {
+    method: 'POST',
+    body: { checkoutBody, stripCustomerId },
+  })
+
+  console.log('Stripe customer id', stripCustomerId)
   console.log('Stripe Returned Data:', stripeData.value)
-  const { data: conversion } = await useFetch(`/api/post-conversion`, {
-    method: 'POST',
-    body: checkoutBody,
-  })
+  // const { data: conversion } = await useFetch(`/api/post-conversion`, {
+  //   method: 'POST',
+  //   body: checkoutBody,
+  // })
   const { statusCode, url, stripeCustomerId, sessionId } =
     stripeData.value as ReturnType
   console.log(
@@ -167,13 +233,13 @@ const createSession = async () => {
     stripeCustomerId,
     sessionId
   )
-  if (stripeData && stripeData.value && stripeData.value.stripeCustomerId) {
+  if (stripeData?.value?.stripeCustomerId) {
     const stripeCustomerId = ref(stripeData.value.stripeCustomerId)
     const { data: userData } = await useAsyncData('user', async () => {
       const { data, error } = await supabase
         .from('user')
         .update({ stripe_customer_id: stripeCustomerId.value })
-        .eq('id', quoteData.value?.userId)
+        .eq('id', hplUserId)
       console.log('Updated User Data', data, error)
       return data
     })
@@ -192,32 +258,24 @@ const createSession = async () => {
 }
 
 const formattedPickupDate = computed(() => {
-  if (isValid(new Date(pickupDate))) {
-    return formatDateNew(pickupDate)
-  } else {
-    return 'January 1, 2023'
-  }
+  return isValid(new Date(pickupDate))
+    ? formatDateNew(pickupDate)
+    : 'January 1, 2023'
 })
 const formattedPickupTime = computed(() => {
-  if (isValid(new Date(pickupTime))) {
-    return format(new Date(pickupTime), 'hh:mm a')
-  } else {
-    return '12:00'
-  }
+  return isValid(new Date(pickupTime))
+    ? format(new Date(pickupTime), 'hh:mm a')
+    : '12:00'
 })
 const formattedReturnDate = computed(() => {
-  if (isValid(new Date(returnDate))) {
-    return formatDateNew(returnDate)
-  } else {
-    return 'January 1, 2023'
-  }
+  return isValid(new Date(returnDate))
+    ? formatDateNew(returnDate)
+    : 'January 1, 2023'
 })
 const formattedReturnTime = computed(() => {
-  if (isValid(new Date(returnTime))) {
-    return format(new Date(returnTime), 'hh:mm a')
-  } else {
-    return '12:00'
-  }
+  return isValid(new Date(returnTime))
+    ? format(new Date(returnTime), 'hh:mm a')
+    : '12:00'
 })
 </script>
 
@@ -227,12 +285,12 @@ const formattedReturnTime = computed(() => {
       class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
     >
       <span class="mr-1">High Park Livery </span>-
-      <span class="ml-1">{{ !addedToCart ? ' Quote' : ' Order' }} Details</span>
+      <span class="ml-1">{{ addedToCart ? ' Order' : ' Quote' }} Details</span>
     </h1>
     <div class="mt-2 text-sm sm:flex sm:justify-between">
       <dl class="flex">
         <dt class="text-gray-500 dark:text-gray-100">
-          {{ !addedToCart ? 'Quote' : 'Order' }} Number&nbsp;<span
+          {{ addedToCart ? 'Order' : 'Quote' }} Number&nbsp;<span
             class="mx-2 text-gray-400 dark:text-gray-100"
             aria-hidden="true"
             >&middot;</span
@@ -272,8 +330,8 @@ const formattedReturnTime = computed(() => {
           <li class="flex py-6 sm:py-8">
             <div class="flex-shrink-0">
               <NuxtPicture
-                :src="vehicleImageSrc"
-                :alt="vehicleImageSrc"
+                :src="vehicle_image"
+                :alt="vehicleTypeLabel"
                 :img-attrs="{
                   class:
                     'object-contain object-center w-24 h-24 rounded-md sm:h-48 sm:w-48',
@@ -321,7 +379,7 @@ const formattedReturnTime = computed(() => {
                   </div>
                   <p class="mt-3 text-sm font-medium">
                     <span class="text-brand-400">Subtotal: </span>$
-                    {{ baseRate.toFixed(2) }}
+                    {{ baseRate }}
                   </p>
                 </div>
 
@@ -365,8 +423,8 @@ const formattedReturnTime = computed(() => {
           <li v-if="isRoundTrip" class="flex py-6 sm:py-10">
             <div class="flex-shrink-0">
               <NuxtPicture
-                :src="vehicleImageSrc"
-                :alt="vehicleImageAlt"
+                :src="vehicle_image"
+                :alt="vehicleTypeLabel"
                 :img-attrs="{
                   class:
                     'object-contain object-center w-24 h-24 rounded-md sm:h-48 sm:w-48',
@@ -414,8 +472,7 @@ const formattedReturnTime = computed(() => {
                     </p>
                   </div>
                   <p class="mt-3 text-sm font-medium">
-                    <span class="text-brand-400">Subtotal: </span
-                    >{{ baseRate.toFixed(2) }}
+                    <span class="text-brand-400">Subtotal: </span>{{ baseRate }}
                   </p>
                 </div>
 
@@ -467,14 +524,14 @@ const formattedReturnTime = computed(() => {
           id="summary-heading"
           class="text-lg font-medium text-gray-900 dark:text-gray-100"
         >
-          {{ !addedToCart ? 'Quote' : 'Order' }} Summary
+          {{ addedToCart ? 'Order' : 'Quote' }} Summary
         </h2>
 
         <dl class="mt-6 space-y-4">
           <div class="flex items-center justify-between">
             <dt class="text-sm text-gray-600 dark:text-gray-300">Subtotal</dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripBaseRate : baseRate.toFixed(2) }}
+              $ {{ isRoundTrip ? roundTripBaseRate : baseRate }}
             </dd>
           </div>
           <div
@@ -500,9 +557,7 @@ const formattedReturnTime = computed(() => {
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
               $
-              {{
-                isRoundTrip ? roundTripFuelSurcharge : fuelSurcharge.toFixed(2)
-              }}
+              {{ isRoundTrip ? roundTripFuelSurcharge : fuelSurcharge }}
             </dd>
           </div>
           <div
@@ -527,7 +582,7 @@ const formattedReturnTime = computed(() => {
               </a>
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripGratuity : gratuity.toFixed(2) }}
+              $ {{ isRoundTrip ? roundTripGratuity : gratuity }}
             </dd>
           </div>
           <div
@@ -551,7 +606,7 @@ const formattedReturnTime = computed(() => {
               </a>
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ addPearsonFee.toFixed(2) }}
+              $ {{ addPearsonFee }}
             </dd>
           </div>
           <div
@@ -574,22 +629,18 @@ const formattedReturnTime = computed(() => {
               </a>
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripHST : HST.toFixed(2) }}
+              $ {{ isRoundTrip ? roundTripHST : HST }}
             </dd>
           </div>
           <div
             class="flex items-center justify-between border-t border-gray-200 pt-4"
           >
             <dt class="text-base font-medium text-gray-900 dark:text-gray-100">
-              {{ !addedToCart ? 'Quote' : 'Order' }} total
+              {{ addedToCart ? 'Order' : 'Quote' }} total
             </dt>
             <dd class="text-base font-medium text-gray-900 dark:text-gray-100">
               $
-              {{
-                isRoundTrip
-                  ? roundTripTotalFare().toFixed(2)
-                  : totalFareWithAirportFee().toFixed(2)
-              }}
+              {{ roundTripTotalFare }}
             </dd>
           </div>
         </dl>

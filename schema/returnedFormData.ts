@@ -55,6 +55,8 @@ export const returnedQuote = z
       vehicle_image_alt: z.string().default('Cadillac XTS'),
       vehicle_image_src: z.string().default('/images/cadillac-xts-1.png'),
     }),
+    vehicle_image: z.string(),
+    quote_number: z.string(),
   })
   .strip()
 
