@@ -12,13 +12,9 @@ import { useTripStore } from '~/stores/useTripStore'
 import { storeToRefs } from 'pinia'
 import { useGtm } from '@gtm-support/vue-gtm'
 import Datepicker from '~/components/datepicker/Datepicker.vue'
-import { OptionsArray } from '~/utils/extractOptions'
 
 const tripStore = useTripStore()
 const { origin, destination, tripData } = storeToRefs(tripStore)
-
-// const quoteStore = useQuoteStore()
-// const { quote } = storeToRefs(quoteStore)
 
 const vehicleTypeStore = useVehicleTypeStore()
 await vehicleTypeStore.getVehicleTypes()
@@ -161,7 +157,7 @@ const onPlaceChange = async (evt: Place, placeType: string) => {
   placeType === 'origin' ? (origin.value = place) : (destination.value = place)
   if (origin.value && destination.value) {
     console.log('origin and destination are both set')
-    const { data } = await useFetch('/api/directions', {
+    const { data } = await useFetch('/api/get-distance', {
       method: 'GET',
       query: {
         origin: origin.value.place_id,
@@ -260,15 +256,15 @@ async function onSubmit(values: any) {
 
 <template>
   <div
-    class="bg-black border border-white rounded border-1 sm:mx-auto sm:w-full sm:max-w-lg sm:overflow-hidden sm:rounded-lg"
+    class="border-1 rounded border border-white bg-black sm:mx-auto sm:w-full sm:max-w-lg sm:overflow-hidden sm:rounded-lg"
   >
-    <h2 class="pt-5 text-3xl text-center text-white uppercase">
+    <h2 class="pt-5 text-center text-3xl uppercase text-white">
       Instant Quote
     </h2>
     <Form
       id="lead_form"
       :validation-schema="validationSchema"
-      class="p-5 space-y-3"
+      class="space-y-3 p-5"
       name="lead_form"
       @submit="onSubmit"
     >
@@ -298,7 +294,7 @@ async function onSubmit(values: any) {
           <Datepicker
             v-model="pickupDate"
             :lower-limit="new Date()"
-            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="mt-1 w-full cursor-pointer rounded border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-gray-900 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="MMM dd, yyyy"
             name="pickupDate"
             placeholder="Enter A Pickup Date"
@@ -308,7 +304,7 @@ async function onSubmit(values: any) {
         <div class="md:col-span-1">
           <Datepicker
             v-model="pickupTime"
-            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="mt-1 w-full cursor-pointer rounded border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-gray-900 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             inputFormat="hh:mm a"
             minimum-view="time"
             name="pickupTime"
@@ -328,7 +324,7 @@ async function onSubmit(values: any) {
             v-model="returnDate"
             :lower-limit="new Date()"
             allow-outside-interval
-            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="mt-1 w-full cursor-pointer rounded border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-gray-900 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="MMM dd, yyyy"
             name="returnDate"
             placeholder="Enter A Return Date"
@@ -338,7 +334,7 @@ async function onSubmit(values: any) {
         <div class="col-span-1">
           <Datepicker
             v-model="returnTime"
-            class="w-full py-2 pl-3 pr-10 mt-1 text-left text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded shadow-sm cursor-pointer focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            class="mt-1 w-full cursor-pointer rounded border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-gray-900 placeholder-gray-400 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             input-format="hh:mm a"
             minimum-view="time"
             name="returnTime"
@@ -470,12 +466,12 @@ async function onSubmit(values: any) {
       </div>
       <div class="flex flex-row">
         <div class="relative flex items-start">
-          <div class="flex items-center h-5">
+          <div class="flex h-5 items-center">
             <input
               id="round_trip"
               v-model="isRoundTrip"
               aria-describedby="comments-description"
-              class="w-4 h-4 border-gray-300 rounded focus:ring-brand-500 text-brand-600"
+              class="focus:ring-brand-500 h-4 w-4 rounded border-gray-300 text-brand-600"
               name="round_trip"
               type="checkbox"
             />
@@ -497,11 +493,11 @@ async function onSubmit(values: any) {
       <div class="flex flex-row">
         <button
           id="submit_button"
-          class="inline-flex items-center w-full px-4 py-2 text-sm font-medium text-white uppercase bg-red-600 border border-transparent rounded shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          class="inline-flex w-full items-center rounded border border-transparent bg-red-600 px-4 py-2 text-sm font-medium uppercase text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           type="submit"
         >
-          <span class="self-center mx-auto">{{
-  loading? 'Processing.....': 'Get Prices & Availability'
+          <span class="mx-auto self-center">{{
+            loading ? 'Processing.....' : 'Get Prices & Availability'
           }}</span>
         </button>
       </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { FormInst, useMessage, FormItemRule } from 'naive-ui'
+import { FormInst, useMessage, FormRules } from 'naive-ui'
+import { WatchCallback } from 'vue'
 import { VueTelInput } from 'vue-tel-input'
 import { VehicleType } from '~/server/api/vehicles.get'
 import { ServiceType } from '~/server/api/services.get'
@@ -57,7 +58,27 @@ const formRef = ref<FormInst | null>(null)
 
 const message = useMessage()
 
-const formValue = ref({
+interface FormValue {
+  first_name: string | null
+  last_name: string | null
+  email_address: string | null
+  phone_number: string | null
+  conversion: any
+  origin: Place
+  destination: Place
+  pickup_date: number | null
+  pickup_time: number | null
+  return_date: number | null
+  return_time: number | null
+  selected_hours: number | null
+  selected_passengers: number | null
+  is_hourly: boolean
+  selected_vehicle_type_value: number | null
+  selected_service_type_value: number | null
+  is_round_trip: boolean
+}
+
+const formValue: Ref<FormValue> = ref({
   first_name: null,
   last_name: null,
   email_address: null,
@@ -65,8 +86,8 @@ const formValue = ref({
   conversion: {
     ...gtmValues,
   },
-  origin: {},
-  destination: {},
+  origin: {} as Place,
+  destination: {} as Place,
   pickup_date: null,
   pickup_time: null,
   return_date: null,
@@ -79,9 +100,9 @@ const formValue = ref({
   selected_vehicle_type_value: null,
   selected_service_type_value: null,
   is_round_trip: false,
-}) as any
+})
 
-const rules = {
+const rules: FormRules = {
   pickup_date: {
     type: 'number',
     required: true,
@@ -186,11 +207,63 @@ const buildPassengerOptions = (numPassengers: number) => {
   return options
 }
 
-const handleChangeOrigin = (evt: any) => {
-  formValue.value.origin = evt
+const placeSechema = z
+  .object({
+    place_id: z.string(),
+    formatted_address: z.string(),
+    name: z.string(),
+    types: z.array(z.string()),
+  })
+  .strip()
+
+type Place = z.infer<typeof placeSechema>
+
+function isAirport(place?: Place): boolean {
+  if (!place) {
+    return false
+  }
+  try {
+    return placeSechema.parse(place).types.includes('airport')
+  } catch (error) {
+    return false
+  }
 }
 
-const handleChangeDestination = (evt: any) => {
+const handleFormValueChange: WatchCallback<
+  [typeof formValue.value.origin, typeof formValue.value.destination]
+> = ([origin, destination]) => {
+  if (!origin || !destination) {
+    return
+  }
+
+  const isOriginAirport = isAirport(origin)
+  const isDestinationAirport = isAirport(destination)
+  const fromAirportServiceType = 3
+  const toAirportServiceType = 2
+
+  if (isOriginAirport) {
+    formValue.value.selected_service_type_value = fromAirportServiceType
+  } else if (isDestinationAirport) {
+    formValue.value.selected_service_type_value = toAirportServiceType
+  } else {
+    formValue.value.selected_service_type_value = 0
+  }
+}
+
+watch(
+  [() => formValue.value.origin, () => formValue.value.destination],
+  handleFormValueChange,
+  {
+    deep: true,
+  }
+)
+
+const handleChangeOrigin = (evt: Place) => {
+  formValue.value.origin = evt
+  console.log('Origin Change event', evt)
+}
+
+const handleChangeDestination = (evt: Place) => {
   formValue.value.destination = evt
 }
 
@@ -208,54 +281,22 @@ const handleValidateClick = (e: MouseEvent) => {
 
 const loading = ref(false)
 
-const placeSechema = z
-  .object({
-    place_id: z.string(),
-    formatted_address: z.string(),
-    name: z.string(),
-    types: z.array(z.string()),
-  })
-  .strip()
-
-const tripSchema = z
-  .object({
-    distance_value: z.number(),
-    distance_text: z.string(),
-    duration_value: z.number(),
-    duration_text: z.string(),
-  })
-  .strip()
-
 async function onSubmit() {
   try {
     loading.value = true
-    const { data: directions } = await useFetch('/api/directions', {
-      method: 'GET',
-      query: {
-        origin: formValue.value.origin.place_id,
-        destination: formValue.value.destination.place_id,
-      },
-    })
-    const { start_lat, start_lng, end_lat, end_lng } = directions.value as any
+
     const origin = placeSechema.parse(formValue.value.origin)
     const destination = placeSechema.parse(formValue.value.destination)
-    const trip = tripSchema.parse(directions.value)
 
     formValue.value = {
       ...formValue.value,
       origin: {
         ...origin,
-        lat: start_lat,
-        lng: start_lng,
       },
       destination: {
         ...destination,
-        lat: end_lat,
-        lng: end_lng,
       },
-      ...trip,
     }
-
     console.log(formValue.value)
     const { data: contactData } = await useFetch('/api/contact', {
       method: 'POST',
@@ -329,7 +370,6 @@ console.log(contact.value)
                 name="destination"
                 @change="handleChangeDestination"
                 placeholder="Enter Dropoff Location...."
-                v-model:value="formValue.destination"
               />
             </n-form-item-gi>
             <n-form-item-gi
@@ -342,6 +382,7 @@ console.log(contact.value)
                 v-model:value="formValue.pickup_date"
                 type="date"
                 placeholder="Select Pickup Date..."
+                :default-value="Date.now()"
               />
             </n-form-item-gi>
             <n-form-item-gi
@@ -356,7 +397,7 @@ console.log(contact.value)
                 :clearable="true"
               />
               <n-switch v-model:value="formValue.is_round_trip">
-                <template #checked> Round Trip</template>
+                <template #checked> Round</template>
                 <template #unchecked> One Way</template>
               </n-switch>
             </n-form-item-gi>
@@ -373,6 +414,7 @@ console.log(contact.value)
                   v-model:value="formValue.return_date"
                   type="date"
                   placeholder="Select Return Date"
+                  :default-value="Date.now()"
                 />
               </n-form-item-gi>
               <n-form-item-gi
@@ -398,7 +440,7 @@ console.log(contact.value)
             >
               <n-select
                 v-model:value="formValue.selected_service_type_value"
-                :options="serviceTypeOptions!"
+                :options="serviceTypeOptions"
                 placeholder="Select Service Type..."
               />
             </n-form-item-gi>
@@ -411,7 +453,7 @@ console.log(contact.value)
             >
               <n-select
                 v-model:value="formValue.selected_vehicle_type_value"
-                :options="vehicleTypeOptions!"
+                :options="vehicleTypeOptions"
                 placeholder="Select Vehicle Type..."
               />
             </n-form-item-gi>

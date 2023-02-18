@@ -1,163 +1,207 @@
+import { computed, ref } from 'vue'
 import { z } from 'zod'
 
-export const vehicleTypeSchema = z.object({
-  id: z.number(),
-  created_at: z.string(),
-  max_passengers: z.number(),
-  max_luggage: z.number(),
-  per_km: z.number(),
-  per_hour: z.number(),
-  min_hours_hourly: z.number(),
-  min_rate_distance: z.number(),
-  min_distance: z.number(),
-  min_rate_hourly: z.number(),
-  is_active: z.boolean(),
-  name: z.string(),
-  value: z.number(),
-  isDisabled: z.boolean(),
-  label: z.string(),
+const directionsSchema = z.object({
+  routes: z.array(
+    z
+      .object({
+        legs: z.array(
+          z.object({
+            distance: z.object({ value: z.number(), text: z.string() }),
+            duration: z.object({ value: z.number(), text: z.string() }),
+            end_address: z.string(),
+            start_address: z.string(),
+            start_location: z.object({ lat: z.number(), lng: z.number() }),
+            end_location: z.object({ lat: z.number(), lng: z.number() }),
+          })
+        ),
+      })
+      .strip()
+  ),
 })
 
-export type VehicleType = z.infer<typeof vehicleTypeSchema>
+type DirectionsApiResponse = z.infer<typeof directionsSchema>
 
-export const serviceTypeSchema = z
-  .object({
-    id: z.number(),
-    name: z.string(),
-    label: z.string(),
-    is_disabled: z.boolean(),
-    is_hourly: z.boolean(),
-  })
-  .strip()
-
-export type ServiceType = z.infer<typeof serviceTypeSchema>
-
-export const lineItemSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  is_percentage: z.boolean(),
-  is_flat: z.boolean(),
-  is_taxable: z.boolean(),
-  quantity: z.number().optional(),
-  rate: z.number(),
-  amount: z.number(),
-  is_active: z.boolean(),
-})
-
-export type LineItem = z.infer<typeof lineItemSchema>
-
-interface Quote {
-  base_price: number
-  line_items: LineItem[]
+// Vehicle Type interface
+interface VehicleType {
+  id: number
+  vehicle_type_label: string
+  per_km: number
+  per_hour: number
+  min_rate: number
+  min_distance: number
+  is_active: boolean
 }
 
-interface PriceEngine {
-  vehicle_types: VehicleType[]
-  service_types: ServiceType[]
-  passengers: number
-  distance: number
-  duration: number
-  is_round_trip: boolean
-  return_date: Date | null
-  quote: Quote | null
-  calculatePrice: () => void
+// Service Type interface
+interface ServiceType {
+  id: number
+  service_type_label: string
+  is_active: boolean
+  is_hourly: boolean
 }
 
-export async function usePriceEngine(): Promise<PriceEngine> {
-  // Data
-  const vehicleTypes = ref<VehicleType[]>([])
-  const serviceTypes = ref<ServiceType[]>([])
-  const passengers = ref(1)
-  const distance = ref(0)
-  const duration = ref(0)
-  const isRoundTrip = ref(false)
-  const returnDate = ref<Date | null>(null)
-  const quote = reactive<Quote | null>(null)
-  const { data: vehicleTypeData, error: vehicleTypeError } = await useFetch(
-    '/api/vehicle_types'
-  )
-  const { data: serviceTypeData, error: serviceTypeError } = await useFetch(
-    '/api/service_types'
-  )
-  const { data: taxData, error: taxError } = await useFetch('/api/taxes')
+// Line Item interface
+interface LineItem {
+  id: number
+  label: string
+  amount: number
+  is_taxable: boolean
+  is_percentage: boolean
+}
 
-  // Methods
-  const calculateBasePrice = (
-    vehicleType: VehicleType,
-    serviceType: ServiceType
-  ): number => {
-    let basePrice = 0
+// Tax interface
+interface SalesTax {
+  id: number
+  region: string
+  amount: number
+  is_active: boolean
+}
 
-    if (serviceType.is_hourly) {
-      basePrice = Math.max(
-        vehicleType.min_rate_hourly,
-        duration * vehicleType.per_hour
-      )
-    } else {
-      const totalDistance = isRoundTrip ? distance * 2 : distance
-      const distanceAboveMin = Math.max(
-        0,
-        totalDistance - vehicleType.min_distance
-      )
-      const distancePrice = distanceAboveMin * vehicleType.per_km
-      const minDistancePrice = vehicleType.min_rate_distance
-      basePrice = Math.max(minDistancePrice, distancePrice)
-    }
-
-    return basePrice
+// Distance Calculation function
+async function calculateDistance(
+  origin: string,
+  destination: string
+): Promise<{ distance: number; data: DirectionsApiResponse }> {
+  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&key=${process.env.GOOGLE_MAPS_API_KEY}`
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch directions: ${response.status} - ${response.statusText}`
+    )
   }
 
-  const calculateLineItems = (
-    basePrice: number,
-    lineItems: LineItem[]
-  ): LineItem[] => {
-    const taxableLineItems = lineItems.filter((item) => item.is_taxable)
-
-    const subtotal = taxableLineItems.reduce((total, item) => {
-      if (item.is_percentage) {
-        return total + (basePrice * item.amount) / 100
-      } else {
-        return total + item.amount
-      }
-    }, 0)
-
-    const taxRate = 0.13
-    const taxAmount = subtotal * taxRate
-
-    const total = lineItems.reduce((total, item) => {
-      if (item.is_percentage) {
-        return total + (basePrice * item.amount) / 100
-      } else {
-        return total + item.amount
-      }
-    }, basePrice + taxAmount)
-
-    return [...lineItems]
-  }
-
-  const calculatePrice = () => {
-    const vehicleType = vehicleTypes.value.find((vt) => vt.id === 1) // TODO: Replace with selected vehicle type
-    const serviceType = serviceTypes.value.find((st) => st.id === 1) // TODO: Replace with selected service type
-
-    const basePrice = calculateBasePrice(vehicleType, serviceType)
-    const lineItems = calculateLineItems(basePrice)
-
-    quote.base_price = basePrice
-    quote.line_items = lineItems
-  }
-
-  // Fetch vehicle types and service types from API
-  // ...
+  const data = await response.json()
+  const validatedData = directionsSchema.parse(data)
+  const {
+    distance: { value: distanceValue },
+  } = validatedData.routes[0].legs[0]
 
   return {
-    vehicle_types: vehicleTypes,
-    service_types: serviceTypes,
-    passengers,
+    distance: distanceValue / 1000,
+    data,
+  }
+}
+
+// Pricing Engine function
+export function usePricingEngine(
+  vehicleTypes: VehicleType[],
+  serviceTypes: ServiceType[],
+  lineItems: LineItem[],
+  taxes: SalesTax[]
+) {
+  // state variables
+  const origin = ref('')
+  const destination = ref('')
+  const routeData = ref<DirectionsApiResponse>()
+  const vehicleTypeId = ref(-1)
+  const serviceTypeId = ref(-1)
+  const selectedHours = ref(0)
+  const distance = ref(0)
+  const baseRate = ref(0)
+  const lineItemsTotal = ref(0)
+  const taxableLineItemsTotal = ref(0)
+  const taxAmount = ref(0)
+  const totalPrice = computed(
+    () => baseRate.value + lineItemsTotal.value + taxAmount.value
+  )
+
+  // methods
+  async function updateDistance() {
+    const { data: route, distance: dist } = await calculateDistance(
+      origin.value,
+      destination.value
+    )
+    distance.value = dist
+    routeData.value = route
+  }
+
+  function updateBaseRate() {
+    const selectedVehicleType = vehicleTypes.find(
+      (v) => v.id === vehicleTypeId.value
+    )
+    const selectedServiceType = serviceTypes.find(
+      (s) => s.id === serviceTypeId.value
+    )
+    if (!selectedVehicleType || !selectedServiceType) {
+      baseRate.value = 0
+      return
+    }
+
+    if (selectedServiceType.is_hourly) {
+      baseRate.value = selectedHours.value * selectedVehicleType.per_hour
+    } else {
+      const distanceOverMin = Math.max(
+        0,
+        distance.value - selectedVehicleType.min_distance
+      )
+      baseRate.value =
+        selectedVehicleType.min_rate +
+        distanceOverMin * selectedVehicleType.per_km
+    }
+  }
+
+  function updateLineItemsTotal() {
+    lineItemsTotal.value = 0
+    taxableLineItemsTotal.value = 0
+
+    for (const item of lineItems) {
+      const amount = item.is_percentage
+        ? baseRate.value * (item.amount / 100)
+        : item.amount
+      lineItemsTotal.value += amount
+
+      if (item.is_taxable) {
+        taxableLineItemsTotal.value += amount
+      }
+    }
+  }
+
+  function updateTaxAmount() {
+    taxAmount.value = 0
+    for (const tax of taxes) {
+      if (tax.is_active) {
+        const amount =
+          (tax.amount / 100) * (baseRate.value + taxableLineItemsTotal.value)
+        taxAmount.value += amount
+      }
+    }
+  }
+
+  function reset() {
+    origin.value = ''
+    destination.value = ''
+    vehicleTypeId.value = -1
+    serviceTypeId.value = -1
+    selectedHours.value = 0
+    distance.value = 0
+    baseRate.value = 0
+    lineItemsTotal.value = 0
+    taxableLineItemsTotal.value = 0
+    taxAmount.value = 0
+  }
+
+  return {
+    origin,
+    destination,
+    routeData,
+    vehicleTypes,
+    serviceTypes,
+    lineItems,
+    taxes,
+    vehicleTypeId,
+    serviceTypeId,
+    selectedHours,
     distance,
-    duration,
-    is_round_trip: isRoundTrip,
-    return_date: returnDate,
-    quote,
-    calculatePrice,
+    baseRate,
+    lineItemsTotal,
+    taxableLineItemsTotal,
+    taxAmount,
+    totalPrice,
+    updateDistance,
+    updateBaseRate,
+    updateLineItemsTotal,
+    updateTaxAmount,
+    reset,
   }
 }
