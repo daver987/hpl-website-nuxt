@@ -6,6 +6,11 @@ import { VehicleType } from '~/server/api/vehicles.get'
 import { ServiceType } from '~/server/api/services.get'
 import { useGtm } from '@gtm-support/vue-gtm'
 import { z } from 'zod'
+import { useStorage } from '@vueuse/core'
+
+const { userId, checkUser } = useUserData()
+onMounted(() => checkUser())
+console.log(userId)
 
 const route = useRoute()
 const gtmValues = route.query
@@ -41,8 +46,13 @@ const dropdownOptions = ref({
   showDialCodeInList: true,
 })
 
-const buildHoursRequiredOptions = () => {
-  const options = []
+type HoursRequiredOption = {
+  label: string
+  value: number
+}
+
+const buildHoursRequiredOptions = (): HoursRequiredOption[] => {
+  const options: HoursRequiredOption[] = []
   for (let i = 2; i <= 12; i++) {
     options.push({
       label: `${i} hours`,
@@ -52,9 +62,7 @@ const buildHoursRequiredOptions = () => {
   return options
 }
 
-const hourlyOptions = buildHoursRequiredOptions()
-
-const formRef = ref<FormInst | null>(null)
+const hourlyOptions: HoursRequiredOption[] = buildHoursRequiredOptions()
 
 const message = useMessage()
 
@@ -173,23 +181,34 @@ const rules: FormRules = {
   },
 }
 
-const { data: serviceTypeOptions } = await useFetch<ServiceType>(
+const { data: serviceTypeOptions } = await useFetch<ServiceType | undefined>(
   '/api/services'
 )
 
-const { data: vehicleTypeOptions } = await useFetch<VehicleType>(
+const { data: vehicleTypeOptions } = await useFetch<VehicleType | undefined>(
   '/api/vehicles'
 )
 
+interface VehicleTypeOption {
+  label: string
+  value: number
+  max_passengers: number
+}
+
 const maxPassengers = computed<number>(() => {
   const vehicleType = vehicleTypeOptions.value!.find(
-    (type) => type.value === formValue.value.selected_vehicle_type_value
+    (type: VehicleTypeOption) =>
+      type.value === formValue.value.selected_vehicle_type_value
   )
   formValue.value.selected_passengers = null
   return vehicleType ? vehicleType.max_passengers : 3
 })
 
-const buildPassengerOptions = (numPassengers: number) => {
+const passengerOptions = computed(() =>
+  buildPassengerOptions(maxPassengers.value)
+)
+
+function buildPassengerOptions(numPassengers: number) {
   const options = [
     {
       label: '1 Passenger',
@@ -260,11 +279,45 @@ watch(
 
 const handleChangeOrigin = (evt: Place) => {
   formValue.value.origin = evt
-  console.log('Origin Change event', evt)
 }
 
 const handleChangeDestination = (evt: Place) => {
   formValue.value.destination = evt
+}
+
+const formRef = ref<FormInst | null>(null)
+const loading = ref(false)
+
+async function onSubmit() {
+  try {
+    const formValid = await formRef.value?.validate()
+    if (!formValid) {
+      message.error('Please fill in all required fields')
+      return
+    }
+
+    loading.value = true
+    const { data: quoteData } = await useFetch('/api/quote', {
+      method: 'POST',
+      body: formValue.value,
+    })
+    console.log('Quote data is:', quoteData.value)
+
+    // Save quote data in local storage
+    const quoteDataStorage = useStorage('quote_data', quoteData)
+    quoteDataStorage.value = quoteData.value
+
+    setTimeout(async () => {
+      // Navigate to checkout page
+      await navigateTo('/checkout')
+      loading.value = false
+    }, 500)
+  } catch (e) {
+    setTimeout(() => {
+      loading.value = false
+      console.log('error')
+    }, 500)
+  }
 }
 
 const handleValidateClick = (e: MouseEvent) => {
@@ -277,44 +330,6 @@ const handleValidateClick = (e: MouseEvent) => {
       message.success('Valid')
     }
   })
-}
-
-const loading = ref(false)
-
-async function onSubmit() {
-  try {
-    loading.value = true
-
-    const origin = placeSechema.parse(formValue.value.origin)
-    const destination = placeSechema.parse(formValue.value.destination)
-
-    formValue.value = {
-      ...formValue.value,
-      origin: {
-        ...origin,
-      },
-      destination: {
-        ...destination,
-      },
-    }
-    console.log(formValue.value)
-    const { data: contactData } = await useFetch('/api/contact', {
-      method: 'POST',
-      body: formValue.value,
-    })
-    console.log('Contact data is:', contactData.value)
-
-    setTimeout(async () => {
-      // triggerEvent()
-      loading.value = false
-      // await navigateTo('/quoted')
-    }, 500)
-  } catch (e) {
-    setTimeout(() => {
-      loading.value = false
-      console.log('error')
-    }, 500)
-  }
 }
 
 const { data: contact } = await useFetch('/api/contact', {
@@ -466,7 +481,7 @@ console.log(contact.value)
             >
               <n-select
                 v-model:value="formValue.selected_passengers"
-                :options="buildPassengerOptions(maxPassengers)"
+                :options="passengerOptions"
                 placeholder="Select Passengers..."
               />
             </n-form-item-gi>
