@@ -1,7 +1,4 @@
-import {
-  usePricingEngine,
-  calculateDistance,
-} from '~/composables/usePricingEngine'
+import { usePricingEngine } from '~/composables/usePricingEngine'
 import { z } from 'zod'
 
 const quoteSchema = z.object({
@@ -11,7 +8,7 @@ const quoteSchema = z.object({
   phone_number: z.string(),
   origin: z
     .object({
-      ormatted_address: z.string(),
+      formatted_address: z.string(),
       name: z.string(),
       place_id: z.string(),
       types: z.array(z.string()),
@@ -19,7 +16,7 @@ const quoteSchema = z.object({
     .strip(),
   destination: z
     .object({
-      ormatted_address: z.string(),
+      formatted_address: z.string(),
       name: z.string(),
       place_id: z.string(),
       types: z.array(z.string()),
@@ -36,13 +33,16 @@ const quoteSchema = z.object({
   is_hourly: z.boolean(),
   is_round_trip: z.boolean(),
   conversion: z.object({}),
+  vehicleTypes: z.any(),
+  serviceTypes: z.any(),
+  lineItems: z.any(),
+  salesTaxes: z.any(),
 })
 
 type QuoteRequest = z.infer<typeof quoteSchema>
 
 export default defineEventHandler(async (event) => {
   try {
-    const prisma = event.context.prisma
     const quoteData = await readBody<QuoteRequest>(event)
     const {
       first_name,
@@ -60,19 +60,11 @@ export default defineEventHandler(async (event) => {
       return_date,
       return_time,
       conversion,
+      vehicleTypes,
+      serviceTypes,
+      lineItems,
+      salesTaxes,
     } = quoteData
-
-    const { place_id: originPlaceId } = origin
-    const { place_id: destinationPlaceId } = destination
-    const { distance, data: tripData } = await calculateDistance(
-      originPlaceId,
-      destinationPlaceId
-    )
-
-    const vehicleTypes = await prisma.vehicle.findMany()
-    const serviceTypes = await prisma.service.findMany()
-    const lineItems = await prisma.lineItem.findMany()
-    const salesTaxes = await prisma.salesTax.findMany()
 
     const pricingEngine = usePricingEngine(
       vehicleTypes,
@@ -81,13 +73,15 @@ export default defineEventHandler(async (event) => {
       salesTaxes
     )
 
+    const { place_id: originPlaceId } = origin
+    const { place_id: destinationPlaceId } = destination
+
     // Set pricing engine state
-    pricingEngine.origin.value = quoteData.origin.place_id
-    pricingEngine.destination.value = quoteData.destination.place_id
-    pricingEngine.vehicleTypeId.value = quoteData.vehicle_id
-    pricingEngine.serviceTypeId.value = quoteData.service_id
-    pricingEngine.selectedHours.value = quoteData.selected_hours!
-    pricingEngine.distance.value = distance
+    pricingEngine.origin.value = originPlaceId
+    pricingEngine.destination.value = destinationPlaceId
+    pricingEngine.vehicleTypeId.value = vehicle_id
+    pricingEngine.serviceTypeId.value = service_id
+    pricingEngine.selectedHours.value = selected_hours!
 
     // Wait for the distance to be set before updating other values
     await pricingEngine.updateDistance()
@@ -96,21 +90,20 @@ export default defineEventHandler(async (event) => {
     pricingEngine.updateTaxAmount()
 
     const quote = {
-      first_name: quoteData.first_name,
-      last_name: quoteData.last_name,
-      phone_number: quoteData.phone_number,
-      email_address: quoteData.email_address,
-      origin: quoteData.origin,
-      destination: quoteData.destination,
-      service_type_id: quoteData.service_id,
-      vehicle_type_id: quoteData.vehicle_id,
-      selected_hours: quoteData.selected_hours,
-      pickup_date: quoteData.pickup_date,
-      pickup_time: quoteData.pickup_time,
-      is_round_trip: quoteData.is_round_trip,
+      first_name: first_name,
+      last_name: last_name,
+      phone_number: phone_number,
+      email_address: email_address,
+      origin: origin,
+      destination: destination,
+      service_type_id: service_id,
+      vehicle_type_id: vehicle_id,
+      selected_hours: selected_hours,
+      pickup_date: pickup_date,
+      pickup_time: pickup_time,
+      is_round_trip: is_round_trip,
       return_date: quoteData.return_date,
       return_time: quoteData.return_time,
-      distance,
       base_rate: pricingEngine.baseRate.value,
       line_items_total: pricingEngine.lineItemsTotal.value,
       tax_amount: pricingEngine.taxAmount.value,
@@ -134,7 +127,6 @@ export default defineEventHandler(async (event) => {
       return_time,
       conversion,
       quote,
-      tripData,
     }
   } catch (e) {
     console.error(e)

@@ -51,14 +51,12 @@
     "nuxt-icon": "^0.3.2",
     "nuxt-seo-kit": "^1.2.3",
     "nuxt-vitest": "^0.6.6",
-    "pnpm": "^7.27.0",
     "prettier": "^2.8.4",
     "prettier-plugin-tailwindcss": "^0.2.3",
     "prisma": "^4.10.1",
     "start-server-and-test": "^1.15.4",
     "stripe": "^11.11.0",
     "supabase-to-zod": "^1.0.4",
-    "twilio": "^4.7.2",
     "uuid": "^9.0.0",
     "vee-validate": "^4.7.4",
     "vite-node": "^0.28.5",
@@ -70,6 +68,7 @@
     "vue": "latest"
   },
   "dependencies": {
-    "@prisma/client": "4.10.1"
+    "@prisma/client": "4.10.1",
+    "@total-typescript/ts-reset": "0.2.1"
   }
 }

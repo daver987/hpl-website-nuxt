@@ -59,13 +59,13 @@ export interface SalesTax {
   is_active: boolean
   tax_name: string
 }
-
+const config = useRuntimeConfig().public.GOOGLE_MAPS_API_KEY
 // Distance Calculation function
 export async function calculateDistance(
   origin: string,
   destination: string
 ): Promise<{ distance: number; data: DirectionsApiResponse }> {
-  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&key=${process.env.GOOGLE_MAPS_API_KEY}`
+  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&key=${config}`
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(
@@ -74,14 +74,15 @@ export async function calculateDistance(
   }
 
   const data = await response.json()
+  console.log(data)
   const validatedData = directionsSchema.parse(data)
   const {
     distance: { value: distanceValue },
   } = validatedData.routes[0].legs[0]
 
   return {
+    data: validatedData,
     distance: distanceValue / 1000,
-    data,
   }
 }
 

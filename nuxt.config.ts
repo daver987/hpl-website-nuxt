@@ -1,3 +1,4 @@
+import '@total-typescript/ts-reset'
 // @ts-ignore
 export default defineNuxtConfig({
   app: {

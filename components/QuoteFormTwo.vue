@@ -107,9 +107,13 @@ interface FormValue {
   selected_hours: number | null
   selected_passengers: number | null
   is_hourly: boolean
-  selected_vehicle_id: number | null
-  selected_service_id: number | null
+  vehicle_id: number | null
+  service_id: number | null
   is_round_trip: boolean
+  vehicleTypes: VehicleType[]
+  serviceTypes: ServiceType[]
+  lineItems: LineItem[]
+  salesTaxes: SalesTax[]
 }
 
 const formValue: Ref<FormValue> = ref({
@@ -129,11 +133,15 @@ const formValue: Ref<FormValue> = ref({
   selected_hours: null,
   selected_passengers: null,
   is_hourly: computed(() => {
-    return formValue.value.selected_service_id === 4
+    return formValue.value.service_id === 4
   }),
-  selected_vehicle_id: null,
-  selected_service_id: null,
+  vehicle_id: null,
+  service_id: null,
   is_round_trip: false,
+  vehicleTypes: vehicleTypes.value,
+  serviceTypes: serviceTypes.value,
+  lineItems: lineItems.value,
+  salesTaxes: salesTaxes.value,
 })
 
 const rules: FormRules = {
@@ -173,13 +181,13 @@ const rules: FormRules = {
     trigger: ['blur', 'change'],
     required: true,
   },
-  selected_vehicle_id: {
+  vehicle_id: {
     type: 'number',
     trigger: ['blur', 'change'],
     required: true,
     message: 'Please select a vehicle type',
   },
-  selected_service_id: {
+  service_id: {
     type: 'number',
     message: 'Please select a service type',
     trigger: ['blur', 'change'],
@@ -218,8 +226,7 @@ interface VehicleTypeOption {
 
 const maxPassengers = computed<number>(() => {
   const vehicleType = vehicleTypeOptions.value!.find(
-    (type: VehicleTypeOption) =>
-      type.value === formValue.value.selected_vehicle_id
+    (type: VehicleTypeOption) => type.value === formValue.value.vehicle_id
   )
   formValue.value.selected_passengers = null
   return vehicleType ? vehicleType.max_passengers : 3
@@ -282,11 +289,11 @@ const handleFormValueChange: WatchCallback<
   const toAirportServiceType = 2
 
   if (isOriginAirport) {
-    formValue.value.selected_service_id = fromAirportServiceType
+    formValue.value.service_id = fromAirportServiceType
   } else if (isDestinationAirport) {
-    formValue.value.selected_service_id = toAirportServiceType
+    formValue.value.service_id = toAirportServiceType
   } else {
-    formValue.value.selected_service_id = 0
+    formValue.value.service_id = 0
   }
 }
 
@@ -312,19 +319,13 @@ const qData = ref<any>('')
 
 async function onSubmit() {
   try {
-    // const formValid = await formRef.value?.validate()
-    // if (!formValid) {
-    //   message.error('Please fill in all required fields')
-    //   return
-    // }
-
     loading.value = true
     const { data: quoteData } = await useFetch('/api/quote', {
       method: 'POST',
       body: formValue.value,
     })
-    console.log('Quote data is:', quoteData.value)
-    qData.value = quoteData.value
+    qData.value = await quoteData.value
+    console.log('Quote data is:', qData.value)
 
     // Save quote data in local storage
     const quoteDataStorage = useStorage('quote_data', quoteData)
@@ -476,7 +477,7 @@ const handleValidateClick = (e: MouseEvent) => {
               path="selected_service_type_value"
             >
               <n-select
-                v-model:value="formValue.selected_service_id"
+                v-model:value="formValue.service_id"
                 :options="serviceTypeOptions"
                 placeholder="Select Service Type..."
               />
@@ -489,7 +490,7 @@ const handleValidateClick = (e: MouseEvent) => {
               path="selected_vehicle_type_value"
             >
               <n-select
-                v-model:value="formValue.selected_vehicle_id"
+                v-model:value="formValue.vehicle_id"
                 :options="vehicleTypeOptions"
                 placeholder="Select Vehicle Type..."
               />
