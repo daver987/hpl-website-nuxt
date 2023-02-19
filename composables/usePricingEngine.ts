@@ -23,9 +23,9 @@ const directionsSchema = z.object({
 type DirectionsApiResponse = z.infer<typeof directionsSchema>
 
 // Vehicle Type interface
-interface VehicleType {
-  id: number
-  vehicle_type_label: string
+export interface VehicleType {
+  value: number
+  label: string
   per_km: number
   per_hour: number
   min_rate: number
@@ -34,32 +34,34 @@ interface VehicleType {
 }
 
 // Service Type interface
-interface ServiceType {
-  id: number
-  service_type_label: string
+export interface ServiceType {
+  value: number
+  label: string
   is_active: boolean
   is_hourly: boolean
 }
 
 // Line Item interface
-interface LineItem {
-  id: number
+export interface LineItem {
+  id: string
   label: string
   amount: number
   is_taxable: boolean
   is_percentage: boolean
-}
-
-// Tax interface
-interface SalesTax {
-  id: number
-  region: string
-  amount: number
   is_active: boolean
 }
 
+// Tax interface
+export interface SalesTax {
+  id: string
+  region: string
+  amount: number
+  is_active: boolean
+  tax_name: string
+}
+
 // Distance Calculation function
-async function calculateDistance(
+export async function calculateDistance(
   origin: string,
   destination: string
 ): Promise<{ distance: number; data: DirectionsApiResponse }> {
@@ -118,17 +120,21 @@ export function usePricingEngine(
 
   function updateBaseRate() {
     const selectedVehicleType = vehicleTypes.find(
-      (v) => v.id === vehicleTypeId.value
+      (v) => v.value === vehicleTypeId.value
     )
     const selectedServiceType = serviceTypes.find(
-      (s) => s.id === serviceTypeId.value
+      (s) => s.value === serviceTypeId.value
     )
+
+    console.log('Selected vehicle type:', selectedVehicleType)
+    console.log('Selected service type:', selectedServiceType)
+
     if (!selectedVehicleType || !selectedServiceType) {
       baseRate.value = 0
       return
     }
 
-    if (selectedServiceType.is_hourly) {
+    if (selectedServiceType.value === 4) {
       baseRate.value = selectedHours.value * selectedVehicleType.per_hour
     } else {
       const distanceOverMin = Math.max(

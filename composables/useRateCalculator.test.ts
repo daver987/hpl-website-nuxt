@@ -8,40 +8,36 @@ const rates = <Rates[]>[
     name: 'Standard Sedan',
     per_km: 1.7,
     per_hour: 80,
-    min_hours_hourly: 2,
-    min_rate_distance: 80,
+    min_hours: 2,
+    min_rate: 80,
     min_distance: 25,
-    min_rate_hourly: 160,
   },
   {
     id: 2,
     name: 'Premium Sedan',
     per_km: 1.95,
     per_hour: 90,
-    min_hours_hourly: 2,
-    min_rate_distance: 90,
+    min_hours: 2,
+    min_rate: 90,
     min_distance: 25,
-    min_rate_hourly: 180,
   },
   {
     id: 3,
     name: 'Standard SUV',
     per_km: 2.3,
     per_hour: 105,
-    min_hours_hourly: 2,
-    min_rate_distance: 105,
+    min_hours: 2,
+    min_rate: 105,
     min_distance: 25,
-    min_rate_hourly: 210,
   },
   {
     id: 4,
     name: 'Premium SUV',
     per_km: 2.7,
     per_hour: 128,
-    min_hours_hourly: 2,
-    min_rate_distance: 128,
+    min_hours: 2,
+    min_rate: 128,
     min_distance: 25,
-    min_rate_hourly: 256,
   },
 ]
 
@@ -64,9 +60,8 @@ describe('getRateFromId', () => {
       id: 2,
       per_km: 1.95,
       per_hour: 90,
-      min_hours_hourly: 2,
-      min_rate_distance: 90,
-      min_rate_hourly: 180,
+      min_hours: 2,
+      min_rate: 90,
       min_distance: 25,
     })
     expect(getRateFromId(3, rates as Rates[])).toEqual({
@@ -74,9 +69,8 @@ describe('getRateFromId', () => {
       id: 3,
       per_km: 2.3,
       per_hour: 105,
-      min_hours_hourly: 2,
-      min_rate_distance: 105,
-      min_rate_hourly: 210,
+      min_hours: 2,
+      min_rate: 105,
       min_distance: 25,
     })
   })
@@ -104,16 +98,16 @@ const getBaseRate = (
   rate: Rates
 ) => {
   if (isHourly) {
-    if (num_hours < rate.min_hours_hourly) {
+    if (num_hours < rate.min_hours) {
       return rate.min_rate_hourly
     } else {
       return rate.per_hour * num_hours
     }
   } else {
     if (num_km < rate.min_distance) {
-      return rate.min_rate_distance
+      return rate.min_rate
     } else {
-      return rate.min_rate_distance + (num_km - rate.min_distance) * rate.per_km
+      return rate.min_rate + (num_km - rate.min_distance) * rate.per_km
     }
   }
 }

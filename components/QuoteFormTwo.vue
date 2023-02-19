@@ -4,9 +4,35 @@ import { WatchCallback } from 'vue'
 import { VueTelInput } from 'vue-tel-input'
 import { VehicleType } from '~/server/api/vehicles.get'
 import { ServiceType } from '~/server/api/services.get'
+import { LineItem } from '~/server/api/items.get'
+import { SalesTax } from '~/server/api/salestax.get'
 import { useGtm } from '@gtm-support/vue-gtm'
 import { z } from 'zod'
 import { useStorage } from '@vueuse/core'
+import { useDataStore } from '~/stores/useDataStore'
+import { storeToRefs } from 'pinia'
+
+const dataStore = useDataStore()
+const { vehicleTypes, serviceTypes, lineItems, salesTaxes } =
+  storeToRefs(dataStore)
+
+const [vehicleTypesRes, serviceTypesRes, lineItemsRes, salesTaxesRes] =
+  await Promise.all([
+    useFetch<VehicleType | undefined>('/api/vehicles'),
+    useFetch<ServiceType | undefined>('/api/services'),
+    useFetch<LineItem | undefined>('/api/items'),
+    useFetch<SalesTax | undefined>('/api/salestax'),
+  ])
+
+vehicleTypes.value = vehicleTypesRes?.data || []
+serviceTypes.value = serviceTypesRes?.data || []
+lineItems.value = lineItemsRes?.data || []
+salesTaxes.value = salesTaxesRes?.data || []
+
+dataStore.setVehicleTypes(vehicleTypes.value)
+dataStore.setServiceTypes(serviceTypes.value)
+dataStore.setLineItems(lineItems.value)
+dataStore.setSalesTaxes(salesTaxes.value)
 
 const { userId, checkUser } = useUserData()
 onMounted(() => checkUser())
@@ -81,8 +107,8 @@ interface FormValue {
   selected_hours: number | null
   selected_passengers: number | null
   is_hourly: boolean
-  selected_vehicle_type_value: number | null
-  selected_service_type_value: number | null
+  selected_vehicle_id: number | null
+  selected_service_id: number | null
   is_round_trip: boolean
 }
 
@@ -103,10 +129,10 @@ const formValue: Ref<FormValue> = ref({
   selected_hours: null,
   selected_passengers: null,
   is_hourly: computed(() => {
-    return formValue.value.selected_service_type_value === 4
+    return formValue.value.selected_service_id === 4
   }),
-  selected_vehicle_type_value: null,
-  selected_service_type_value: null,
+  selected_vehicle_id: null,
+  selected_service_id: null,
   is_round_trip: false,
 })
 
@@ -125,13 +151,13 @@ const rules: FormRules = {
   },
   return_date: {
     type: 'number',
-    required: true,
+    required: false,
     message: 'Please enter a drop off date',
     trigger: 'blur',
   },
   return_time: {
     type: 'number',
-    required: true,
+    required: false,
     message: 'Please enter a drop off time',
     trigger: 'blur',
   },
@@ -147,13 +173,13 @@ const rules: FormRules = {
     trigger: ['blur', 'change'],
     required: true,
   },
-  selected_vehicle_type_value: {
+  selected_vehicle_id: {
     type: 'number',
     trigger: ['blur', 'change'],
     required: true,
     message: 'Please select a vehicle type',
   },
-  selected_service_type_value: {
+  selected_service_id: {
     type: 'number',
     message: 'Please select a service type',
     trigger: ['blur', 'change'],
@@ -181,13 +207,8 @@ const rules: FormRules = {
   },
 }
 
-const { data: serviceTypeOptions } = await useFetch<ServiceType | undefined>(
-  '/api/services'
-)
-
-const { data: vehicleTypeOptions } = await useFetch<VehicleType | undefined>(
-  '/api/vehicles'
-)
+const serviceTypeOptions = serviceTypes
+const vehicleTypeOptions = vehicleTypes
 
 interface VehicleTypeOption {
   label: string
@@ -198,7 +219,7 @@ interface VehicleTypeOption {
 const maxPassengers = computed<number>(() => {
   const vehicleType = vehicleTypeOptions.value!.find(
     (type: VehicleTypeOption) =>
-      type.value === formValue.value.selected_vehicle_type_value
+      type.value === formValue.value.selected_vehicle_id
   )
   formValue.value.selected_passengers = null
   return vehicleType ? vehicleType.max_passengers : 3
@@ -226,7 +247,7 @@ function buildPassengerOptions(numPassengers: number) {
   return options
 }
 
-const placeSechema = z
+const placeSchema = z
   .object({
     place_id: z.string(),
     formatted_address: z.string(),
@@ -235,14 +256,14 @@ const placeSechema = z
   })
   .strip()
 
-type Place = z.infer<typeof placeSechema>
+type Place = z.infer<typeof placeSchema>
 
 function isAirport(place?: Place): boolean {
   if (!place) {
     return false
   }
   try {
-    return placeSechema.parse(place).types.includes('airport')
+    return placeSchema.parse(place).types.includes('airport')
   } catch (error) {
     return false
   }
@@ -261,11 +282,11 @@ const handleFormValueChange: WatchCallback<
   const toAirportServiceType = 2
 
   if (isOriginAirport) {
-    formValue.value.selected_service_type_value = fromAirportServiceType
+    formValue.value.selected_service_id = fromAirportServiceType
   } else if (isDestinationAirport) {
-    formValue.value.selected_service_type_value = toAirportServiceType
+    formValue.value.selected_service_id = toAirportServiceType
   } else {
-    formValue.value.selected_service_type_value = 0
+    formValue.value.selected_service_id = 0
   }
 }
 
@@ -287,14 +308,15 @@ const handleChangeDestination = (evt: Place) => {
 
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
+const qData = ref<any>('')
 
 async function onSubmit() {
   try {
-    const formValid = await formRef.value?.validate()
-    if (!formValid) {
-      message.error('Please fill in all required fields')
-      return
-    }
+    // const formValid = await formRef.value?.validate()
+    // if (!formValid) {
+    //   message.error('Please fill in all required fields')
+    //   return
+    // }
 
     loading.value = true
     const { data: quoteData } = await useFetch('/api/quote', {
@@ -302,6 +324,7 @@ async function onSubmit() {
       body: formValue.value,
     })
     console.log('Quote data is:', quoteData.value)
+    qData.value = quoteData.value
 
     // Save quote data in local storage
     const quoteDataStorage = useStorage('quote_data', quoteData)
@@ -309,7 +332,7 @@ async function onSubmit() {
 
     setTimeout(async () => {
       // Navigate to checkout page
-      await navigateTo('/checkout')
+      // await navigateTo('/checkout')
       loading.value = false
     }, 500)
   } catch (e) {
@@ -331,11 +354,6 @@ const handleValidateClick = (e: MouseEvent) => {
     }
   })
 }
-
-const { data: contact } = await useFetch('/api/contact', {
-  method: 'GET',
-})
-console.log(contact.value)
 </script>
 
 <template>
@@ -344,6 +362,10 @@ console.log(contact.value)
       <n-card>
         <pre
           >{{ JSON.stringify(formValue, null, 2) }}
+</pre
+        >
+        <pre
+          >{{ JSON.stringify(qData, null, 2) }}
 </pre
         >
       </n-card>
@@ -454,7 +476,7 @@ console.log(contact.value)
               path="selected_service_type_value"
             >
               <n-select
-                v-model:value="formValue.selected_service_type_value"
+                v-model:value="formValue.selected_service_id"
                 :options="serviceTypeOptions"
                 placeholder="Select Service Type..."
               />
@@ -467,7 +489,7 @@ console.log(contact.value)
               path="selected_vehicle_type_value"
             >
               <n-select
-                v-model:value="formValue.selected_vehicle_type_value"
+                v-model:value="formValue.selected_vehicle_id"
                 :options="vehicleTypeOptions"
                 placeholder="Select Vehicle Type..."
               />

@@ -1,25 +1,26 @@
 import { z } from 'zod'
-export const serviceTypeSchema = z.array(
+
+export const lineItemSchema = z.array(
   z.object({
-    value: z.number(),
-    created_at: z.date(),
-    updated_at: z.date(),
+    id: z.string(),
     label: z.string(),
+    amount: z.number(),
+    is_taxable: z.boolean(),
+    is_percentage: z.boolean(),
     is_active: z.boolean(),
-    limo_anywhere_id: z.number(),
   })
 )
 
-export type ServiceType = z.infer<typeof serviceTypeSchema>
+export type LineItem = z.infer<typeof lineItemSchema>
 
 export default defineEventHandler(async (event) => {
   const prisma = event.context.prisma
   try {
-    const data = await prisma.service.findMany()
+    const data = await prisma.lineItem.findMany()
     if (data) {
-      const serviceTypes = serviceTypeSchema.parse(data)
-      console.log(serviceTypes)
-      return serviceTypes
+      const lineItems = lineItemSchema.parse(data)
+      console.log(lineItems)
+      return lineItems
     } else {
       console.log('No data found')
       return 'No data found'
