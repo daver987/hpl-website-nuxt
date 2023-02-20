@@ -2,95 +2,20 @@
 import { FormInst, useMessage, FormRules } from 'naive-ui'
 import { WatchCallback } from 'vue'
 import { VueTelInput } from 'vue-tel-input'
-import { VehicleType } from '~/server/api/vehicles.get'
-import { ServiceType } from '~/server/api/services.get'
-import { LineItem } from '~/server/api/items.get'
-import { SalesTax } from '~/server/api/salestax.get'
+import { Vehicle } from '~/schema/vehicleSchema'
+import { Service } from '~/schema/serviceSchema'
+import { LineItem } from '~/schema/lineItemSchema'
+import { SalesTax } from '~/schema/salexTaxSchema'
+import { Place, placeSchema } from '~/schema/placeSchema'
 import { useGtm } from '@gtm-support/vue-gtm'
-import { z } from 'zod'
 import { useStorage } from '@vueuse/core'
 import { useDataStore } from '~/stores/useDataStore'
 import { storeToRefs } from 'pinia'
-
-const dataStore = useDataStore()
-const { vehicleTypes, serviceTypes, lineItems, salesTaxes } =
-  storeToRefs(dataStore)
-
-const [vehicleTypesRes, serviceTypesRes, lineItemsRes, salesTaxesRes] =
-  await Promise.all([
-    useFetch<VehicleType | undefined>('/api/vehicles'),
-    useFetch<ServiceType | undefined>('/api/services'),
-    useFetch<LineItem | undefined>('/api/items'),
-    useFetch<SalesTax | undefined>('/api/salestax'),
-  ])
-
-vehicleTypes.value = vehicleTypesRes?.data || []
-serviceTypes.value = serviceTypesRes?.data || []
-lineItems.value = lineItemsRes?.data || []
-salesTaxes.value = salesTaxesRes?.data || []
-
-dataStore.setVehicleTypes(vehicleTypes.value)
-dataStore.setServiceTypes(serviceTypes.value)
-dataStore.setLineItems(lineItems.value)
-dataStore.setSalesTaxes(salesTaxes.value)
-
-const { userId, checkUser } = useUserData()
-onMounted(() => checkUser())
-console.log(userId)
-
-const route = useRoute()
-const gtmValues = route.query
-
-const gtm = useGtm()
-
-function triggerEvent() {
-  gtm?.trackEvent({
-    event: 'submitQuote',
-    category: 'Request quote',
-    action: 'click',
-    label: 'Request Quote',
-    value: 1,
-    noninteraction: false,
-  })
-}
-
-const inputOptions = ref({
-  id: 'phone-number',
-  required: true,
-  showDialCode: true,
-  name: 'phone_number',
-  type: 'tel',
-  ariaDescribedby: 'name',
-  ariaLabeledBy: 'placeholder',
-  placeholder: 'Enter Phone',
-  autoFocus: true,
-})
-const dropdownOptions = ref({
-  showDialCodeInSelection: false,
-  showFlags: true,
-  showSearchBox: true,
-  showDialCodeInList: true,
-})
-
-type HoursRequiredOption = {
-  label: string
-  value: number
-}
-
-const buildHoursRequiredOptions = (): HoursRequiredOption[] => {
-  const options: HoursRequiredOption[] = []
-  for (let i = 2; i <= 12; i++) {
-    options.push({
-      label: `${i} hours`,
-      value: i,
-    })
-  }
-  return options
-}
-
-const hourlyOptions: HoursRequiredOption[] = buildHoursRequiredOptions()
-
-const message = useMessage()
+import {
+  buildPassengerOptions,
+  buildHoursOptions,
+  Option,
+} from '~/composables/useBuildOptions'
 
 interface FormValue {
   first_name: string | null
@@ -110,10 +35,64 @@ interface FormValue {
   vehicle_id: number | null
   service_id: number | null
   is_round_trip: boolean
-  vehicleTypes: VehicleType[]
-  serviceTypes: ServiceType[]
+  vehicleTypes: Vehicle[]
+  serviceTypes: Service[]
   lineItems: LineItem[]
   salesTaxes: SalesTax[]
+}
+
+const dataStore = useDataStore()
+const { vehicleTypes, serviceTypes, lineItems, salesTaxes } =
+  storeToRefs(dataStore)
+
+const [vehicleTypesRes, serviceTypesRes, lineItemsRes, salesTaxesRes] =
+  await Promise.all([
+    useFetch<Vehicle | undefined>('/api/vehicles'),
+    useFetch<Service | undefined>('/api/services'),
+    useFetch<LineItem | undefined>('/api/items'),
+    useFetch<SalesTax | undefined>('/api/salestax'),
+  ])
+
+vehicleTypes.value = vehicleTypesRes?.data || []
+serviceTypes.value = serviceTypesRes?.data || []
+lineItems.value = lineItemsRes?.data || []
+salesTaxes.value = salesTaxesRes?.data || []
+
+dataStore.setVehicleTypes(vehicleTypes.value)
+dataStore.setServiceTypes(serviceTypes.value)
+dataStore.setLineItems(lineItems.value)
+dataStore.setSalesTaxes(salesTaxes.value)
+
+const serviceTypeOptions = serviceTypes
+const vehicleTypeOptions = vehicleTypes
+
+const hoursOptions = buildHoursOptions()
+const maxPassengers = computed<number>(() => {
+  const vehicleType = vehicleTypeOptions.value.find(
+    (type: Option) => type.value === formValue.value.vehicle_id
+  )
+  formValue.value.selected_passengers = null
+  return vehicleType ? vehicleType.max_passengers : 3
+})
+
+const passengerOptions = computed(() =>
+  buildPassengerOptions(maxPassengers.value)
+)
+
+const route = useRoute()
+const gtmValues = route.query
+
+const gtm = useGtm()
+
+function triggerEvent() {
+  gtm?.trackEvent({
+    event: 'submitQuote',
+    category: 'Request quote',
+    action: 'click',
+    label: 'Request Quote',
+    value: 1,
+    noninteraction: false,
+  })
 }
 
 const formValue: Ref<FormValue> = ref({
@@ -215,55 +194,23 @@ const rules: FormRules = {
   },
 }
 
-const serviceTypeOptions = serviceTypes
-const vehicleTypeOptions = vehicleTypes
-
-interface VehicleTypeOption {
-  label: string
-  value: number
-  max_passengers: number
-}
-
-const maxPassengers = computed<number>(() => {
-  const vehicleType = vehicleTypeOptions.value!.find(
-    (type: VehicleTypeOption) => type.value === formValue.value.vehicle_id
-  )
-  formValue.value.selected_passengers = null
-  return vehicleType ? vehicleType.max_passengers : 3
+const inputOptions = ref({
+  id: 'phone-number',
+  required: true,
+  showDialCode: true,
+  name: 'phone_number',
+  type: 'tel',
+  ariaDescribedby: 'name',
+  ariaLabeledBy: 'placeholder',
+  placeholder: 'Enter Phone',
+  autoFocus: true,
 })
-
-const passengerOptions = computed(() =>
-  buildPassengerOptions(maxPassengers.value)
-)
-
-function buildPassengerOptions(numPassengers: number) {
-  const options = [
-    {
-      label: '1 Passenger',
-      value: 1,
-      isDisabled: false,
-    },
-  ]
-  for (let i = 2; i <= numPassengers; i++) {
-    options.push({
-      label: `${i} Passengers`,
-      value: i,
-      isDisabled: false,
-    })
-  }
-  return options
-}
-
-const placeSchema = z
-  .object({
-    place_id: z.string(),
-    formatted_address: z.string(),
-    name: z.string(),
-    types: z.array(z.string()),
-  })
-  .strip()
-
-type Place = z.infer<typeof placeSchema>
+const dropdownOptions = ref({
+  showDialCodeInSelection: false,
+  showFlags: true,
+  showSearchBox: true,
+  showDialCodeInList: true,
+})
 
 function isAirport(place?: Place): boolean {
   if (!place) {
@@ -313,20 +260,19 @@ const handleChangeDestination = (evt: Place) => {
   formValue.value.destination = evt
 }
 
+const message = useMessage()
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
-const qData = ref<any>('')
 
 async function onSubmit() {
   try {
     loading.value = true
+
     const { data: quoteData } = await useFetch('/api/quote', {
       method: 'POST',
       body: formValue.value,
     })
-    qData.value = await quoteData.value
-    console.log('Quote data is:', qData.value)
-
+    console.log('Returned Quote:', quoteData.value)
     // Save quote data in local storage
     const quoteDataStorage = useStorage('quote_data', quoteData)
     quoteDataStorage.value = quoteData.value
@@ -363,10 +309,6 @@ const handleValidateClick = (e: MouseEvent) => {
       <n-card>
         <pre
           >{{ JSON.stringify(formValue, null, 2) }}
-</pre
-        >
-        <pre
-          >{{ JSON.stringify(qData, null, 2) }}
 </pre
         >
       </n-card>
@@ -517,7 +459,7 @@ const handleValidateClick = (e: MouseEvent) => {
             >
               <n-select
                 v-model:value="formValue.selected_hours"
-                :options="hourlyOptions"
+                :options="hoursOptions"
                 placeholder="For Hourly Service..."
                 :disabled="!formValue.is_hourly"
               />

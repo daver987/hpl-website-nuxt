@@ -3,6 +3,10 @@ import { useOsTheme, darkTheme } from 'naive-ui'
 const osTheme = useOsTheme()
 
 const theme = computed(() => (osTheme.value === 'dark' ? darkTheme : null))
+const { userId, checkUser } = useUserData()
+console.log(userId)
+onMounted(() => checkUser())
+
 //npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types/supabase.ts
 //npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types.ts
 useHead({

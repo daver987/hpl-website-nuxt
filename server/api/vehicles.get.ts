@@ -1,32 +1,13 @@
+import { vehicleSchema } from '~/schema/vehicleSchema'
 import { z } from 'zod'
-
-export const vehicleTypeSchema = z.array(
-  z.object({
-    value: z.number(),
-    created_at: z.date(),
-    updated_at: z.date(),
-    max_passengers: z.number(),
-    max_luggage: z.number(),
-    per_km: z.number(),
-    per_hour: z.number(),
-    min_hours: z.number(),
-    min_distance: z.number(),
-    min_rate: z.number(),
-    is_active: z.boolean(),
-    label: z.string(),
-    limo_anywhere_id: z.number(),
-    vehicle_image: z.string(),
-  })
-)
-
-export type VehicleType = z.infer<typeof vehicleTypeSchema>
+const vehicle = z.array(vehicleSchema)
 
 export default defineEventHandler(async (event) => {
   const prisma = event.context.prisma
   try {
     const data = await prisma.vehicle.findMany()
     if (data) {
-      const vehicleTypes = vehicleTypeSchema.parse(data)
+      const vehicleTypes = vehicle.parse(data)
       console.log('Vehicles:', vehicleTypes)
       return vehicleTypes
     } else {

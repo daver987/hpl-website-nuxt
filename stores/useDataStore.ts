@@ -1,13 +1,17 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { Vehicle } from '~/schema/vehicleSchema'
+import { Service } from '~/schema/serviceSchema'
+import { LineItem } from '~/schema/lineItemSchema'
+import { SalesTax } from '~/schema/salexTaxSchema'
 
 export const useDataStore = defineStore({
   id: 'data',
 
   state: () => ({
-    vehicleTypes: [],
-    serviceTypes: [],
-    lineItems: [],
-    salesTaxes: [],
+    vehicleTypes: [] as Vehicle[],
+    serviceTypes: [] as Service[],
+    lineItems: [] as LineItem[],
+    salesTaxes: [] as SalesTax[],
   }),
 
   actions: {
