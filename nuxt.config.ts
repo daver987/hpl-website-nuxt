@@ -1,5 +1,5 @@
 import '@total-typescript/ts-reset'
-// @ts-ignore
+
 export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
@@ -38,8 +38,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
-    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     ZAPIER_WEBHOOK_SECRET: process.env.ZAPIER_WEBHOOK_SECRET,
     AIRCALL_API_TOKEN: process.env.AIRCALL_API_TOKEN,
     AIRCALL_API_ID: process.env.AIRCALL_API_ID,
@@ -55,9 +53,9 @@ export default defineNuxtConfig({
       titleSeparator: '|',
     },
   },
-  // typescript: {
-  //   shim: false,
-  // },
+  typescript: {
+    shim: false,
+  },
   naiveUI: {
     themeOverrides: {
       common: {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ReturnType } from '~/types/ReturnType'
-import { Quote } from '~/schema/quote'
+// import { Quote } from '~/schema/quote'
 import { useCartStore } from '~/stores/useCartStore'
 // import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'

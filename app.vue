@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { useOsTheme, darkTheme } from 'naive-ui'
-const osTheme = useOsTheme()
+import { useUserStore } from './stores/useUserStore'
+import { useStorage } from '@vueuse/core'
 
-const theme = computed(() => (osTheme.value === 'dark' ? darkTheme : null))
-const { userId, checkUser } = useUserData()
-console.log(userId)
-onMounted(() => checkUser())
-
-//npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types/supabase.ts
-//npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types.ts
 useHead({
   meta: [
     {
@@ -16,6 +10,17 @@ useHead({
     },
   ],
 })
+
+const userStore = useUserStore()
+const userId = useStorage('userId', userStore.getUserId())
+
+userStore.setUserId(userId.value)
+
+const osTheme = useOsTheme()
+const theme = computed(() => (osTheme.value === 'dark' ? darkTheme : null))
+
+//npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types/supabase.ts
+//npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types.ts
 </script>
 
 <template>

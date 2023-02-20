@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const salesTaxSchema = z.array(
 	z.object({
-		id: z.string(),
+		id: z.number(),
 		region: z.string(),
 		amount: z.number(),
 		is_active: z.boolean(),

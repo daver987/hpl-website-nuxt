@@ -1,38 +1,40 @@
-import { defineStore, acceptHMRUpdate, skipHydrate } from 'pinia'
+import { defineStore, acceptHMRUpdate } from 'pinia'
+import { v4 as uuidv4 } from 'uuid'
 
-export const useUserStore = defineStore('userStore', () => {
-  const hplUserId = ref('')
-  const first_name = ref('')
-  const last_name = ref('')
-  const email_address = ref('')
-  const phone_number = ref('')
-  const stripe_customer_id = ref('')
-  const userData = ref<unknown>({})
-  const userId = useStorageAsync('hplUserId', '')
-  const getUser = async () => {
-    try {
-      const { data: user, error } = await useFetch('/api/get-user', {
-        query: userId.value,
-      })
-      userData.value = user.value
-      hplUserId.value = userId.value
-    } catch (error) {
-      console.log('Vehicle Types Error:', error)
-      return error
-    }
-  }
-  return {
-    getUser,
-    hplUserId: skipHydrate(hplUserId),
-    userData: skipHydrate(userData),
-    first_name,
-    last_name,
-    email_address,
-    phone_number,
-    stripe_customer_id,
-    userId: skipHydrate(userId),
-  }
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    userId: '',
+  }),
+
+  actions: {
+    setUserId(userId: string) {
+      this.userId = userId
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('userId', userId)
+      }
+    },
+
+    getUserId() {
+      if (typeof window !== 'undefined') {
+        const userId = window.localStorage.getItem('userId')
+        if (userId) {
+          this.userId = userId
+        } else {
+          const newUserId = generateUuid()
+          this.setUserId(newUserId)
+        }
+      }
+
+      return this.userId
+    },
+  },
 })
+
+function generateUuid() {
+  const newUserId = uuidv4()
+
+  return newUserId.toString()
+}
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot))

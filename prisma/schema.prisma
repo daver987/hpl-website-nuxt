@@ -22,7 +22,7 @@ model Account {
 }
 
 model User {
-  id                 String      @id @unique @default(uuid())
+  id                 String      @id @default(uuid())
   created_at         DateTime    @default(now())
   updated_at         DateTime    @default(now())
   first_name         String
@@ -42,7 +42,7 @@ model User {
 }
 
 model Conversion {
-  id              String   @id @unique @default(uuid())
+  id              String   @id @default(uuid())
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
   User            User     @relation(fields: [user_id], references: [id])
@@ -71,17 +71,16 @@ model Quote {
   pickup_time      Float
   return_date      Float?
   return_time      Float?
-  is_booked        Boolean    @default(false)
   is_round_trip    Boolean    @default(false)
+  is_booked        Boolean    @default(false)
   base_rate        Float
   line_items_total Float
   tax_amount       Float
   total_price      Float
-  trip_id          String
   user_id          String
   service_id       Int
   vehicle_id       Int
-  sales_tax_id     String
+  sales_tax_id     Int
 
   @@index([user_id])
   @@index([sales_tax_id])
@@ -90,23 +89,23 @@ model Quote {
 }
 
 model Trip {
-  id                            String   @id @unique @default(uuid())
+  id                            String   @id @default(uuid())
   created_at                    DateTime @default(now())
   updated_at                    DateTime @updatedAt
   quote                         Quote    @relation(fields: [quote_number], references: [quote_number])
-  pickup_lat                    Float
-  pickup_lng                    Float
-  dropoff_lat                   Float
-  dropoff_lng                   Float
-  pickup_date                   Int
-  pickup_time                   Int
-  distance                      Float
+  origin_lat                    Float
+  origin_lng                    Float
   origin_name                   String
-  orign_formatted_address       String
+  origin_formatted_address      String
+  origin_types                  Json
+  origin_place_id               String
+  destination_lat               Float
+  destination_lng               Float
   destination_name              String
   destination_formatted_address String
-  origin_types                  Json
   destination_types             Json
+  destination_place_id          String
+  distance                      Float
   is_return                     Boolean  @default(false)
   notes                         String?
   quote_number                  Int
@@ -120,8 +119,8 @@ model Service {
   updated_at       DateTime @default(now())
   label            String
   is_active        Boolean  @default(false)
-  limo_anywhere_id Int?
   is_hourly        Boolean  @default(false)
+  limo_anywhere_id Int?
   quotes           Quote[]
 }
 
@@ -139,7 +138,7 @@ model LineItem {
 }
 
 model SalesTax {
-  id         String   @id @unique @default(uuid())
+  id         Int      @id @unique @default(autoincrement())
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   tax_name   String

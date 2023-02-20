@@ -1,4 +1,3 @@
-import { Surcharges } from '~/schema/surcharges'
 import { serverSupabaseClient } from '#supabase/server'
 import { Database } from '~/types/supabase'
 import { ref } from 'vue'

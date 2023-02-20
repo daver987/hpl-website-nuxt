@@ -57,6 +57,7 @@
     "start-server-and-test": "^1.15.4",
     "stripe": "^11.11.0",
     "supabase-to-zod": "^1.0.4",
+    "twilio": "^4.7.2",
     "uuid": "^9.0.0",
     "vee-validate": "^4.7.4",
     "vite-node": "^0.28.5",

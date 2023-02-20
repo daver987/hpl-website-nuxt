@@ -4,7 +4,6 @@ const prisma = new PrismaClient()
 export default defineEventHandler(async () => {
   try {
     const data = prisma.user.findMany()
-    console.log(data)
     const userData = data
     return userData
   } catch (error) {

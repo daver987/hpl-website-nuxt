@@ -7,9 +7,11 @@ import { Service } from '~/schema/serviceSchema'
 import { LineItem } from '~/schema/lineItemSchema'
 import { SalesTax } from '~/schema/salexTaxSchema'
 import { Place, placeSchema } from '~/schema/placeSchema'
+import { Conversion } from '~/schema/conversionSchema'
 import { useGtm } from '@gtm-support/vue-gtm'
 import { useStorage } from '@vueuse/core'
 import { useDataStore } from '~/stores/useDataStore'
+import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
 import {
   buildPassengerOptions,
@@ -18,6 +20,7 @@ import {
 } from '~/composables/useBuildOptions'
 
 interface FormValue {
+  user_id: string
   first_name: string | null
   last_name: string | null
   email_address: string | null
@@ -41,6 +44,9 @@ interface FormValue {
   salesTaxes: SalesTax[]
 }
 
+const userStore = useUserStore()
+const { userId } = storeToRefs(userStore)
+
 const dataStore = useDataStore()
 const { vehicleTypes, serviceTypes, lineItems, salesTaxes } =
   storeToRefs(dataStore)
@@ -53,9 +59,14 @@ const [vehicleTypesRes, serviceTypesRes, lineItemsRes, salesTaxesRes] =
     useFetch<SalesTax | undefined>('/api/salestax'),
   ])
 
+//@ts-ignore
 vehicleTypes.value = vehicleTypesRes?.data || []
+//@ts-ignore
 serviceTypes.value = serviceTypesRes?.data || []
+//@ts-ignore
 lineItems.value = lineItemsRes?.data || []
+console.log('line items:', lineItems.value)
+//@ts-ignore
 salesTaxes.value = salesTaxesRes?.data || []
 
 dataStore.setVehicleTypes(vehicleTypes.value)
@@ -80,7 +91,7 @@ const passengerOptions = computed(() =>
 )
 
 const route = useRoute()
-const gtmValues = route.query
+const gtmValues: Conversion = route.query as Conversion
 
 const gtm = useGtm()
 
@@ -96,12 +107,13 @@ function triggerEvent() {
 }
 
 const formValue: Ref<FormValue> = ref({
+  user_id: userId.value,
   first_name: null,
   last_name: null,
   email_address: null,
   phone_number: null,
   conversion: {
-    ...gtmValues,
+    ...(gtmValues as Conversion),
   },
   origin: {} as Place,
   destination: {} as Place,

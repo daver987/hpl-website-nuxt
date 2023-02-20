@@ -20,15 +20,16 @@ const directionsSchema = z.object({
 })
 
 export type DirectionsSchema = z.infer<typeof directionsSchema>
-
+const config = useRuntimeConfig().public.GOOGLE_MAPS_API_KEY
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const { origin, destination } = query
   try {
-    const data = await $fetch<DirectionsSchema>(
-      `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&key=AIzaSyDJJhVTuoRoXVJA6VvmltFvUCIqvVpRZSA
+    const data = (await $fetch(
+      `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&key=${config}
       `
-    )
+    )) as DirectionsSchema
+
     const response = directionsSchema.parse(data)
     console.log('Directions Response', response)
     const { value: distanceValue, text: distanceText } =

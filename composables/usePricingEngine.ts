@@ -53,7 +53,7 @@ export interface LineItem {
 
 // Tax interface
 export interface SalesTax {
-  id: string
+  id: number
   region: string
   amount: number
   is_active: boolean

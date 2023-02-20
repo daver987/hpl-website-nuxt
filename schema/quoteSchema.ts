@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const quoteSchema = z.object({
+  userId: z.string(),
   first_name: z.string(),
   last_name: z.string(),
   email_address: z.string(),

@@ -1,15 +1,15 @@
 import { z } from 'zod'
 
 export const lineItemSchema = z.object({
-  id: z.number(),
-  created_at: z.string(),
-  name: z.string(),
+  id: z.string(),
+  created_at: z.date(),
+  updated_at: z.date(),
+  label: z.string(),
+  description: z.null(),
   is_percentage: z.boolean(),
-  is_flat: z.boolean(),
   is_taxable: z.boolean(),
   amount: z.number(),
   is_active: z.boolean(),
-  description: z.null(),
 })
 
 export type LineItem = z.infer<typeof lineItemSchema>

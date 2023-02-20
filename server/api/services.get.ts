@@ -6,7 +6,6 @@ export default defineEventHandler(async (event) => {
     const data = await prisma.service.findMany()
     if (data) {
       const serviceTypes = serviceSchema.parse(data)
-      console.log(serviceTypes)
       return serviceTypes
     } else {
       console.log('No data found')
