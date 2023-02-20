@@ -32,17 +32,20 @@ model User {
   stripe_customer_id String?
   is_customer        Boolean     @default(false)
   quotes             Quote[]
-  Account            Account?    @relation(fields: [accountId], references: [id])
-  accountId          String?
+  Account            Account?    @relation(fields: [account_id], references: [id])
+  account_id         String?
+  notes              String?
+  meta_data          Json?
   Conversion         Conversion?
 
-  @@index([accountId])
+  @@index([account_id])
 }
 
 model Conversion {
   id              String   @id @unique @default(uuid())
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
+  User            User     @relation(fields: [user_id], references: [id])
   utm_term        String?
   utm_medium      String?
   utm_source      String?
@@ -50,41 +53,65 @@ model Conversion {
   gclid           String?
   source          String?
   conversion_name String?
-  Contact         User     @relation(fields: [contactId], references: [id])
-  contactId       String   @unique
+  user_id         String   @unique
 }
 
 model Quote {
-  quote_number             Int        @id @unique @default(autoincrement())
-  created_at               DateTime   @default(now())
-  updated_at               DateTime   @updatedAt
-  distance                 Float
-  service_type_id          Service    @relation(fields: [serviceValue], references: [value])
-  vehicle_type_id          Vehicle    @relation(fields: [vehicleValue], references: [value])
-  line_items               LineItem[]
-  selected_hours           Int?
-  pickup_date              Float
-  pickup_time              Float
-  is_round_trip            Boolean    @default(false)
-  return_date              Float
-  return_time              Float
-  base_rate                Float
-  line_items_total         Float
-  taxable_line_items_total Float
-  tax_amount               Float
-  total_price              Float
-  trip_data                Json
-  User                     User       @relation(fields: [userId], references: [id])
-  userId                   String
-  serviceValue             Int
-  vehicleValue             Int
-  SalesTax                 SalesTax?  @relation(fields: [salesTaxId], references: [id])
-  salesTaxId               String?
+  quote_number     Int        @id @unique @default(autoincrement())
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+  Service          Service    @relation(fields: [service_id], references: [value])
+  Vehicle          Vehicle    @relation(fields: [vehicle_id], references: [value])
+  User             User       @relation(fields: [user_id], references: [id])
+  SalesTax         SalesTax?  @relation(fields: [sales_tax_id], references: [id])
+  line_items       LineItem[]
+  trips            Trip[]
+  selected_hours   Int?
+  pickup_date      Float
+  pickup_time      Float
+  return_date      Float?
+  return_time      Float?
+  is_booked        Boolean    @default(false)
+  is_round_trip    Boolean    @default(false)
+  base_rate        Float
+  line_items_total Float
+  tax_amount       Float
+  total_price      Float
+  trip_id          String
+  user_id          String
+  service_id       Int
+  vehicle_id       Int
+  sales_tax_id     String
 
-  @@index([userId])
-  @@index([salesTaxId])
-  @@index([vehicleValue])
-  @@index([serviceValue])
+  @@index([user_id])
+  @@index([sales_tax_id])
+  @@index([vehicle_id])
+  @@index([service_id])
+}
+
+model Trip {
+  id                            String   @id @unique @default(uuid())
+  created_at                    DateTime @default(now())
+  updated_at                    DateTime @updatedAt
+  quote                         Quote    @relation(fields: [quote_number], references: [quote_number])
+  pickup_lat                    Float
+  pickup_lng                    Float
+  dropoff_lat                   Float
+  dropoff_lng                   Float
+  pickup_date                   Int
+  pickup_time                   Int
+  distance                      Float
+  origin_name                   String
+  orign_formatted_address       String
+  destination_name              String
+  destination_formatted_address String
+  origin_types                  Json
+  destination_types             Json
+  is_return                     Boolean  @default(false)
+  notes                         String?
+  quote_number                  Int
+
+  @@index([quote_number])
 }
 
 model Service {
@@ -126,12 +153,12 @@ model Vehicle {
   value            Int      @id @unique @default(autoincrement())
   created_at       DateTime @default(now())
   updated_at       DateTime @default(now())
-  max_passengers   Int
-  max_luggage      Int
-  per_km           Float
-  per_hour         Float
-  min_hours        Int
-  min_distance     Int
+  max_passengers   Int      @default(value: 0)
+  max_luggage      Int      @default(value: 0)
+  per_km           Float    @default(value: 0)
+  per_hour         Float    @default(value: 0)
+  min_hours        Int      @default(value: 0)
+  min_distance     Int      @default(value: 0)
   min_rate         Float    @default(value: 0)
   is_active        Boolean  @default(true)
   label            String

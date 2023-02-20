@@ -59,7 +59,7 @@ export default {
                 </div>
               </div>
               <div class="mt-16 px-3 pb-8 sm:mt-24 lg:col-span-6 lg:mt-0">
-                <QuoteForm />
+                <QuoteFormTwo />
               </div>
             </div>
           </div>

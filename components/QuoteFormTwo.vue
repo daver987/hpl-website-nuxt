@@ -304,18 +304,18 @@ const handleValidateClick = (e: MouseEvent) => {
 </script>
 
 <template>
-  <n-grid :cols="2">
-    <n-grid-item :span="1">
+  <n-grid :cols="1">
+    <!-- <n-grid-item :span="1">
       <n-card>
         <pre
           >{{ JSON.stringify(formValue, null, 2) }}
 </pre
         >
       </n-card>
-    </n-grid-item>
+    </n-grid-item> -->
     <n-grid-item :span="1">
       <div
-        class="border-1 rounded border border-white bg-black p-4 sm:mx-auto sm:w-full sm:max-w-lg sm:overflow-hidden sm:rounded-lg"
+        class="border-1 rounded border border-white bg-black p-4 sm:mx-auto sm:w-full sm:max-w-2xl sm:overflow-hidden sm:rounded-lg"
       >
         <h2 class="mt-2 mb-4 text-center text-3xl uppercase text-white">
           Instant Quote
@@ -371,15 +371,17 @@ const handleValidateClick = (e: MouseEvent) => {
               :show-label="false"
               label="Pickup Date and Time"
             >
-              <n-time-picker
-                v-model:value="formValue.pickup_time"
-                format="h:mm a"
-                :clearable="true"
-              />
-              <n-switch v-model:value="formValue.is_round_trip">
-                <template #checked> Round</template>
-                <template #unchecked> One Way</template>
-              </n-switch>
+              <n-space justify="space-between">
+                <n-time-picker
+                  v-model:value="formValue.pickup_time"
+                  format="h:mm a"
+                  :clearable="true"
+                />
+                <n-switch v-model:value="formValue.is_round_trip">
+                  <template #checked> Round </template>
+                  <template #unchecked> One Way</template>
+                </n-switch>
+              </n-space>
             </n-form-item-gi>
           </n-grid>
           <n-collapse-transition :show="formValue.is_round_trip">

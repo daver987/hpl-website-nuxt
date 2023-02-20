@@ -14,6 +14,4 @@ export interface Place {
   formatted_address: string
   name: string
   types: string[]
-  isPearsonAirportOrigin?: boolean
-  isPearsonAirportDestination?: boolean
 }

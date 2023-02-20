@@ -3,6 +3,7 @@ import { Quote } from '~/schema/quoteSchema'
 
 export default defineEventHandler(async (event) => {
   try {
+    const prisma = event.context.prisma
     const quoteData = await readBody<Quote>(event)
     const {
       first_name,
@@ -26,6 +27,8 @@ export default defineEventHandler(async (event) => {
       salesTaxes,
     } = quoteData
 
+    const { id: salesTaxId } = salesTaxes[0]
+
     const pricingEngine = usePricingEngine(
       vehicleTypes,
       serviceTypes,
@@ -48,6 +51,62 @@ export default defineEventHandler(async (event) => {
     pricingEngine.updateBaseRate()
     pricingEngine.updateLineItemsTotal()
     pricingEngine.updateTaxAmount()
+
+    const returnedQuote = await prisma.quote.create({
+      data: {
+        pickup_date: pickup_date,
+        pickup_time: pickup_time,
+        is_round_trip: is_round_trip,
+        return_date: quoteData.return_date,
+        return_time: quoteData.return_time,
+        base_rate: pricingEngine.baseRate.value,
+        line_items_total: pricingEngine.lineItemsTotal.value,
+        taxable_line_items_total: pricingEngine.taxableLineItemsTotal.value,
+        tax_amount: pricingEngine.taxAmount.value,
+        total_price: pricingEngine.totalPrice.value,
+        serviceValue: service_id,
+        vehicleValue: vehicle_id,
+        line_items: {
+          create: lineItems,
+        },
+        User: {
+          upsert: {
+            where: { email_address: email_address },
+            update: {
+              first_name: first_name,
+              last_name: last_name,
+              phone_number: phone_number,
+            },
+            create: {
+              first_name: first_name,
+              last_name: last_name,
+              email_address: email_address,
+              phone_number: phone_number,
+            },
+          },
+        },
+        SalesTax: {
+          connect: {
+            id: salesTaxId,
+          },
+        },
+        Vehicle: {
+          connect: {
+            value: vehicle_id,
+          },
+        },
+        Service: {
+          connect: {
+            value: service_id,
+          },
+        },
+        Conversion: {
+          connect: {
+            user_id: user_id,
+          },
+        },
+      },
+    })
 
     const quote = {
       first_name: first_name,
