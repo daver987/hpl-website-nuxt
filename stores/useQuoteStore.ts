@@ -1,41 +1,18 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
-export const useQuoteStore = defineStore('quoteStore', () => {
-  const quote = useStorageAsync('quote_data', {})
-  const quote_number = useStorageAsync('quote_number', 2455)
-  const quoteNumberLatest = ref<number | null>(2455)
+export const useQuoteStore = defineStore({
+  id: 'quoteStore',
 
-  const getQuoteSingle = async () => {
-    try {
-      const { data: quoteData } = await useFetch('/api/get-quote-single', {
-        query: { quote_number: 2562 },
-      })
-      console.log('Single Quote:', quoteData.value)
-      quote.value = quoteData.value
-      return quote.value
-    } catch (error) {
-      alert(error)
-    }
-  }
+  state: () => ({
+    userQuoteData: null as null | unknown,
+    isRoundTrip: false,
+  }),
 
-  const getQuoteNumberLatest = async () => {
-    try {
-      const { data: quoteNumber } = await useFetch('/api/get-quotenumber')
-      console.log('Latest Quote Number:', quoteNumber.value)
-      quoteNumberLatest.value = quoteNumber.value
-      return quoteNumber
-    } catch (error) {
-      alert(error)
-    }
-  }
-
-  return {
-    getQuoteNumberLatest,
-    getQuoteSingle,
-    quoteNumberLatest,
-    quote,
-    quote_number,
-  }
+  actions: {
+    setQuoteData(quote: any) {
+      this.userQuoteData = quote
+    },
+  },
 })
 
 if (import.meta.hot) {

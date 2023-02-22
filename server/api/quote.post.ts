@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
       serviceTypes,
       lineItems,
       salesTaxes,
+      selected_passengers,
     } = quoteData
 
     const conversionData = conversion as Conversion
@@ -57,6 +58,7 @@ export default defineEventHandler(async (event) => {
     const newQuote = await prisma.quote.create({
       data: {
         selected_hours: pricingEngine.selectedHours.value,
+        selected_passengers: selected_passengers,
         pickup_date: pickup_date,
         pickup_time: pickup_time,
         return_date: return_date,
@@ -67,30 +69,89 @@ export default defineEventHandler(async (event) => {
         tax_amount: pricingEngine.taxAmount.value,
         total_price: pricingEngine.totalPrice.value,
         trips: {
-          create: {
-            origin_lat:
-              pricingEngine.routeData.value?.routes[0].legs[0].start_location
-                .lat,
-            origin_lng:
-              pricingEngine.routeData.value?.routes[0].legs[0].start_location
-                .lng,
-            origin_name: origin.name,
-            origin_formatted_address: origin.formatted_address,
-            origin_place_id: origin.place_id,
-            origin_types: origin.types,
-            destination_lat:
-              pricingEngine.routeData.value?.routes[0].legs[0].end_location.lat,
-            destination_lng:
-              pricingEngine.routeData.value?.routes[0].legs[0].end_location.lng,
-            destination_name: destination.name,
-            destination_formatted_address: destination.formatted_address,
-            destination_place_id: destination.place_id,
-            destination_types: destination.types,
-            distance: pricingEngine.distance.value,
-            is_return: is_round_trip,
-          },
+          //@ts-ignore
+          create: is_round_trip
+            ? [
+                {
+                  // First trip
+                  origin_lat:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .start_location.lat,
+                  origin_lng:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .start_location.lng,
+                  origin_name: origin.name,
+                  origin_formatted_address: origin.formatted_address,
+                  origin_place_id: origin.place_id,
+                  origin_types: origin.types,
+                  destination_lat:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .end_location.lat,
+                  destination_lng:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .end_location.lng,
+                  destination_name: origin.name,
+                  destination_formatted_address: origin.formatted_address,
+                  destination_place_id: origin.place_id,
+                  destination_types: origin.types,
+                  distance: pricingEngine.distance.value,
+                  is_return: false,
+                },
+                {
+                  // Second trip
+                  origin_lat:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .end_location.lat,
+                  origin_lng:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .end_location.lng,
+                  origin_name: origin.name,
+                  origin_formatted_address: origin.formatted_address,
+                  origin_place_id: origin.place_id,
+                  origin_types: origin.types,
+                  destination_lat:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .start_location.lat,
+                  destination_lng:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .start_location.lng,
+                  destination_name: destination.name,
+                  destination_formatted_address: destination.formatted_address,
+                  destination_place_id: destination.place_id,
+                  destination_types: destination.types,
+                  distance: pricingEngine.distance.value,
+                  is_return: true,
+                },
+              ]
+            : [
+                {
+                  // First (and only) trip
+                  origin_lat:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .start_location.lat,
+                  origin_lng:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .start_location.lng,
+                  origin_name: origin.name,
+                  origin_formatted_address: origin.formatted_address,
+                  origin_place_id: origin.place_id,
+                  origin_types: origin.types,
+                  destination_lat:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .end_location.lat,
+                  destination_lng:
+                    pricingEngine.routeData.value?.routes[0].legs[0]
+                      .end_location.lng,
+                  destination_name: destination.name,
+                  destination_formatted_address: destination.formatted_address,
+                  destination_place_id: destination.place_id,
+                  destination_types: destination.types,
+                  distance: pricingEngine.distance.value,
+                  is_return: false,
+                },
+              ],
         },
-        User: {
+        user: {
           connectOrCreate: {
             where: { email_address: email_address },
             create: {
@@ -99,7 +160,7 @@ export default defineEventHandler(async (event) => {
               last_name: last_name,
               phone_number: phone_number,
               email_address: email_address,
-              Conversion: {
+              conversion: {
                 create: {
                   utm_term: conversionData.utm_term,
                   utm_medium: conversionData.utm_medium,
@@ -111,13 +172,13 @@ export default defineEventHandler(async (event) => {
             },
           },
         },
-        SalesTax: {
+        sales_tax: {
           connect: { id: pricingEngine.taxes[0].id },
         },
-        Vehicle: {
+        vehicle: {
           connect: { value: pricingEngine.vehicleTypeId.value },
         },
-        Service: {
+        service: {
           connect: { value: pricingEngine.serviceTypeId.value },
         },
         line_items: {
@@ -127,49 +188,19 @@ export default defineEventHandler(async (event) => {
           ],
         },
       },
+      include: {
+        sales_tax: true,
+        vehicle: true,
+        service: true,
+        trips: true,
+      },
     })
 
     console.log(newQuote)
 
-    const quote = {
-      first_name: first_name,
-      last_name: last_name,
-      phone_number: phone_number,
-      email_address: email_address,
-      origin: origin,
-      destination: destination,
-      service_type_id: service_id,
-      vehicle_type_id: vehicle_id,
-      selected_hours: selected_hours,
-      pickup_date: pickup_date,
-      pickup_time: pickup_time,
-      is_round_trip: is_round_trip,
-      return_date: quoteData.return_date,
-      return_time: quoteData.return_time,
-      base_rate: pricingEngine.baseRate.value,
-      line_items_total: pricingEngine.lineItemsTotal.value,
-      tax_amount: pricingEngine.taxAmount.value,
-      total_price: pricingEngine.totalPrice.value,
-    }
-
     return {
-      first_name,
-      last_name,
-      email_address,
-      phone_number,
-      origin,
-      destination,
-      service_id,
-      vehicle_id,
-      selected_hours,
-      pickup_date,
-      pickup_time,
-      is_round_trip,
-      return_date,
-      return_time,
-      conversion,
-      quote,
       newQuote,
+      lineItemsList: pricingEngine.lineItemsList.value,
     }
   } catch (e) {
     console.error(e)

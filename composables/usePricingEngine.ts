@@ -43,12 +43,13 @@ export interface ServiceType {
 
 // Line Item interface
 export interface LineItem {
-  id: string
+  id?: string
   label: string
   amount: number
-  is_taxable: boolean
-  is_percentage: boolean
-  is_active: boolean
+  is_taxable?: boolean
+  is_percentage?: boolean
+  is_active?: boolean
+  total?: number
 }
 
 // Tax interface
@@ -108,6 +109,8 @@ export function usePricingEngine(
   const totalPrice = computed(
     () => baseRate.value + lineItemsTotal.value + taxAmount.value
   )
+  const taxesList = ref(taxes)
+  const lineItemsList = ref([...lineItems])
 
   // methods
   async function updateDistance() {
@@ -151,8 +154,9 @@ export function usePricingEngine(
   function updateLineItemsTotal() {
     lineItemsTotal.value = 0
     taxableLineItemsTotal.value = 0
+    const lineItemDetails: LineItem[] = []
 
-    for (const item of lineItems) {
+    for (const item of lineItemsList.value) {
       const amount = item.is_percentage
         ? baseRate.value * (item.amount / 100)
         : item.amount
@@ -161,12 +165,29 @@ export function usePricingEngine(
       if (item.is_taxable) {
         taxableLineItemsTotal.value += amount
       }
+
+      // add label and amount to a new array
+      item.total = amount
+      item.label = item.label || ''
+      lineItemDetails.push({ label: item.label, amount: amount })
     }
+
+    // update lineItemsList to include the updated totals for each item
+    lineItemsList.value = lineItemsList.value.map((item, index) => {
+      return {
+        ...item,
+        total: lineItemDetails[index].amount,
+        label: lineItemDetails[index].label,
+      }
+    })
+
+    // return the new array of line item details
+    return lineItemDetails
   }
 
   function updateTaxAmount() {
     taxAmount.value = 0
-    for (const tax of taxes) {
+    for (const tax of taxesList.value) {
       if (tax.is_active) {
         const amount =
           (tax.amount / 100) * (baseRate.value + taxableLineItemsTotal.value)
@@ -186,6 +207,7 @@ export function usePricingEngine(
     lineItemsTotal.value = 0
     taxableLineItemsTotal.value = 0
     taxAmount.value = 0
+    lineItemsList.value = []
   }
 
   return {
@@ -195,6 +217,7 @@ export function usePricingEngine(
     vehicleTypes,
     serviceTypes,
     lineItems,
+    lineItemsList,
     taxes,
     vehicleTypeId,
     serviceTypeId,

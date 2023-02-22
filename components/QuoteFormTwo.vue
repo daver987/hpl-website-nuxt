@@ -9,9 +9,9 @@ import { SalesTax } from '~/schema/salexTaxSchema'
 import { Place, placeSchema } from '~/schema/placeSchema'
 import { Conversion } from '~/schema/conversionSchema'
 import { useGtm } from '@gtm-support/vue-gtm'
-import { useStorage } from '@vueuse/core'
 import { useDataStore } from '~/stores/useDataStore'
 import { useUserStore } from '~/stores/useUserStore'
+import { useQuoteStore } from '~/stores/useQuoteStore'
 import { storeToRefs } from 'pinia'
 import {
   buildPassengerOptions,
@@ -43,7 +43,7 @@ interface FormValue {
   lineItems: LineItem[]
   salesTaxes: SalesTax[]
 }
-
+const userQuoteData = useQuoteStore()
 const userStore = useUserStore()
 const { userId } = storeToRefs(userStore)
 
@@ -94,7 +94,10 @@ const route = useRoute()
 const gtmValues: Conversion = route.query as Conversion
 
 const gtm = useGtm()
-
+//Todo enable tag manager
+//Todo test and setup round trip functionality
+// todo, test and setup the email to zapier, AI?
+//Todo Setup and test the text message through twilio
 function triggerEvent() {
   gtm?.trackEvent({
     event: 'submitQuote',
@@ -113,7 +116,7 @@ const formValue: Ref<FormValue> = ref({
   email_address: null,
   phone_number: null,
   conversion: {
-    ...(gtmValues as Conversion),
+    ...gtmValues,
   },
   origin: {} as Place,
   destination: {} as Place,
@@ -252,7 +255,7 @@ const handleFormValueChange: WatchCallback<
   } else if (isDestinationAirport) {
     formValue.value.service_id = toAirportServiceType
   } else {
-    formValue.value.service_id = 0
+    formValue.value.service_id = null
   }
 }
 
@@ -285,15 +288,14 @@ async function onSubmit() {
       body: formValue.value,
     })
     console.log('Returned Quote:', quoteData.value)
-    // Save quote data in local storage
-    const quoteDataStorage = useStorage('quote_data', quoteData)
-    quoteDataStorage.value = quoteData.value
 
     setTimeout(async () => {
+      userQuoteData.setQuoteData(quoteData.value)
+      console.log('Routed quote Data', userQuoteData.userQuoteData)
       // Navigate to checkout page
-      // await navigateTo('/checkout')
+      await navigateTo('/checkout')
       loading.value = false
-    }, 500)
+    }, 1500)
   } catch (e) {
     setTimeout(() => {
       loading.value = false
@@ -533,8 +535,9 @@ const handleValidateClick = (e: MouseEvent) => {
             </n-form-item-gi>
           </n-grid>
           <n-space justify="space-between">
-            <n-button @click="onSubmit"> Get Prices and Availability</n-button>
-            <n-button @click="handleValidateClick"> Reset</n-button>
+            <n-button :loading="loading" @click="onSubmit">
+              Get Prices and Availability</n-button
+            >
           </n-space>
         </n-form>
       </div>

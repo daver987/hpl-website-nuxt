@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { useCartStore } from '~/stores/useCartStore'
 import { storeToRefs } from 'pinia'
+import { useCartStore } from '~/stores/useCartStore'
 import { useQuoteStore } from '~/stores/useQuoteStore'
-
 const { addedToCart } = storeToRefs(useCartStore())
 const quoteStore = useQuoteStore()
-const { quote: cartData } = storeToRefs(quoteStore)
-console.log('Mini Cart Data', cartData.value)
+const { userQuoteData, isRoundTrip } = storeToRefs(quoteStore)
+console.log('Mini Cart Data', userQuoteData.value)
 //@ts-ignore
-const { isRoundTrip, serviceTypeLabel, vehicleTypeLabel } = cartData.value
+// const { serviceTypeLabel, vehicleTypeLabel } = userQuoteData.value
 const removeFromCart = useCartStore().removeFromCart()
-
 const itemsInCart = computed(() =>
   addedToCart.value ? (isRoundTrip ? 2 : 1) : 0
 )

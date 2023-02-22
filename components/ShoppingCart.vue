@@ -1,134 +1,121 @@
 <script setup lang="ts">
-import { ReturnType } from '~/types/ReturnType'
-// import { Quote } from '~/schema/quote'
 import { useCartStore } from '~/stores/useCartStore'
-// import { useUserStore } from '~/stores/useUserStore'
 import { storeToRefs } from 'pinia'
 import { format, isValid } from 'date-fns'
-import { Database } from '~/types/supabase'
 import { useQuoteStore } from '~/stores/useQuoteStore'
 
-// const route = useRoute()
-const supabase = useSupabaseClient<Database>()
-
-const cartStore = useCartStore()
 const quoteStore = useQuoteStore()
-const { quote: cartData } = storeToRefs(quoteStore)
-console.log('Shopping Cart Data', cartData.value)
-// const userStore = useUserStore()
-// await userStore.getUser()
-// const { userData } = storeToRefs(userStore)
+const { userQuoteData } = storeToRefs(quoteStore)
+const { newQuote, lineItemsList } = userQuoteData.value
+const cartStore = useCartStore()
 
-//@ts-ignore
-// const {
-//   first_name,
-//   last_name,
-//   email_address,
-//   phone_number,
-//   id: hplUserId,
-//   //@ts-ignore
-// } = userData.value[0]
+const lineItemsListTest = [
+  {
+    label: 'Gratuity',
+    total: 25.57,
+    id: 1,
+  },
+  {
+    label: 'Fuel Surcharge',
+    total: 10.23,
+    id: 2,
+  },
+]
 
-// const quoteStore = useQuoteStore()
-// const { quote: quoteData } = storeToRefs(quoteStore)
+const newQuoteTest = {
+  trips: [
+    {
+      destination_formatted_address: '1265 Sixth Line, Oakville, Ontario',
+      destination_name: '1265 Sixth Line, Oakville, Ontario',
+      is_return: false,
+      origin_name: 'Toronto Pearson Airport',
+      origin_formatted_address: '6644 Silver Dart Drive, Mississauga Ontario',
+    },
+  ],
+  sales_tax: {
+    tax_name: 'HST',
+  },
+  service: {
+    label: 'From Airport',
+  },
+  vehicle: {
+    label: 'Standard SUV',
+    vehicle_image:
+      'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/5d171f30-de2f-447c-a602-95ccf248c600/1024',
+  },
 
-// const quoteNumberToNumber = useToNumber(quote_number)
-
-// const {
-//   first_name,
-//   last_name,
-//   email_address,
-//   phone_number,
-//   id: hplUserId,
-// } = storage.value
-
-// const storeQuoteData = await quoteStore.getQuoteSingle(
-//   quoteNumberToNumber.value
-// )
-
-// const { data: quoteData } = await useAsyncData('quote', async () => {
-//   const quoteNumber: () => any = () => {
-//     if (route.name === 'checkout') {
-//       return route.query.quote_number
-//         ? route.query.quote_number
-//         : route.query.quotenumber
-//     } else if (quoteStore.quote_number === null) {
-//       // return useStorage('quote_number', 2583)
-//     } else {
-//       return quoteStore.quote_number
-//     }
-//   }
-//   console.log('Quote Number in function', quoteNumber())
-//   const { data } = await supabase
-//     .from('quotes')
-//     .select('*, vehicle_type(vehicle_image)')
-//     .eq('quote_number', quoteNumber())
-//     .single()
-//   console.log('quote data:', data)
-//   return data
-// })
-
-const {
-  calculatedDistance,
-  destination_formatted_address,
-  destination_name,
-  destination_place_id,
-  distanceText,
-  distanceValue,
-  durationText,
-  durationValue,
-  email_address,
-  endLat,
-  endLng,
-  first_name,
-  hoursLabel,
-  hoursValue,
-  hplUserId,
-  isItHourly,
-  isRoundTrip,
-  last_name,
-  origin_formatted_address,
-  origin_name,
-  origin_place_id,
-  passengersLabel,
-  passengersValue,
-  phone_number,
-  pickupDate,
-  pickupTime,
-  quote_number,
-  returnDate,
-  returnTime,
-  serviceTypeLabel,
-  serviceTypeValue,
-  startLat,
-  startLng,
-  totalFare,
-  vehicleTypeLabel,
-  vehicleTypeValue,
-  vehicle_image,
-  isPearsonAirportDropoff,
-  isPearsonAirportPickup,
-  baseRate,
-  fuelSurcharge,
-  gratuity,
-  HST,
-} = cartData.value as unknown as Quote
+  base_rate: 127.8459,
+  created_at: '2023-02-20T20:49:42.485Z',
+  is_booked: false,
+  is_round_trip: false,
+  line_items_total: 35.796852,
+  pickup_date: 1677128400000,
+  pickup_time: 1676880300000,
+  quote_number: 6,
+  return_date: 0,
+  return_time: 0,
+  sales_tax_id: 1,
+  selected_hours: null,
+  selected_passengers: 1,
+  service_id: 3,
+  tax_amount: 17.94956436,
+  total_price: 181.59231636,
+  updated_at: '2023-02-20T20:49:42.485Z',
+  user_id: 'b98f28e7-9505-4bb2-8f47-7bc006584828',
+  vehicle_id: 3,
+}
 
 const { addedToCart, loading } = storeToRefs(cartStore)
 
+const prices = []
+
+// calculate one-way prices
+const oneWayPrice = {
+  total_price: parseFloat(newQuote.total_price.toFixed(2)),
+  tax_amount: parseFloat(newQuote.tax_amount.toFixed(2)),
+  base_rate: parseFloat(newQuote.base_rate.toFixed(2)),
+  line_items: lineItemsList.map((item) => ({
+    label: item.label,
+    total: parseFloat(item.total.toFixed(2)),
+    id: item.id,
+  })),
+}
+prices.push(oneWayPrice)
+
+// calculate round-trip prices
+if (newQuote.is_round_trip === true) {
+  const roundTripPrice = {
+    total_price: parseFloat((newQuote.total_price * 2).toFixed(2)),
+    tax_amount: parseFloat((newQuote.tax_amount * 2).toFixed(2)),
+    base_rate: parseFloat((newQuote.base_rate * 2).toFixed(2)),
+    line_items: lineItemsList.map((item) => ({
+      label: item.label,
+      total: parseFloat((item.total * 2).toFixed(2)),
+      id: item.id,
+    })),
+  }
+  prices.push(roundTripPrice)
+}
+
+// prices array now contains both one-way and round-trip versions
+console.log(prices)
+
 const returnServiceTypeLabel = computed(() => {
-  if (isRoundTrip && serviceTypeLabel === 'To Airport') {
+  if (newQuote.is_round_trip && newQuote.service.label === 'To Airport') {
     return 'From Airport'
   }
-  return isRoundTrip && serviceTypeLabel === 'From Airport'
+  return newQuote.is_round_trip && newQuote.service.label === 'From Airport'
     ? 'To Airport'
-    : serviceTypeLabel
+    : newQuote.service.label
 })
 
-const pickupAddress = formatAddress(origin_name, origin_formatted_address)
+const pickupAddress = formatAddress(
+  newQuote.trips[0].origin_name,
+  newQuote.trips[0].origin_formatted_address
+)
 const dropOffAddress = formatAddress(
-  destination_name,
-  destination_formatted_address
+  newQuote.trips[0].destination_name,
+  newQuote.trips[0].destination_formatted_address
 )
 
 // const roundTripFare = (roundTrip: boolean | null, fare: number | null) => {
@@ -137,144 +124,144 @@ const dropOffAddress = formatAddress(
 //   }
 //   return roundTrip ? fare * 2 : fare
 // }
-const pearsonAirportFee = (
-  isPickup: boolean | null,
-  isDropoff: boolean | null
-) => {
-  if (isPickup) {
-    return 15
-  } else if (isDropoff && isRoundTrip) {
-    return 15
-  } else {
-    return 0
-  }
-}
-const addPearsonFee = pearsonAirportFee(
-  isPearsonAirportPickup,
-  isPearsonAirportDropoff
-)
-const roundTripBaseRate = computed(() => {
-  const fare = isRoundTrip ? baseRate * 2 : 0
-  return fare.toFixed(2)
-})
+// const pearsonAirportFee = (
+//   isPickup: boolean | null,
+//   isDropoff: boolean | null
+// ) => {
+//   if (isPickup) {
+//     return 15
+//   } else if (isDropoff && isRoundTrip) {
+//     return 15
+//   } else {
+//     return 0
+//   }
+// }
+// const addPearsonFee = pearsonAirportFee(
+//   isPearsonAirportPickup,
+//   isPearsonAirportDropoff
+// )
+// const roundTripBaseRate = computed(() => {
+//   const fare = isRoundTrip ? baseRate * 2 : 0
+//   return fare.toFixed(2)
+// })
 
-const roundTripGratuity = computed(() => {
-  const fare = isRoundTrip ? gratuity * 2 : 0
-  return fare.toFixed(2)
-})
+// const roundTripGratuity = computed(() => {
+//   const fare = isRoundTrip ? gratuity * 2 : 0
+//   return fare.toFixed(2)
+// })
 
-const roundTripHST = computed(() => {
-  const fare = isRoundTrip ? HST * 2 : 0
-  return fare.toFixed(2)
-})
+// const roundTripHST = computed(() => {
+//   const fare = isRoundTrip ? HST * 2 : 0
+//   return fare.toFixed(2)
+// })
 
-const roundTripFuelSurcharge = computed(() => {
-  const fare = isRoundTrip ? fuelSurcharge * 2 : 0
-  return fare.toFixed(2)
-})
-const roundTripFareSubtotal = computed(() => {
-  const fare = isRoundTrip ? totalFare * 2 : 0
-  return fare
-})
-const roundTripTotalFare = computed(() => {
-  return addPearsonFee === 15
-    ? roundTripFareSubtotal.value + addPearsonFee
-    : roundTripFareSubtotal
-})
+// const roundTripFuelSurcharge = computed(() => {
+//   const fare = isRoundTrip ? fuelSurcharge * 2 : 0
+//   return fare.toFixed(2)
+// })
+// const roundTripFareSubtotal = computed(() => {
+//   const fare = isRoundTrip ? totalFare * 2 : 0
+//   return fare
+// })
+// const roundTripTotalFare = computed(() => {
+//   return addPearsonFee === 15
+//     ? roundTripFareSubtotal.value + addPearsonFee
+//     : roundTripFareSubtotal
+// })
 
-const totalFareWithAirportFee = computed(() => {
-  if (!totalFare) {
-    return 0
-  }
-  return addPearsonFee === 15 ? totalFare + addPearsonFee : totalFare
-})
+// const totalFareWithAirportFee = computed(() => {
+//   if (!totalFare) {
+//     return 0
+//   }
+//   return addPearsonFee === 15 ? totalFare + addPearsonFee : totalFare
+// })
 
 const currentDate = format(new Date(), 'MMMM dd, yyyy')
 
-//checkout
-const loadingCheckout = ref(false)
-const createSession = async () => {
-  loadingCheckout.value = true
+// //checkout
+// const loadingCheckout = ref(false)
+// const createSession = async () => {
+//   loadingCheckout.value = true
 
-  const checkoutBody = {
-    firstName: first_name,
-    lastName: last_name,
-    emailAddress: email_address,
-    customerId: hplUserId,
-    phoneNumber: phone_number,
-    quoteNumber: quote_number,
-    vehicle_image,
-    //@ts-ignore
-    quote: cartData.value,
-  }
-  const { data: stripeCustomer } = await useFetch('/api/create-customer', {
-    method: 'POST',
-    body: checkoutBody,
-  })
-  //@ts-ignore
-  const { id: stripCustomerId } = stripeCustomer.value.data
-  const { data: stripeData } = await useFetch(`/api/create-checkout-session`, {
-    method: 'POST',
-    body: { checkoutBody, stripCustomerId },
-  })
+// const checkoutBody = {
+//   firstName: first_name,
+//   lastName: last_name,
+//   emailAddress: email_address,
+//   customerId: hplUserId,
+//   phoneNumber: phone_number,
+//   quoteNumber: quote_number,
+//   vehicle_image,
+//   //@ts-ignore
+//   quote: cartData.value,
+// }
+//   const { data: stripeCustomer } = await useFetch('/api/create-customer', {
+//     method: 'POST',
+//     body: checkoutBody,
+//   })
+//   //@ts-ignore
+//   const { id: stripCustomerId } = stripeCustomer.value.data
+//   const { data: stripeData } = await useFetch(`/api/create-checkout-session`, {
+//     method: 'POST',
+//     body: { checkoutBody, stripCustomerId },
+//   })
 
-  console.log('Stripe customer id', stripCustomerId)
-  console.log('Stripe Returned Data:', stripeData.value)
-  // const { data: conversion } = await useFetch(`/api/post-conversion`, {
-  //   method: 'POST',
-  //   body: checkoutBody,
-  // })
-  const { statusCode, url, stripeCustomerId, sessionId } =
-    stripeData.value as ReturnType
-  console.log(
-    'Returned Stripe Data',
-    statusCode,
-    url,
-    stripeCustomerId,
-    sessionId
-  )
-  if (stripeData?.value?.stripeCustomerId) {
-    const stripeCustomerId = ref(stripeData.value.stripeCustomerId)
-    const { data: userData } = await useAsyncData('user', async () => {
-      const { data, error } = await supabase
-        .from('user')
-        .update({ stripe_customer_id: stripeCustomerId.value })
-        .eq('id', hplUserId)
-      console.log('Updated User Data', data, error)
-      return data
-    })
-    console.log('Updated User Data', userData.value)
-  } else {
-    console.log('No Stripe Customer Id found')
-  }
+//   console.log('Stripe customer id', stripCustomerId)
+//   console.log('Stripe Returned Data:', stripeData.value)
+//   // const { data: conversion } = await useFetch(`/api/post-conversion`, {
+//   //   method: 'POST',
+//   //   body: checkoutBody,
+//   // })
+//   const { statusCode, url, stripeCustomerId, sessionId } =
+//     stripeData.value as ReturnType
+//   console.log(
+//     'Returned Stripe Data',
+//     statusCode,
+//     url,
+//     stripeCustomerId,
+//     sessionId
+//   )
+//   if (stripeData?.value?.stripeCustomerId) {
+//     const stripeCustomerId = ref(stripeData.value.stripeCustomerId)
+//     const { data: userData } = await useAsyncData('user', async () => {
+//       const { data, error } = await supabase
+//         .from('user')
+//         .update({ stripe_customer_id: stripeCustomerId.value })
+//         .eq('id', hplUserId)
+//       console.log('Updated User Data', data, error)
+//       return data
+//     })
+//     console.log('Updated User Data', userData.value)
+//   } else {
+//     console.log('No Stripe Customer Id found')
+//   }
 
-  setTimeout(async () => {
-    loadingCheckout.value = false
-    await navigateTo(url, {
-      redirectCode: 303,
-      external: true,
-    })
-  }, 1500)
-}
+//   setTimeout(async () => {
+//     loadingCheckout.value = false
+//     await navigateTo(url, {
+//       redirectCode: 303,
+//       external: true,
+//     })
+//   }, 1500)
+// }
 
 const formattedPickupDate = computed(() => {
-  return isValid(new Date(pickupDate))
-    ? formatDateNew(pickupDate)
+  return isValid(new Date(newQuote.pickup_date))
+    ? format(new Date(newQuote.pickup_date), 'MMMM dd, yyyy')
     : 'January 1, 2023'
 })
 const formattedPickupTime = computed(() => {
-  return isValid(new Date(pickupTime))
-    ? format(new Date(pickupTime), 'hh:mm a')
+  return isValid(new Date(newQuote.pickup_time))
+    ? format(new Date(newQuote.pickup_time), 'hh:mm a')
     : '12:00'
 })
 const formattedReturnDate = computed(() => {
-  return isValid(new Date(returnDate))
-    ? formatDateNew(returnDate)
+  return isValid(new Date(newQuote.return_date))
+    ? format(new Date(newQuote.return_date), 'MMMM dd, yyyy')
     : 'January 1, 2023'
 })
 const formattedReturnTime = computed(() => {
-  return isValid(new Date(returnTime))
-    ? format(new Date(returnTime), 'hh:mm a')
+  return isValid(new Date(newQuote.return_time))
+    ? format(new Date(newQuote.return_time), 'hh:mm a')
     : '12:00'
 })
 </script>
@@ -297,7 +284,7 @@ const formattedReturnTime = computed(() => {
           >
         </dt>
         <dd class="font-medium text-red-600">
-          <span>HPL-{{ quote_number }}</span>
+          <span>HPL-{{ newQuote.quote_number }}</span>
         </dd>
         <dt>
           <span class="sr-only">Date</span>
@@ -330,8 +317,8 @@ const formattedReturnTime = computed(() => {
           <li class="flex py-6 sm:py-8">
             <div class="flex-shrink-0">
               <NuxtPicture
-                :src="vehicle_image"
-                :alt="vehicleTypeLabel"
+                :src="newQuote.vehicle.vehicle_image"
+                :alt="newQuote.vehicle.label"
                 :img-attrs="{
                   class:
                     'object-contain object-center w-24 h-24 rounded-md sm:h-48 sm:w-48',
@@ -349,7 +336,7 @@ const formattedReturnTime = computed(() => {
                       <NuxtLink
                         to="#"
                         class="font-medium text-gray-700 hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-200"
-                        >{{ serviceTypeLabel }}
+                        >{{ newQuote.service.label }}
                       </NuxtLink>
                     </h3>
                   </div>
@@ -370,16 +357,16 @@ const formattedReturnTime = computed(() => {
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Vehicle Type: </span
-                      >{{ vehicleTypeLabel }}
+                      >{{ newQuote.vehicle.label }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Passengers: </span
-                      >{{ passengersLabel }}
+                      >{{ newQuote.selected_passengers }}
                     </p>
                   </div>
                   <p class="mt-3 text-sm font-medium">
-                    <span class="text-brand-400">Subtotal: </span>$
-                    {{ baseRate }}
+                    <span class="text-brand-400">Base Rate: </span>$
+                    {{ prices[0].base_rate }}
                   </p>
                 </div>
 
@@ -406,7 +393,7 @@ const formattedReturnTime = computed(() => {
               >
                 <Icon
                   name="heroicons:check-20-solid"
-                  v-if="isRoundTrip"
+                  v-if="newQuote.is_round_trip"
                   class="h-5 w-5 flex-shrink-0 text-green-500"
                   aria-hidden="true"
                 />
@@ -416,15 +403,17 @@ const formattedReturnTime = computed(() => {
                   class="h-5 w-5 flex-shrink-0 text-gray-300"
                   aria-hidden="true"
                 />
-                <span>{{ isRoundTrip ? 'Round Trip' : `One Way Trip` }}</span>
+                <span>{{
+                  newQuote.is_round_trip ? 'Round Trip' : `One Way Trip`
+                }}</span>
               </p>
             </div>
           </li>
-          <li v-if="isRoundTrip" class="flex py-6 sm:py-10">
+          <li v-if="newQuote.is_round_trip" class="flex py-6 sm:py-10">
             <div class="flex-shrink-0">
               <NuxtPicture
-                :src="vehicle_image"
-                :alt="vehicleTypeLabel"
+                :src="newQuote.vehicle.vehicle_image"
+                :alt="newQuote.vehicle.label"
                 :img-attrs="{
                   class:
                     'object-contain object-center w-24 h-24 rounded-md sm:h-48 sm:w-48',
@@ -464,15 +453,16 @@ const formattedReturnTime = computed(() => {
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Vehicle Type: </span
-                      >{{ vehicleTypeLabel }}
+                      >{{ newQuote.vehicle.label }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Passengers: </span
-                      >{{ passengersLabel }}
+                      >{{ newQuote.selected_passengers }}
                     </p>
                   </div>
                   <p class="mt-3 text-sm font-medium">
-                    <span class="text-brand-400">Subtotal: </span>{{ baseRate }}
+                    <span class="text-brand-400">Base Rate: </span
+                    >{{ prices[0].base_rate }}
                   </p>
                 </div>
 
@@ -498,7 +488,7 @@ const formattedReturnTime = computed(() => {
               >
                 <Icon
                   name="heroicons:check-20-solid"
-                  v-if="isRoundTrip"
+                  v-if="newQuote.is_round_trip"
                   class="h-5 w-5 flex-shrink-0 text-green-500"
                   aria-hidden="true"
                 />
@@ -508,7 +498,9 @@ const formattedReturnTime = computed(() => {
                   class="h-5 w-5 flex-shrink-0 text-gray-300"
                   aria-hidden="true"
                 />
-                <span>{{ isRoundTrip ? 'Round Trip' : `One Way Trip` }}</span>
+                <span>{{
+                  newQuote.is_round_trip ? 'Round Trip' : `One Way Trip`
+                }}</span>
               </p>
             </div>
           </li>
@@ -529,24 +521,55 @@ const formattedReturnTime = computed(() => {
 
         <dl class="mt-6 space-y-4">
           <div class="flex items-center justify-between">
-            <dt class="text-sm text-gray-600 dark:text-gray-300">Subtotal</dt>
+            <dt class="text-sm text-gray-600 dark:text-gray-300">Base Rate</dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripBaseRate : baseRate }}
+              $
+              {{
+                newQuote.is_round_trip
+                  ? prices[1].base_rate
+                  : prices[0].base_rate
+              }}
             </dd>
           </div>
           <div
             class="flex items-center justify-between border-t border-gray-200 pt-4"
+            v-for="item in prices[0].line_items"
+            :key="item.id"
           >
             <dt
               class="flex items-center text-sm text-gray-600 dark:text-gray-300"
             >
-              <span>Fuel Surcharge</span>
+              <span>{{ item.label }}</span>
               <a
                 href="#"
                 class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
               >
                 <span class="sr-only"
-                  >Learn more about how fuel surcharge is calculated</span
+                  >Learn more about how {{ item.label }} is calculated</span
+                >
+                <Icon
+                  name="heroicons:question-mark-circle-20-solid"
+                  class="h-5 w-5"
+                  aria-hidden="true"
+                />
+              </a>
+            </dt>
+            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
+              $ {{ item.total }}
+            </dd>
+          </div>
+          <div
+            class="flex items-center justify-between border-t border-gray-200 pt-4"
+          >
+            <dt class="flex text-sm text-gray-600 dark:text-gray-300">
+              <span>{{ newQuote.sales_tax.tax_name }}</span>
+              <a
+                href="#"
+                class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
+              >
+                <span class="sr-only"
+                  >Learn more about how {{ newQuote.sales_tax.tax_name }} is
+                  calculated</span
                 >
                 <Icon
                   name="heroicons:question-mark-circle-20-solid"
@@ -557,79 +580,11 @@ const formattedReturnTime = computed(() => {
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
               $
-              {{ isRoundTrip ? roundTripFuelSurcharge : fuelSurcharge }}
-            </dd>
-          </div>
-          <div
-            class="flex items-center justify-between border-t border-gray-200 pt-4"
-          >
-            <dt
-              class="flex items-center text-sm text-gray-600 dark:text-gray-300"
-            >
-              <span>Gratuity</span>
-              <a
-                href="#"
-                class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-              >
-                <span class="sr-only"
-                  >Learn more about how gratuity is calculated</span
-                >
-                <Icon
-                  name="heroicons:question-mark-circle-20-solid"
-                  class="h-5 w-5"
-                  aria-hidden="true"
-                />
-              </a>
-            </dt>
-            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripGratuity : gratuity }}
-            </dd>
-          </div>
-          <div
-            v-if="addPearsonFee === 15"
-            class="flex items-center justify-between border-t border-gray-200 pt-4"
-          >
-            <dt class="flex text-sm text-gray-600 dark:text-gray-300">
-              <span>Airport Fee</span>
-              <a
-                href="#"
-                class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-              >
-                <span class="sr-only"
-                  >Learn more about the Pearson Airport Fee</span
-                >
-                <Icon
-                  name="heroicons:question-mark-circle-20-solid"
-                  class="h-5 w-5"
-                  aria-hidden="true"
-                />
-              </a>
-            </dt>
-            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ addPearsonFee }}
-            </dd>
-          </div>
-          <div
-            class="flex items-center justify-between border-t border-gray-200 pt-4"
-          >
-            <dt class="flex text-sm text-gray-600 dark:text-gray-300">
-              <span>HST</span>
-              <a
-                href="#"
-                class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-              >
-                <span class="sr-only"
-                  >Learn more about how tax is calculated</span
-                >
-                <Icon
-                  name="heroicons:question-mark-circle-20-solid"
-                  class="h-5 w-5"
-                  aria-hidden="true"
-                />
-              </a>
-            </dt>
-            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $ {{ isRoundTrip ? roundTripHST : HST }}
+              {{
+                newQuote.is_round_trip
+                  ? prices[1].tax_amount
+                  : prices[0].tax_amount
+              }}
             </dd>
           </div>
           <div
@@ -640,7 +595,11 @@ const formattedReturnTime = computed(() => {
             </dt>
             <dd class="text-base font-medium text-gray-900 dark:text-gray-100">
               $
-              {{ roundTripTotalFare }}
+              {{
+                newQuote.is_round_trip
+                  ? prices[1].total_price
+                  : prices[0].total_price
+              }}
             </dd>
           </div>
         </dl>
