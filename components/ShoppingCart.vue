@@ -166,8 +166,9 @@ const createBooking = async () => {
   })
 
   console.log('Stripe Checkout Data', stripeData.value)
-
-  const { customer, session, statusCode } = stripeData.value
+  //@ts-ignore
+  const { customer, session, statusCode, update: prismaData } = stripeData.value
+  console.log('Prisma Data:', prismaData)
   console.log('Stripe Customer:', customer)
   console.log('Stripe Session:', session)
   console.log('Status Code:', statusCode)
@@ -182,65 +183,6 @@ const createBooking = async () => {
     })
   }, 1000)
 }
-
-//checkout
-// const loadingCheckout = ref(false)
-// const createSession = async () => {
-//   loadingCheckout.value = true
-
-//   const checkoutBody = {
-//     firstName: newQuote.user.first_name,
-//     lastName: newQuote.user.last_name,
-//     emailAddress: newQuote.user.email_address,
-//     phoneNumber: newQuote.user.phone_number,
-//     customerId: newQuote.user_id,
-//     quoteNumber: newQuote.quote_number,
-//     vehicle_image: newQuote.vehicle.vehicle_image,
-//     quote: newQuote,
-//   }
-//   const { data: stripeCustomer } = await useFetch('/api/create-customer', {
-//     method: 'POST',
-//     body: checkoutBody,
-//   })
-//   const { id: stripCustomerId } = stripeCustomer.value.data
-//   const { data: stripeData } = await useFetch(`/api/create-checkout-session`, {
-//     method: 'POST',
-//     body: { checkoutBody, stripCustomerId },
-//   })
-
-//   console.log('Stripe customer id', stripCustomerId)
-//   console.log('Stripe Returned Data:', stripeData.value)
-//   const { statusCode, url, stripeCustomerId, sessionId } = stripeData.value
-//   console.log(
-//     'Returned Stripe Data',
-//     statusCode,
-//     url,
-//     stripeCustomerId,
-//     sessionId
-//   )
-//   if (stripeData?.value?.stripeCustomerId) {
-//     const stripeCustomerId = ref(stripeData.value.stripeCustomerId)
-//     const { data: userData } = await useAsyncData('user', async () => {
-//       const { data, error } = await supabase
-//         .from('user')
-//         .update({ stripe_customer_id: stripeCustomerId.value })
-//         .eq('id', hplUserId)
-//       console.log('Updated User Data', data, error)
-//       return data
-//     })
-//     console.log('Updated User Data', userData.value)
-//   } else {
-//     console.log('No Stripe Customer Id found')
-//   }
-
-//   setTimeout(async () => {
-//     loadingCheckout.value = false
-//     await navigateTo(url, {
-//       redirectCode: 303,
-//       external: true,
-//     })
-//   }, 1000)
-// }
 
 const formattedPickupDate = computed(() => {
   return isValid(new Date(newQuote.pickup_date))

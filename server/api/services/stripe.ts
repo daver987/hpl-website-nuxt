@@ -43,7 +43,7 @@ export async function createCheckoutSession(
 				user_id,
 			},
 		},
-		success_url: `${WEBSITE_URL}/success`,
+		success_url: `${WEBSITE_URL}/success?quote_number=${quote_number}`,
 		cancel_url: `${WEBSITE_URL}/cancel`,
 	})
 	return session

@@ -78,6 +78,7 @@ model Quote {
   line_items_total    Float
   tax_amount          Float
   total_price         Float
+  session_id          String?
   user_id             String
   service_id          Int
   vehicle_id          Int

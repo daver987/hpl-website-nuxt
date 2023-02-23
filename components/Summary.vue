@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { format, isValid } from 'date-fns'
-// import { useStorage } from '@vueuse/core'
-import { useQuoteStore } from '~/stores/useQuoteStore'
-import { storeToRefs } from 'pinia'
+import { Quote } from '~/types/Quote'
 
-const quoteStore = useQuoteStore()
-const { quote_number, quote } = storeToRefs(quoteStore)
-// quote_number.value = useStorage('quote_number', '')
-quoteStore.getQuoteSingle()
+const queryString = useRoute().query
+const quoteNumber = queryString.quote_number
+console.log('Quote Number:', quoteNumber)
 
+const { data: newQuote } = await useFetch<Quote>('/api/quote', {
+  query: { quote_number: queryString.quote_number },
+})
+
+const totalPrice = computed(() => {
+  return newQuote.value?.is_round_trip
+    ? newQuote.value.total_price * 2
+    : newQuote.value!.total_price
+})
+const totalPriceFormatted = totalPrice.value.toFixed(2)
 const firstNameQuote = ref()
 const lastNameQuote = ref()
 const userEmailQuote = ref()
@@ -23,84 +30,71 @@ const totalFareQuote = ref()
 const roundTripTotalQuote = ref()
 const isRoundTripQuote = ref()
 
-const {
-  pickupDate,
-  pickupTime,
-  returnDate,
-  returnTime,
-  firstName,
-  lastName,
-  userEmail,
-  origin_name,
-  origin_formatted_address,
-  destination_name,
-  destination_formatted_address,
-  serviceTypeLabel,
-  vehicleTypeLabel,
-  isPearsonAirportDropoff,
-  isPearsonAirportPickup,
-  totalFare,
-  roundTripTotal,
-  isRoundTrip,
-  phone_number,
-} = quote.value[0]
+// const {
+//   pickupDate,
+//   pickupTime,
+//   returnDate,
+//   returnTime,
+//   firstName,
+//   lastName,
+//   userEmail,
+//   origin_name,
+//   origin_formatted_address,
+//   destination_name,
+//   destination_formatted_address,
+//   serviceTypeLabel,
+//   vehicleTypeLabel,
+//   isPearsonAirportDropoff,
+//   isPearsonAirportPickup,
+//   totalFare,
+//   roundTripTotal,
+//   isRoundTrip,
+//   phone_number,
+// } = newQuote
 
-firstNameQuote.value = firstName
-lastNameQuote.value = lastName
-userEmailQuote.value = userEmail
-phoneNumber.value = phone_number
-originNameQuote.value = formatAddress(origin_name, origin_formatted_address)
-destinationNameQuote.value = formatAddress(
-  destination_name,
-  destination_formatted_address
-)
-serviceTypeLabelQuote.value = serviceTypeLabel
-vehicleTypeLabelQuote.value = vehicleTypeLabel
-isPearsonAirportDropoffQuote.value = isPearsonAirportDropoff
-isPearsonAirportPickupQuote.value = isPearsonAirportPickup
-totalFareQuote.value = totalFare
-roundTripTotalQuote.value = roundTripTotal
-isRoundTripQuote.value = isRoundTrip
+// firstNameQuote.value = firstName
+// lastNameQuote.value = lastName
+// userEmailQuote.value = userEmail
+// phoneNumber.value = phone_number
+// originNameQuote.value = formatAddress(origin_name, origin_formatted_address)
+// destinationNameQuote.value = formatAddress(
+//   destination_name,
+//   destination_formatted_address
+// )
+// serviceTypeLabelQuote.value = serviceTypeLabel
+// vehicleTypeLabelQuote.value = vehicleTypeLabel
+// isPearsonAirportDropoffQuote.value = isPearsonAirportDropoff
+// isPearsonAirportPickupQuote.value = isPearsonAirportPickup
+// totalFareQuote.value = totalFare
+// roundTripTotalQuote.value = roundTripTotal
+// isRoundTripQuote.value = isRoundTrip
 
-console.log('Returned Quote from summary', quote.value)
+console.log('Returned Quote from summary', newQuote.value)
 
 const formattedPickupDate = computed(() => {
-  if (isValid(new Date(pickupDate))) {
-    return formatDateNew(pickupDate)
-  } else {
-    return 'January 1, 2023'
-  }
+  return isValid(new Date(newQuote.value!.pickup_date))
+    ? format(new Date(newQuote.value!.pickup_date), 'MMMM dd, yyyy')
+    : 'January 1, 2023'
 })
 const formattedPickupTime = computed(() => {
-  if (isValid(new Date(pickupTime))) {
-    return format(new Date(pickupTime), 'hh:mm a')
-  } else {
-    return '12:00'
-  }
+  return isValid(new Date(newQuote.value!.pickup_time))
+    ? format(new Date(newQuote.value!.pickup_time), 'hh:mm a')
+    : '12:00'
 })
 const formattedReturnDate = computed(() => {
-  if (isValid(new Date(returnDate))) {
-    return formatDateNew(returnDate)
-  } else {
-    return 'January 1, 2023'
-  }
+  return isValid(new Date(newQuote.value!.return_date!))
+    ? format(new Date(newQuote.value!.return_date!), 'MMMM dd, yyyy')
+    : 'January 1, 2023'
 })
 const formattedReturnTime = computed(() => {
-  if (isValid(new Date(returnTime))) {
-    return format(new Date(returnTime), 'hh:mm a')
-  } else {
-    return '12:00'
-  }
+  return isValid(new Date(newQuote.value!.return_time!))
+    ? format(new Date(newQuote.value!.return_time!), 'hh:mm a')
+    : '12:00'
 })
-
-function formatAddress(name: string, address: string) {
-  return address.includes(name) ? address : `${name}, ${address}`
-}
 
 const printSummary = () => {
   window.print()
 }
-const space = ' '
 </script>
 
 <template>
@@ -117,16 +111,21 @@ const space = ' '
           ><span
             class="font-sans text-base font-bold leading-relaxed text-red-600"
           >
-            HPL-{{ quote_number }}</span
+            HPL-{{ newQuote!.quote_number }}</span
           ><br />
           For:
           <span class="font-sans font-normal"
-            >{{ firstNameQuote }} {{ lastNameQuote }}</span
+            >{{ newQuote!.user.first_name }}
+            {{ newQuote!.user.last_name + '  ' }}
+          </span>
+          <span class="font-sans font-medium">
+            {{ newQuote!.user.phone_number }}</span
           >
-          <span class="font-sans font-normal"> {{ phoneNumber }}</span
-          ><br />
+          <br />
           Email:
-          <span class="font-sans font-normal">{{ userEmailQuote }}</span
+          <span class="font-sans font-normal">{{
+            newQuote!.user.email_address
+          }}</span
           ><br />
           Pick up Date:
           <time class="font-sans font-normal" :datetime="formattedPickupDate"
@@ -200,20 +199,20 @@ const space = ' '
               </div>
               <div class="font-normal text-gray-500">
                 <span class="font-sans font-bold text-gray-900">PU: </span
-                >{{ originNameQuote }}
+                >{{ newQuote!.trips[0].origin_full_name }}
               </div>
               <div class="font-normal text-gray-500">
                 <span class="font-sans font-bold text-gray-900">DO: </span>
-                {{ destinationNameQuote }}
+                {{ newQuote!.trips[0].destination_full_name }}
               </div>
               <div class="mt-0.5 text-gray-500 sm:hidden">
                 <span class="font-sans font-bold text-gray-900"
                   >Vehicle Type:
                 </span>
-                {{ serviceTypeLabelQuote }}<br /><span
+                {{ newQuote!.vehicle.label }}<br /><span
                   class="font-bold text-gray-900"
                   >Service Type: </span
-                >{{ vehicleTypeLabelQuote }}
+                >{{ newQuote!.service.label }}
               </div>
             </td>
             <td
@@ -231,40 +230,44 @@ const space = ' '
               v-else
               class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-              {{ serviceTypeLabelQuote }}
+              {{ newQuote!.service.label }}
             </td>
             <td
               class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-              {{ vehicleTypeLabelQuote }}
+              {{ newQuote!.vehicle.label }}
             </td>
             <td
               class="py-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
-              ${{ totalFareQuote ? totalFareQuote?.toFixed(2) : 'Loading....' }}
+              ${{
+                newQuote?.total_price
+                  ? newQuote?.total_price?.toFixed(2)
+                  : 'Loading....'
+              }}
             </td>
           </tr>
-          <tr v-if="isRoundTripQuote" class="border-b border-gray-200">
+          <tr v-if="newQuote!.is_round_trip" class="border-b border-gray-200">
             <td class="py-4 pl-4 pr-3 text-sm sm:pl-6 md:pl-0">
               <div class="mt-0.5 text-gray-500 sm:hidden">
                 <span class="font-sans font-bold text-gray-900">Routing </span>
               </div>
               <div class="font-normal text-gray-500">
                 <span class="font-sans font-bold text-gray-900">PU: </span
-                >{{ destinationNameQuote }}
+                >{{ newQuote!.trips[0].destination_full_name }}
               </div>
               <div class="font-normal text-gray-500">
                 <span class="font-sans font-bold text-gray-900">DO: </span>
-                {{ originNameQuote }}
+                {{ newQuote!.trips[0].origin_full_name }}
               </div>
               <div class="mt-0.5 text-gray-500 sm:hidden">
                 <span class="font-sans font-bold text-gray-900"
                   >Vehicle Type:
                 </span>
-                {{ serviceTypeLabelQuote }}<br /><span
+                {{ newQuote!.service.label }}<br /><span
                   class="font-sans font-bold text-gray-900"
                   >Service Type: </span
-                >{{ vehicleTypeLabelQuote }}
+                >{{ newQuote!.vehicle.label }}
               </div>
             </td>
             <td
@@ -282,17 +285,21 @@ const space = ' '
               v-else
               class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-              {{ serviceTypeLabelQuote }}
+              {{ newQuote!.service.label }}
             </td>
             <td
               class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-              {{ vehicleTypeLabelQuote }}
+              {{ newQuote!.vehicle.label }}
             </td>
             <td
               class="py-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
-              ${{ totalFareQuote ? totalFareQuote?.toFixed(2) : 'Loading....' }}
+              ${{
+                newQuote?.total_price
+                  ? newQuote?.total_price?.toFixed(2)
+                  : 'Loading....'
+              }}
             </td>
           </tr>
         </tbody>
@@ -319,6 +326,7 @@ const space = ' '
           </tr>
           <tr>
             <th
+              v-show="false"
               scope="row"
               colspan="3"
               class="hidden pt-4 pl-6 pr-3 text-right font-sans text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
@@ -326,12 +334,14 @@ const space = ' '
               Airport Fee
             </th>
             <th
+              v-show="false"
               scope="row"
               class="pt-4 pl-4 pr-3 text-left font-sans text-sm font-normal text-gray-500 sm:hidden"
             >
               Airport Fee
             </th>
             <td
+              v-show="false"
               class="pt-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
               ${{
@@ -358,7 +368,7 @@ const space = ' '
             <td
               class="pt-3 pl-3 pr-4 text-right font-sans text-sm font-semibold text-gray-900 sm:pr-6 md:pr-0"
             >
-              ${{ roundTripTotalQuote }}
+              ${{ totalPriceFormatted }}
             </td>
           </tr>
         </tfoot>

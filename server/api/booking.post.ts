@@ -4,6 +4,7 @@ import { createCustomer, getCustomerByEmail } from './services/stripe'
 const WEBSITE_URL = useRuntimeConfig().public.WEBSITE_URL
 
 export default defineEventHandler(async (event) => {
+	const prisma = event.context.prisma
 	const body = await readBody(event)
 
 	// Get the email and pickup date from the request body
@@ -23,8 +24,27 @@ export default defineEventHandler(async (event) => {
 		// Create a checkout session
 		const session = await createCheckoutSession(newQuote, stripeId, WEBSITE_URL)
 
+		// Add the session ID and stripe ID to the user and quotes table
+		const update = await prisma.user.update({
+			where: {
+				email_address: newQuote.user.email_address,
+			},
+			data: {
+				stripe_customer_id: stripeId,
+				quotes: {
+					update: {
+						where: {
+							quote_number: newQuote.quote_number,
+						},
+						data: {
+							session_id: session.id,
+						},
+					},
+				},
+			},
+		})
 		// Return the session ID to the client
-		return { session, customer, statusCode: 200 }
+		return { update, session, customer, statusCode: 200 }
 	} catch (err) {
 		// Handle any errors that occur
 		throw err
