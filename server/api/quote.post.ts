@@ -1,6 +1,12 @@
 import { usePricingEngine } from '~/composables/usePricingEngine'
 import { Quote } from '~/schema/quoteSchema'
 import { Conversion } from '~/schema/conversionSchema'
+import { createAircallContact } from './services/createAircallContact'
+import { sendEmail } from './services/sendEmail'
+import { formatAddress } from '~/utils/formatAddress'
+
+const zapierEmail = useRuntimeConfig().ZAPIER_WEBHOOK_EMAIL
+const aircallSecret = useRuntimeConfig().AIRCALL_API_TOKEN
 
 export default defineEventHandler(async (event) => {
   try {
@@ -82,6 +88,10 @@ export default defineEventHandler(async (event) => {
                       .start_location.lng,
                   origin_name: origin.name,
                   origin_formatted_address: origin.formatted_address,
+                  origin_full_name: formatAddress(
+                    origin.name,
+                    origin.formatted_address
+                  ),
                   origin_place_id: origin.place_id,
                   origin_types: origin.types,
                   destination_lat:
@@ -92,6 +102,10 @@ export default defineEventHandler(async (event) => {
                       .end_location.lng,
                   destination_name: origin.name,
                   destination_formatted_address: origin.formatted_address,
+                  destination_full_name: formatAddress(
+                    destination.name,
+                    destination.formatted_address
+                  ),
                   destination_place_id: origin.place_id,
                   destination_types: origin.types,
                   distance: pricingEngine.distance.value,
@@ -107,6 +121,10 @@ export default defineEventHandler(async (event) => {
                       .end_location.lng,
                   origin_name: origin.name,
                   origin_formatted_address: origin.formatted_address,
+                  origin_full_name: formatAddress(
+                    origin.name,
+                    origin.formatted_address
+                  ),
                   origin_place_id: origin.place_id,
                   origin_types: origin.types,
                   destination_lat:
@@ -117,6 +135,10 @@ export default defineEventHandler(async (event) => {
                       .start_location.lng,
                   destination_name: destination.name,
                   destination_formatted_address: destination.formatted_address,
+                  destination_full_name: formatAddress(
+                    destination.name,
+                    destination.formatted_address
+                  ),
                   destination_place_id: destination.place_id,
                   destination_types: destination.types,
                   distance: pricingEngine.distance.value,
@@ -134,6 +156,10 @@ export default defineEventHandler(async (event) => {
                       .start_location.lng,
                   origin_name: origin.name,
                   origin_formatted_address: origin.formatted_address,
+                  origin_full_name: formatAddress(
+                    origin.name,
+                    origin.formatted_address
+                  ),
                   origin_place_id: origin.place_id,
                   origin_types: origin.types,
                   destination_lat:
@@ -144,6 +170,10 @@ export default defineEventHandler(async (event) => {
                       .end_location.lng,
                   destination_name: destination.name,
                   destination_formatted_address: destination.formatted_address,
+                  destination_full_name: formatAddress(
+                    destination.name,
+                    destination.formatted_address
+                  ),
                   destination_place_id: destination.place_id,
                   destination_types: destination.types,
                   distance: pricingEngine.distance.value,
@@ -193,10 +223,14 @@ export default defineEventHandler(async (event) => {
         vehicle: true,
         service: true,
         trips: true,
+        user: true,
       },
     })
 
     console.log(newQuote)
+
+    await sendEmail(zapierEmail, newQuote)
+    await createAircallContact(aircallSecret, newQuote)
 
     return {
       newQuote,

@@ -30,15 +30,15 @@
     "@nuxtjs/robots": "^3.0.0",
     "@nuxtjs/supabase": "^0.3.1",
     "@nuxtjs/tailwindcss": "^6.4.1",
-    "@pinia/nuxt": "^0.4.6",
-    "@stripe/stripe-js": "^1.46.0",
+    "@pinia/nuxt": "^0.4.7",
+    "@stripe/stripe-js": "^1.47.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/container-queries": "^0.1.0",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.9",
     "@types/google.maps": "^3.52.0",
     "@types/ip": "^1.1.0",
-    "@types/uuid": "^9.0.0",
+    "@types/uuid": "^9.0.1",
     "@types/vue-tel-input": "^2.1.2",
     "@vee-validate/zod": "^4.7.4",
     "@vueuse/math": "^9.13.0",
@@ -57,7 +57,7 @@
     "start-server-and-test": "^1.15.4",
     "stripe": "^11.11.0",
     "supabase-to-zod": "^1.0.4",
-    "twilio": "^4.7.2",
+    "twilio": "^4.8.0",
     "uuid": "^9.0.0",
     "vee-validate": "^4.7.4",
     "vite-node": "^0.28.5",
@@ -70,6 +70,6 @@
   },
   "dependencies": {
     "@prisma/client": "4.10.1",
-    "@total-typescript/ts-reset": "0.3.2"
+    "@total-typescript/ts-reset": "0.3.7"
   }
 }

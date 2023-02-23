@@ -23,15 +23,17 @@ const directionsSchema = z.object({
 type DirectionsApiResponse = z.infer<typeof directionsSchema>
 
 // Vehicle Type interface
-export interface VehicleType {
-  value: number
-  label: string
-  per_km: number
-  per_hour: number
-  min_rate: number
-  min_distance: number
-  is_active: boolean
-}
+export const vehicleSchema = z.object({
+  value: z.number(),
+  label: z.string(),
+  per_km: z.number(),
+  per_hour: z.number(),
+  min_rate: z.number(),
+  min_distance: z.number(),
+  is_active: z.boolean(),
+})
+
+export type VehicleType = z.infer<typeof vehicleSchema>
 
 // Service Type interface
 export interface ServiceType {
@@ -89,7 +91,7 @@ export async function calculateDistance(
 
 // Pricing Engine function
 export function usePricingEngine(
-  vehicleTypes: VehicleType[],
+  vehicleTypes: Vehicle[],
   serviceTypes: ServiceType[],
   lineItems: LineItem[],
   taxes: SalesTax[]

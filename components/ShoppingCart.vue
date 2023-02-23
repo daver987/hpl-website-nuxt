@@ -6,6 +6,7 @@ import { useQuoteStore } from '~/stores/useQuoteStore'
 
 const quoteStore = useQuoteStore()
 const { userQuoteData } = storeToRefs(quoteStore)
+//@ts-ignore
 const { newQuote, lineItemsList } = userQuoteData.value
 const cartStore = useCartStore()
 
@@ -67,14 +68,45 @@ const newQuoteTest = {
 
 const { addedToCart, loading } = storeToRefs(cartStore)
 
-const prices = []
+interface LineItem {
+  label: string
+  total: number
+  id: number
+}
+
+interface NewQuote {
+  trips: any[]
+  sales_tax: { tax_name: string }
+  service: { label: string }
+  vehicle: { label: string; vehicle_image: string }
+  base_rate: number
+  created_at: string
+  is_booked: boolean
+  is_round_trip: boolean
+  line_items_total: number
+  pickup_date: number
+  pickup_time: number
+  quote_number: number
+  return_date: any
+  return_time: any
+  sales_tax_id: number
+  selected_hours: any
+  service_id: number
+  tax_amount: number
+  total_price: number
+  updated_at: string
+  user_id: string
+  vehicle_id: number
+}
+
+const prices: any[] = []
 
 // calculate one-way prices
 const oneWayPrice = {
   total_price: parseFloat(newQuote.total_price.toFixed(2)),
   tax_amount: parseFloat(newQuote.tax_amount.toFixed(2)),
   base_rate: parseFloat(newQuote.base_rate.toFixed(2)),
-  line_items: lineItemsList.map((item) => ({
+  line_items: lineItemsList.map((item: LineItem) => ({
     label: item.label,
     total: parseFloat(item.total.toFixed(2)),
     id: item.id,
@@ -88,7 +120,7 @@ if (newQuote.is_round_trip === true) {
     total_price: parseFloat((newQuote.total_price * 2).toFixed(2)),
     tax_amount: parseFloat((newQuote.tax_amount * 2).toFixed(2)),
     base_rate: parseFloat((newQuote.base_rate * 2).toFixed(2)),
-    line_items: lineItemsList.map((item) => ({
+    line_items: lineItemsList.map((item: LineItem) => ({
       label: item.label,
       total: parseFloat((item.total * 2).toFixed(2)),
       id: item.id,
@@ -118,87 +150,58 @@ const dropOffAddress = formatAddress(
   newQuote.trips[0].destination_formatted_address
 )
 
-// const roundTripFare = (roundTrip: boolean | null, fare: number | null) => {
-//   if (roundTrip === null || fare === null) {
-//     return 0
-//   }
-//   return roundTrip ? fare * 2 : fare
-// }
-// const pearsonAirportFee = (
-//   isPickup: boolean | null,
-//   isDropoff: boolean | null
-// ) => {
-//   if (isPickup) {
-//     return 15
-//   } else if (isDropoff && isRoundTrip) {
-//     return 15
-//   } else {
-//     return 0
-//   }
-// }
-// const addPearsonFee = pearsonAirportFee(
-//   isPearsonAirportPickup,
-//   isPearsonAirportDropoff
-// )
-// const roundTripBaseRate = computed(() => {
-//   const fare = isRoundTrip ? baseRate * 2 : 0
-//   return fare.toFixed(2)
-// })
-
-// const roundTripGratuity = computed(() => {
-//   const fare = isRoundTrip ? gratuity * 2 : 0
-//   return fare.toFixed(2)
-// })
-
-// const roundTripHST = computed(() => {
-//   const fare = isRoundTrip ? HST * 2 : 0
-//   return fare.toFixed(2)
-// })
-
-// const roundTripFuelSurcharge = computed(() => {
-//   const fare = isRoundTrip ? fuelSurcharge * 2 : 0
-//   return fare.toFixed(2)
-// })
-// const roundTripFareSubtotal = computed(() => {
-//   const fare = isRoundTrip ? totalFare * 2 : 0
-//   return fare
-// })
-// const roundTripTotalFare = computed(() => {
-//   return addPearsonFee === 15
-//     ? roundTripFareSubtotal.value + addPearsonFee
-//     : roundTripFareSubtotal
-// })
-
-// const totalFareWithAirportFee = computed(() => {
-//   if (!totalFare) {
-//     return 0
-//   }
-//   return addPearsonFee === 15 ? totalFare + addPearsonFee : totalFare
-// })
-
 const currentDate = format(new Date(), 'MMMM dd, yyyy')
 
-// //checkout
+const checkoutLoading = ref(false)
+
+const createBooking = async () => {
+  checkoutLoading.value = true
+
+  // Save newQuote in localStorage
+  localStorage.setItem('newQuote', JSON.stringify(newQuote))
+
+  const { data: stripeData } = await useFetch('/api/booking', {
+    method: 'POST',
+    body: newQuote,
+  })
+
+  console.log('Stripe Checkout Data', stripeData.value)
+
+  const { customer, session, statusCode } = stripeData.value
+  console.log('Stripe Customer:', customer)
+  console.log('Stripe Session:', session)
+  console.log('Status Code:', statusCode)
+  const { url, id: sessionId } = session
+  const stripeCustomerId = customer.id
+
+  setTimeout(async () => {
+    checkoutLoading.value = false
+    await navigateTo(url, {
+      redirectCode: 303,
+      external: true,
+    })
+  }, 1000)
+}
+
+//checkout
 // const loadingCheckout = ref(false)
 // const createSession = async () => {
 //   loadingCheckout.value = true
 
-// const checkoutBody = {
-//   firstName: first_name,
-//   lastName: last_name,
-//   emailAddress: email_address,
-//   customerId: hplUserId,
-//   phoneNumber: phone_number,
-//   quoteNumber: quote_number,
-//   vehicle_image,
-//   //@ts-ignore
-//   quote: cartData.value,
-// }
+//   const checkoutBody = {
+//     firstName: newQuote.user.first_name,
+//     lastName: newQuote.user.last_name,
+//     emailAddress: newQuote.user.email_address,
+//     phoneNumber: newQuote.user.phone_number,
+//     customerId: newQuote.user_id,
+//     quoteNumber: newQuote.quote_number,
+//     vehicle_image: newQuote.vehicle.vehicle_image,
+//     quote: newQuote,
+//   }
 //   const { data: stripeCustomer } = await useFetch('/api/create-customer', {
 //     method: 'POST',
 //     body: checkoutBody,
 //   })
-//   //@ts-ignore
 //   const { id: stripCustomerId } = stripeCustomer.value.data
 //   const { data: stripeData } = await useFetch(`/api/create-checkout-session`, {
 //     method: 'POST',
@@ -207,12 +210,7 @@ const currentDate = format(new Date(), 'MMMM dd, yyyy')
 
 //   console.log('Stripe customer id', stripCustomerId)
 //   console.log('Stripe Returned Data:', stripeData.value)
-//   // const { data: conversion } = await useFetch(`/api/post-conversion`, {
-//   //   method: 'POST',
-//   //   body: checkoutBody,
-//   // })
-//   const { statusCode, url, stripeCustomerId, sessionId } =
-//     stripeData.value as ReturnType
+//   const { statusCode, url, stripeCustomerId, sessionId } = stripeData.value
 //   console.log(
 //     'Returned Stripe Data',
 //     statusCode,
@@ -241,7 +239,7 @@ const currentDate = format(new Date(), 'MMMM dd, yyyy')
 //       redirectCode: 303,
 //       external: true,
 //     })
-//   }, 1500)
+//   }, 1000)
 // }
 
 const formattedPickupDate = computed(() => {
@@ -615,11 +613,11 @@ const formattedReturnTime = computed(() => {
           </button>
           <button
             v-else
-            @click="createSession"
+            @click="createBooking"
             type="button"
             class="w-full rounded-md border border-transparent bg-red-600 px-4 py-3 text-base font-medium uppercase text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
           >
-            {{ loadingCheckout ? 'Loading...' : 'Book Now' }}
+            {{ checkoutLoading ? 'Loading...' : 'Book Now' }}
           </button>
         </div>
       </section>

@@ -98,12 +98,14 @@ model Trip {
   origin_lng                    Float
   origin_name                   String
   origin_formatted_address      String
+  origin_full_name              String?
   origin_types                  Json
   origin_place_id               String
   destination_lat               Float
   destination_lng               Float
   destination_name              String
   destination_formatted_address String
+  destination_full_name         String?
   destination_types             Json
   destination_place_id          String
   distance                      Float

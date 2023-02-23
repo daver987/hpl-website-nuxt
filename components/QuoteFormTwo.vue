@@ -65,7 +65,6 @@ vehicleTypes.value = vehicleTypesRes?.data || []
 serviceTypes.value = serviceTypesRes?.data || []
 //@ts-ignore
 lineItems.value = lineItemsRes?.data || []
-console.log('line items:', lineItems.value)
 //@ts-ignore
 salesTaxes.value = salesTaxesRes?.data || []
 
@@ -95,7 +94,6 @@ const gtmValues: Conversion = route.query as Conversion
 
 const gtm = useGtm()
 //Todo enable tag manager
-//Todo test and setup round trip functionality
 // todo, test and setup the email to zapier, AI?
 //Todo Setup and test the text message through twilio
 function triggerEvent() {
@@ -295,7 +293,7 @@ async function onSubmit() {
       // Navigate to checkout page
       await navigateTo('/checkout')
       loading.value = false
-    }, 1500)
+    }, 500)
   } catch (e) {
     setTimeout(() => {
       loading.value = false
@@ -303,30 +301,10 @@ async function onSubmit() {
     }, 500)
   }
 }
-
-const handleValidateClick = (e: MouseEvent) => {
-  e.preventDefault()
-  formRef.value?.validate((errors) => {
-    if (errors) {
-      console.log(errors)
-      message.error('Invalid')
-    } else {
-      message.success('Valid')
-    }
-  })
-}
 </script>
 
 <template>
   <n-grid :cols="1">
-    <!-- <n-grid-item :span="1">
-      <n-card>
-        <pre
-          >{{ JSON.stringify(formValue, null, 2) }}
-</pre
-        >
-      </n-card>
-    </n-grid-item> -->
     <n-grid-item :span="1">
       <div
         class="border-1 rounded border border-white bg-black p-4 sm:mx-auto sm:w-full sm:max-w-2xl sm:overflow-hidden sm:rounded-lg"

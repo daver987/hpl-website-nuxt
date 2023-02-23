@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { storeToRefs } from 'pinia'
-import { useCartStore } from '~/stores/useCartStore'
+import { useCartStore, removeFromCart } from '~/stores/useCartStore'
 import { useQuoteStore } from '~/stores/useQuoteStore'
-const { addedToCart } = storeToRefs(useCartStore())
+
+const cartStore = useCartStore()
+const { addedToCart } = storeToRefs(cartStore)
+
 const quoteStore = useQuoteStore()
-const { userQuoteData, isRoundTrip } = storeToRefs(quoteStore)
-console.log('Mini Cart Data', userQuoteData.value)
-//@ts-ignore
-// const { serviceTypeLabel, vehicleTypeLabel } = userQuoteData.value
-const removeFromCart = useCartStore().removeFromCart()
+const { userQuoteData } = storeToRefs(quoteStore)
+
 const itemsInCart = computed(() =>
-  addedToCart.value ? (isRoundTrip ? 2 : 1) : 0
+  //@ts-ignore
+  addedToCart.value ? (userQuoteData.value.is_round_trip ? 2 : 1) : 0
 )
 </script>
 
@@ -71,9 +72,11 @@ const itemsInCart = computed(() =>
               />
               <div class="ml-4 flex-auto">
                 <h3 class="font-sans font-medium text-gray-900">
-                  <NuxtLink to="#">{{ serviceTypeLabel }}</NuxtLink>
+                  <NuxtLink to="#">{{ userQuoteData?.service.label }}</NuxtLink>
                 </h3>
-                <p class="font-sans text-gray-500">{{ vehicleTypeLabel }}</p>
+                <p class="font-sans text-gray-500">
+                  {{ userQuoteData?.service.label }}
+                </p>
               </div>
             </li>
           </ul>
