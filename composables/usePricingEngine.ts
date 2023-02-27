@@ -152,15 +152,18 @@ export function usePricingEngine(
     }
 
     if (selectedServiceType.value === 4) {
-      baseRate.value = selectedHours.value * selectedVehicleType.per_hour
+      baseRate.value = +(
+        selectedHours.value * selectedVehicleType.per_hour
+      ).toFixed(2)
     } else {
       const distanceOverMin = Math.max(
         0,
         distance.value - selectedVehicleType.min_distance
       )
-      baseRate.value =
+      const calculatedBaseRate =
         selectedVehicleType.min_rate +
         distanceOverMin * selectedVehicleType.per_km
+      baseRate.value = +calculatedBaseRate.toFixed(2)
     }
   }
 
@@ -176,8 +179,8 @@ export function usePricingEngine(
 
     const lineItemDetails = filteredLineItems.map((item) => {
       const amount = item.is_percentage
-        ? baseRate.value * (item.amount / 100)
-        : item.amount
+        ? +(baseRate.value * (item.amount / 100)).toFixed(2)
+        : +item.amount.toFixed(2)
 
       lineItemsTotal.value += amount
 
@@ -201,8 +204,10 @@ export function usePricingEngine(
     taxAmount.value = 0
     for (const tax of taxesList.value) {
       if (tax.is_active) {
-        const amount =
-          (tax.amount / 100) * (baseRate.value + taxableLineItemsTotal.value)
+        const amount = +(
+          (tax.amount / 100) *
+          (baseRate.value + taxableLineItemsTotal.value)
+        ).toFixed(2)
         taxAmount.value += amount
       }
     }
