@@ -1,5 +1,6 @@
 import { lineItemSchema } from '~/schema/lineItemSchema'
 import { z } from 'zod'
+
 const items = z.array(lineItemSchema)
 
 export default defineEventHandler(async (event) => {
@@ -7,8 +8,7 @@ export default defineEventHandler(async (event) => {
   try {
     const data = await prisma.lineItem.findMany()
     if (data) {
-      const lineItems = items.parse(data)
-      return lineItems
+      return items.parse(data)
     } else {
       console.log('No data found')
       return 'No data found'

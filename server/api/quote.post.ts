@@ -5,6 +5,11 @@ import { Conversion } from '~/schema/conversionSchema'
 import { createAircallContact } from './services/createAircallContact'
 import { sendEmail } from './services/sendEmail'
 import { formatAddress } from '~/utils/formatAddress'
+import { computed } from 'vue'
+import {
+  useFormattedDate,
+  useFormattedTime,
+} from '~/composables/useFormattedDateTime'
 
 const zapierEmail = useRuntimeConfig().ZAPIER_WEBHOOK_EMAIL
 const aircallSecret = useRuntimeConfig().AIRCALL_API_TOKEN
@@ -38,7 +43,7 @@ export default defineEventHandler(async (event) => {
     } = quoteData
 
     const conversionData = conversion as Conversion
-
+    console.log('SS Quote Data:', quoteData)
     const returnServiceTypeLabel = computed(() =>
       is_round_trip && service_id === 2
         ? 'From Airport'
@@ -67,28 +72,35 @@ export default defineEventHandler(async (event) => {
     // Wait for the distance to be set before updating other values
     await pricingEngine.updateDistance()
     pricingEngine.updateBaseRate()
-    pricingEngine.updateLineItemsTotal()
+    const lineItemsList = pricingEngine.updateLineItemsTotal(originPlaceId)
     pricingEngine.updateTaxAmount()
+
+    const formattedPickupDate = useFormattedDate(pickup_date)
+    const formattedPickupTime = useFormattedTime(pickup_time)
+    const formattedReturnDate = useFormattedDate(return_date)
+    const formattedReturnTime = useFormattedTime(return_time)
+    const returnServiceType = returnServiceTypeLabel.value
+    console.log('Detailed Line Items:', lineItemsList)
 
     const newQuote = await prisma.quote.create({
       data: {
         selected_hours: pricingEngine.selectedHours.value,
         selected_passengers: selected_passengers,
         pickup_date: pickup_date,
-        formatted_pickup_date: useFormattedDate(pickup_date),
+        formatted_pickup_date: formattedPickupDate.value,
         pickup_time: pickup_time,
-        formatted_pickup_time: useFormattedTime(pickup_time),
+        formatted_pickup_time: formattedPickupTime.value,
         return_date: return_date,
-        formatted_return_date: useFormattedDate(return_date),
+        formatted_return_date: formattedReturnDate.value,
         return_time: return_time,
-        formatted_return_time: useFormattedTime(return_time),
+        formatted_return_time: formattedReturnTime.value,
         is_round_trip: is_round_trip,
-        return_service_type: returnServiceTypeLabel,
+        return_service_type: returnServiceType,
         base_rate: pricingEngine.baseRate.value,
         line_items_total: pricingEngine.lineItemsTotal.value,
         tax_amount: pricingEngine.taxAmount.value,
         total_price: pricingEngine.totalPrice.value,
-        line_items_list: pricingEngine.lineItemsList.value,
+        line_items_list: lineItemsList,
         trips: {
           //@ts-ignore
           create: is_round_trip
@@ -218,7 +230,7 @@ export default defineEventHandler(async (event) => {
           },
         },
         sales_tax: {
-          connect: { id: pricingEngine.taxes[0].id },
+          connect: { id: pricingEngine.salesTaxes[0].id },
         },
         vehicle: {
           connect: { value: pricingEngine.vehicleTypeId.value },
@@ -241,7 +253,7 @@ export default defineEventHandler(async (event) => {
         user: true,
       },
     })
-    const quote = quoteSchema.safeParse(newQuote)
+    const quote = newQuote
 
     await sendEmail(zapierEmail, newQuote)
     await createAircallContact(aircallSecret, newQuote)

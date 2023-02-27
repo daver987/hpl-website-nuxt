@@ -13,6 +13,7 @@ export const vehicleSchema = z.object({
   min_rate: z.number(),
   is_active: z.boolean(),
   label: z.string(),
+  vehicle_image: z.string(),
 })
 
 export type Vehicle = z.infer<typeof vehicleSchema>

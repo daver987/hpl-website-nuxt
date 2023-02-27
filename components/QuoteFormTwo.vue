@@ -290,9 +290,11 @@ async function onSubmit() {
       quoteStore.setQuote(quoteData.value as Quote)
       console.log('Routed quote Data', quoteStore.quote)
       // Navigate to checkout page
-      await navigateTo('/checkout')
+      await navigateTo(
+        `/checkout?quote_number=${quoteStore.quote.quote_number}`
+      )
       loading.value = false
-    }, 250)
+    }, 500)
   } catch (e) {
     setTimeout(() => {
       loading.value = false

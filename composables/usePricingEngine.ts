@@ -120,6 +120,7 @@ export function usePricingEngine(
   )
   const taxesList = ref(salesTaxes)
   const lineItemsList = ref(lineItems)
+  const detailedLineItems = ref()
 
   // methods
   async function updateDistance() {
@@ -184,10 +185,11 @@ export function usePricingEngine(
       item.total = amount
       item.label = item.label || ''
 
-      return { label: item.label, amount: amount }
+      return { label: item.label, total: amount }
     })
 
     lineItemsList.value = filteredLineItems
+    detailedLineItems.value = lineItemDetails
 
     return lineItemDetails
   }
@@ -231,6 +233,7 @@ export function usePricingEngine(
     selectedHours,
     distance,
     baseRate,
+    detailedLineItems,
     lineItemsTotal,
     taxableLineItemsTotal,
     taxAmount,

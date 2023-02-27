@@ -10,6 +10,7 @@ export const lineItemSchema = z.object({
   is_taxable: z.boolean(),
   amount: z.number(),
   is_active: z.boolean(),
+  applies_to: z.string().nullable(),
 })
 
 export type LineItem = z.infer<typeof lineItemSchema>

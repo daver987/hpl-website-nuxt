@@ -10,7 +10,8 @@ export const useQuoteStore = defineStore({
 
   actions: {
     setQuote(items: any) {
-      this.quote = items.quote.data
+      this.quote = items.quote
+      console.log('Set Quote Fired')
     },
   },
 })

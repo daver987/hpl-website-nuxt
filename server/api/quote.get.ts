@@ -4,10 +4,11 @@ import { z } from 'zod'
 export const quoteSchema = z
   .object({
     quote_number: z.number(),
-    pickup_date: z.number(),
-    pickup_time: z.number(),
-    return_date: z.number().nullable(),
-    return_time: z.number().nullable(),
+    formatted_pickup_date: z.string(),
+    formatted_pickup_time: z.string(),
+    formatted_return_date: z.string().nullable(),
+    formatted_return_time: z.string().nullable(),
+    return_service_type: z.string(),
     base_rate: z.number(),
     tax_amount: z.number(),
     total_price: z.number(),
@@ -65,7 +66,7 @@ export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event)
     const quote_number = useToNumber(query.quote_number as string)
-    console.log('Server Quote Number:', quote_number)
+    console.log('Server Quote Number:', quote_number.value)
     const data = await prisma.quote.findUnique({
       where: { quote_number: quote_number.value },
       select: {
@@ -113,7 +114,7 @@ export default defineEventHandler(async (event) => {
     })
     console.log('Quote Data ss:', data)
     if (data) {
-      const quote = quoteSchema.safeParse(data)
+      const quote = data
       console.log('Returned Quote:', quote)
       return quote
     } else {

@@ -29,7 +29,9 @@ const cartStore = useCartStore()
 
 const { addedToCart, loading } = storeToRefs(cartStore)
 
-const quote = reactive<Quote>({
+const currentDate = useFormattedDate(new Date())
+
+let quote = reactive<Quote>({
   total_price: 0,
   tax_amount: 0,
   base_rate: 0,
@@ -41,15 +43,20 @@ const quote = reactive<Quote>({
     },
   ],
   is_round_trip: false,
-  vehicle: { label: '', vehicle_image: '' },
+  vehicle: {
+    label: '',
+    vehicle_image:
+      'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/b4bf6461-ba55-48bd-e0ba-d613ae383000/1024',
+  },
   service: { label: '' },
   quote_number: 0,
   selected_hours: 0,
   selected_passengers: 1,
-  pickup_date: 11111111,
-  pickup_time: 11111111,
-  return_date: null,
-  return_time: null,
+  formatted_pickup_date: '',
+  formatted_pickup_time: '',
+  formatted_return_date: null,
+  formatted_return_time: null,
+  return_service_type: '',
   trips: [
     {
       origin_full_name: '',
@@ -65,88 +72,99 @@ const quote = reactive<Quote>({
   },
 })
 
-// const lineItemsList = ref<LineItemsList[]>([])
 const prices = ref<Price[]>([])
 
-const formattedPickupDate = useFormattedDate(quote.pickup_date)
-const formattedPickupTime = useFormattedTime(quote.pickup_time)
-const formattedReturnDate = useFormattedDate(quote.return_date)
-const formattedReturnTime = useFormattedTime(quote.return_time)
-const currentDate = useFormattedDate(new Date())
+const quoteData = ref<any>(null)
+const route = useRoute()
+const quoteNumber = route.query.quote_number as string
+console.log('Quote Number Client:', quoteNumber)
 
-const returnServiceTypeLabel = computed(() =>
-  quote.is_round_trip && quote.service.label === 'To Airport'
-    ? 'From Airport'
-    : quote.is_round_trip && quote.service.label === 'From Airport'
-    ? 'To Airport'
-    : quote.service.label
-)
-
-const pending = ref(false)
-const fetchData = async (quoteNumber: string) => {
-  try {
-    const { data, pending: loading } = await useFetch(`/api/quote`, {
-      method: 'POST',
-      query: { quote_number: quoteNumber },
-    })
-    pending.value = loading.value
-    const quoteData: Quote = data.value as unknown as Quote
-    quote.total_price = parseFloat(quoteData.total_price.toFixed(2))
-    quote.tax_amount = parseFloat(quoteData.tax_amount.toFixed(2))
-    quote.base_rate = parseFloat(quoteData.base_rate.toFixed(2))
-    quote.is_round_trip = quoteData.is_round_trip
-    quote.pickup_date = quoteData.pickup_date
-    quote.pickup_time = quoteData.pickup_time
-    quote.return_date = quoteData.return_date
-    quote.return_time = quoteData.return_time
-    quote.service = quoteData.service
-    quote.vehicle = quoteData.vehicle
-    quote.trips = quoteData.trips
-    quote.line_items_list = quoteData.line_items_list
-    console.log('Fetching Data, Quote Data:', quoteData)
-    await initCheckout()
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-const fetchQuoteFromRoute = async () => {
-  const route = useRoute()
-  const quoteNumber = route.query.quote_number as string
-  console.log('Quote Number Client:', quoteNumber)
-  if (quoteNumber) {
-    await fetchData(quoteNumber)
-  }
-}
-
-const fetchQuoteFromStore = async () => {
-  if (quoteStore.quote) {
-    Object.assign(quote, quoteStore.quote)
-    initCheckout()
-  }
-}
-
-const initCheckout = () => {
-  console.log('Init Checkout')
-  if (quote.is_round_trip) {
-    const roundTripPrice: Price = {
-      total_price: parseFloat((quote.total_price * 2).toFixed(2)),
-      tax_amount: parseFloat((quote.tax_amount * 2).toFixed(2)),
-      base_rate: parseFloat((quote.base_rate * 2).toFixed(2)),
-      line_items: quote.line_items_list.map((item) => ({
-        id: item.id,
-        label: item.label,
-        total: parseFloat((item.total * 2).toFixed(2)),
-      })),
-    }
-    prices.value.push(roundTripPrice)
-  }
-}
-
-onMounted(() => {
-  fetchQuoteFromRoute()
-  fetchQuoteFromStore()
+const { pending, data } = await useFetch('/api/quote', {
+  method: 'GET',
+  query: { quote_number: quoteNumber },
 })
+quoteData.value = data.value as unknown as Quote
+console.log('Fetched Quote from query string', data.value)
+
+watch(quoteData, (newQuoteData) => {
+  Object.assign(quote, newQuoteData.value)
+  console.log('Watch fired for quote from route', newQuoteData.value)
+  // Because posts starts out null, you will not have access
+  // to its contents immediately, but you can watch it.
+})
+
+if (quoteStore.quote) {
+  Object.assign(quote, quoteStore.quote)
+  console.log('Store assigned to quote')
+}
+
+// const fetchData = async (quoteNumber: string) => {
+//   try {
+//     const { data, pending: loading } = await useFetch(`/api/quote`, {
+//       method: 'GET',
+//       query: { quote_number: quoteNumber },
+//     })
+//     pending.value = loading.value
+//     console.log('Getting Data for Store:', data.value)
+//     await quoteStore.setQuote(data.value)
+//     await fetchQuoteFromStore()
+// quote.total_price = parseFloat(quoteData.value.total_price.toFixed(2))
+// quote.tax_amount = parseFloat(quoteData.value.tax_amount.toFixed(2))
+// quote.base_rate = parseFloat(quoteData.value.base_rate.toFixed(2))
+// quote.is_round_trip = quoteData.value.is_round_trip
+// quote.formatted_pickup_date = quoteData.value.formatted_pickup_date
+// quote.formatted_pickup_time = quoteData.value.formatted_pickup_time
+// quote.formatted_return_date = quoteData.value.formatted_return_date
+// quote.formatted_return_time = quoteData.value.formatted_return_time
+// quote.service = quoteData.service
+// quote.vehicle = quoteData.vehicle
+// quote.trips = quoteData.trips
+// quote.line_items_list = quoteData.line_items_list
+//     console.log('Fetching Data, Quote Data:', quote)
+//     await initCheckout()
+//   } catch (error) {
+//     console.log(error)
+//   }
+// }
+
+// const fetchQuoteFromRoute = async () => {
+//   const route = useRoute()
+//   const quoteNumber = route.query.quote_number as string
+//   console.log('Quote Number Client:', quoteNumber)
+//   if (quoteNumber) {
+//     await fetchData(quoteNumber)
+//   }
+// }
+
+// const fetchQuoteFromStore = async () => {
+//   if (quoteStore.quote) {
+//     Object.assign(quote, quoteStore.quote)
+//     initCheckout()
+//   }
+// }
+
+// const initCheckout = () => {
+//   console.log('Init Checkout')
+//   if (quote.is_round_trip) {
+//     const roundTripPrice: Price = {
+//       total_price: parseFloat((quote.total_price * 2).toFixed(2)),
+//       tax_amount: parseFloat((quote.tax_amount * 2).toFixed(2)),
+//       base_rate: parseFloat((quote.base_rate * 2).toFixed(2)),
+//       line_items: quote.line_items_list.map((item) => ({
+//         id: item.id,
+//         label: item.label,
+//         total: parseFloat((item.total * 2).toFixed(2)),
+//       })),
+//     }
+//     prices.value.push(roundTripPrice)
+//   }
+// }
+// await fetchQuoteFromStore()
+
+// onMounted(() => {
+// fetchQuoteFromRoute()
+// fetchQuoteFromStore()
+// })
 
 const checkoutLoading = ref(false)
 
@@ -178,7 +196,6 @@ const createBooking = async (quote: Quote) => {
     console.log('Status Code:', statusCode)
 
     const { url } = session
-    const stripeCustomerId = customer.id
 
     setTimeout(async () => {
       checkoutLoading.value = false
@@ -273,9 +290,9 @@ const createBooking = async (quote: Quote) => {
                   <div class="mt-2 flex flex-col space-y-1 text-sm">
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Date: </span
-                      >{{ formattedPickupDate }}
+                      >{{ quote.formatted_pickup_date }}
                       <span class="text-brand-400">Time: </span>
-                      {{ formattedPickupTime }}
+                      {{ quote.formatted_pickup_time }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span
@@ -362,16 +379,16 @@ const createBooking = async (quote: Quote) => {
                       <NuxtLink
                         to="#"
                         class="font-medium text-gray-700 hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-200"
-                        >{{ returnServiceTypeLabel }}
+                        >{{ quote.return_service_type }}
                       </NuxtLink>
                     </h3>
                   </div>
                   <div class="mt-2 flex flex-col space-y-1 text-sm">
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Date: </span
-                      >{{ formattedReturnDate }}
+                      >{{ quote.formatted_return_date }}
                       <span class="text-brand-400">Time: </span>
-                      {{ formattedReturnTime }}
+                      {{ quote.formatted_return_time }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span
@@ -392,7 +409,7 @@ const createBooking = async (quote: Quote) => {
                   </div>
                   <p class="mt-3 text-sm font-medium">
                     <span class="text-brand-400">Base Rate: </span
-                    >{{ quote.line_items_list[0].total }}
+                    >{{ quote.base_rate }}
                   </p>
                 </div>
 
@@ -454,17 +471,13 @@ const createBooking = async (quote: Quote) => {
             <dt class="text-sm text-gray-600 dark:text-gray-300">Base Rate</dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
               $
-              {{
-                quote.is_round_trip
-                  ? quote.line_items_list[1].total
-                  : quote.line_items_list[0].total
-              }}
+              {{ quote.base_rate }}
             </dd>
           </div>
           <div
             class="flex items-center justify-between border-t border-gray-200 pt-4"
             v-for="item in quote.line_items_list"
-            :key="item.id"
+            :key="item.label"
           >
             <dt
               class="flex items-center text-sm text-gray-600 dark:text-gray-300"
@@ -510,11 +523,7 @@ const createBooking = async (quote: Quote) => {
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
               $
-              {{
-                quote.is_round_trip
-                  ? quote.line_items_list[1].total
-                  : quote.line_items_list[0].total
-              }}
+              {{ quote.tax_amount }}
             </dd>
           </div>
           <div
@@ -525,11 +534,7 @@ const createBooking = async (quote: Quote) => {
             </dt>
             <dd class="text-base font-medium text-gray-900 dark:text-gray-100">
               $
-              {{
-                quote.is_round_trip
-                  ? quote.line_items_list[0].total
-                  : quote.line_items_list[1].total
-              }}
+              {{ quote.total_price }}
             </dd>
           </div>
         </dl>

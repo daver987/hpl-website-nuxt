@@ -71,7 +71,7 @@ model Quote {
   pickup_date           Float
   formatted_pickup_date String?
   pickup_time           Float
-  fomatted_pickup_time  String?
+  formatted_pickup_time String?
   return_date           Float?
   formatted_return_date String?
   return_time           Float?
