@@ -10,13 +10,6 @@ interface LineItem {
   total: number
 }
 
-interface Price {
-  total_price: number
-  tax_amount: number
-  base_rate: number
-  line_items: LineItem[]
-}
-
 interface BookingData {
   customer: { id: string }
   session: { url: string; id: string }
@@ -72,31 +65,29 @@ let quote = reactive<Quote>({
   },
 })
 
-const prices = ref<Price[]>([])
-
-const quoteData = ref<any>(null)
-const route = useRoute()
-const quoteNumber = route.query.quote_number as string
-console.log('Quote Number Client:', quoteNumber)
-
-const { pending, data } = await useFetch('/api/quote', {
-  method: 'GET',
-  query: { quote_number: quoteNumber },
-})
-quoteData.value = data.value as unknown as Quote
-console.log('Fetched Quote from query string', data.value)
-
-watch(quoteData, (newQuoteData) => {
-  Object.assign(quote, newQuoteData.value)
-  console.log('Watch fired for quote from route', newQuoteData.value)
-  // Because posts starts out null, you will not have access
-  // to its contents immediately, but you can watch it.
-})
-
 if (quoteStore.quote) {
   Object.assign(quote, quoteStore.quote)
   console.log('Store assigned to quote')
 }
+
+// const quoteData = ref<any>(null)
+// const route = useRoute()
+// const quoteNumber = route.query.quote_number as string
+// console.log('Quote Number Client:', quoteNumber)
+//
+// const { pending, data } = await useFetch('/api/quote', {
+//   method: 'GET',
+//   query: { quote_number: quoteNumber },
+// })
+// quoteData.value = data.value as unknown as Quote
+// console.log('Fetched Quote from query string', data.value)
+//
+// watch(quoteData, (newQuoteData) => {
+//   Object.assign(quote, newQuoteData.value)
+//   console.log('Watch fired for quote from route', newQuoteData.value)
+//   // Because posts starts out null, you will not have access
+//   // to its contents immediately, but you can watch it.
+// })
 
 // const fetchData = async (quoteNumber: string) => {
 //   try {
@@ -212,11 +203,8 @@ const createBooking = async (quote: Quote) => {
 </script>
 
 <template>
-  <div v-if="pending">Loading ...</div>
-  <main
-    v-else
-    class="mx-auto max-w-2xl px-4 pt-6 pb-8 sm:px-6 lg:max-w-7xl lg:px-8"
-  >
+  <!--  <div v-if="pending">Loading ...</div>-->
+  <main class="mx-auto max-w-2xl px-4 pt-6 pb-8 sm:px-6 lg:max-w-7xl lg:px-8">
     <h1
       class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
     >
