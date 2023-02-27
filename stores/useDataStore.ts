@@ -8,24 +8,24 @@ export const useDataStore = defineStore({
   id: 'data',
 
   state: () => ({
-    vehicleTypes: [] as Vehicle[],
-    serviceTypes: [] as Service[],
     lineItems: [] as LineItem[],
     salesTaxes: [] as SalesTax[],
+    serviceTypes: [] as Service[],
+    vehicleTypes: [] as Vehicle[],
   }),
 
   actions: {
-    setVehicleTypes(vehicles: any) {
-      this.vehicleTypes = vehicles
-    },
-    setServiceTypes(services: any) {
-      this.serviceTypes = services
-    },
     setLineItems(items: any) {
       this.lineItems = items
     },
     setSalesTaxes(taxes: any) {
       this.salesTaxes = taxes
+    },
+    setServiceTypes(services: any) {
+      this.serviceTypes = services
+    },
+    setVehicleTypes(vehicles: any) {
+      this.vehicleTypes = vehicles
     },
   },
 })

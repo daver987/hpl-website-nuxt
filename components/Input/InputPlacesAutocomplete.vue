@@ -93,10 +93,9 @@ const modelValue = ref('')
       :placeholder="placeholder"
       :type="type"
       :value="modelValue"
-      @input="(event) => (modelValue = event.target?.value)"
       class="-mt-1 block w-full border-0 p-0 pb-0.5 capitalize text-gray-900 placeholder-gray-400 focus:ring-0 sm:text-sm"
     />
-    <div v-if="showError === null" class="flex">
+    <div v-if="!showError" class="flex">
       <div class="block text-xs text-red-700">
         <div role="alert">{{ errorMessage }}</div>
       </div>

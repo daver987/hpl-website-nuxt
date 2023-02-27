@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const quoteSchema = z.object({
-  userId: z.string(),
+  user_id: z.string(),
   first_name: z.string(),
   last_name: z.string(),
   email_address: z.string(),
@@ -24,19 +24,19 @@ export const quoteSchema = z.object({
     .strip(),
   pickup_date: z.number(),
   pickup_time: z.number(),
-  return_date: z.number().optional(),
-  return_time: z.number().optional(),
+  return_date: z.number().nullable(),
+  return_time: z.number().nullable(),
   service_id: z.number(),
   vehicle_id: z.number(),
-  selected_hours: z.number().optional(),
+  selected_hours: z.number().nullable(),
   selected_passengers: z.number(),
   is_hourly: z.boolean(),
   is_round_trip: z.boolean(),
   conversion: z.object({}),
-  vehicleTypes: z.any(),
-  serviceTypes: z.any(),
-  lineItems: z.any(),
-  salesTaxes: z.any(),
+  vehicle: z.any(),
+  service: z.any(),
+  line_items: z.any(),
+  sales_tax: z.any(),
 })
 
 export type Quote = z.infer<typeof quoteSchema>

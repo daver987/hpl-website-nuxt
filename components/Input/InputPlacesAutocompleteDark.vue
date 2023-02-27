@@ -37,13 +37,13 @@ const props = defineProps({
     default: false,
   },
 })
-function formatAddress(name: string | undefined, address: string | undefined) {
+
+function formatAddress(name: string, address: string) {
   return address.includes(name) ? address : `${name}, ${address}`
 }
 
 const mapsApiKey = useRuntimeConfig().public.GOOGLE_MAPS_API_KEY
 const autocomplete = ref<google.maps.places.Autocomplete | null>(null)
-const inputField = ref<HTMLInputElement | null>(null)
 const place = ref<google.maps.places.PlaceResult | null>(null)
 
 const loader = new Loader({
@@ -71,8 +71,14 @@ const initAutocomplete = async () => {
 const getAutocompleteComponents = () => {
   place.value = autocomplete.value!.getPlace()
   const { formatted_address, name } = place.value
-  modelValue.value = formatAddress(name, formatted_address)
-  emit('change', place.value)
+  const formattedLocationName = formatAddress(
+    name as string,
+    formatted_address as string
+  )
+  modelValue.value = formattedLocationName
+  const newPlace = { formattedLocationName, ...place.value }
+  console.log(newPlace)
+  emit('change', newPlace)
 }
 
 const emit = defineEmits(['change'])

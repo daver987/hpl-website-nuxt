@@ -1,16 +1,16 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { Quote } from '~/server/api/quote.get'
 
 export const useQuoteStore = defineStore({
   id: 'quoteStore',
 
   state: () => ({
-    userQuoteData: null as null | unknown,
-    isRoundTrip: false,
+    quote: {} as Quote,
   }),
 
   actions: {
-    setQuoteData(quote: any) {
-      this.userQuoteData = quote
+    setQuote(items: any) {
+      this.quote = items.quote.data
     },
   },
 })

@@ -12,28 +12,23 @@ useHead({
 })
 
 const userStore = useUserStore()
-const userId = useStorage('userId', userStore.getUserId())
+const user_id = useStorage('hpl_user_id', userStore.getUserId())
 
-userStore.setUserId(userId.value)
+userStore.setUserId(user_id.value)
 
 const osTheme = useOsTheme()
 const theme = computed(() => (osTheme.value === 'dark' ? darkTheme : null))
-
-//npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types/supabase.ts
-//npx supabase gen types typescript --project-id ssnrhskkuvkhgliiywdw --schema public > types.ts
 </script>
 
 <template>
-  <NConfigProvider :theme="darkTheme">
+  <NConfigProvider :theme="theme">
     <NGlobalStyle />
     <NLoadingBarProvider>
       <NMessageProvider>
-        <NDialogProvider>
-          <NuxtLayout>
-            <SeoKit />
-            <NuxtPage />
-          </NuxtLayout>
-        </NDialogProvider>
+        <NuxtLayout>
+          <SeoKit />
+          <NuxtPage />
+        </NuxtLayout>
       </NMessageProvider>
     </NLoadingBarProvider>
   </NConfigProvider>

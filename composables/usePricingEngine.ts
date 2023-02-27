@@ -1,5 +1,6 @@
-import { computed, ref } from 'vue'
+import { computed, ref, reactive } from 'vue'
 import { z } from 'zod'
+import { usePrecision } from '@vueuse/math'
 
 const directionsSchema = z.object({
   routes: z.array(
@@ -23,46 +24,52 @@ const directionsSchema = z.object({
 type DirectionsApiResponse = z.infer<typeof directionsSchema>
 
 // Vehicle Type interface
-export const vehicleSchema = z.object({
-  value: z.number(),
-  label: z.string(),
-  per_km: z.number(),
-  per_hour: z.number(),
-  min_rate: z.number(),
-  min_distance: z.number(),
-  is_active: z.boolean(),
-})
+export const vehicleSchema = z
+  .object({
+    value: z.number(),
+    label: z.string(),
+    per_km: z.number(),
+    per_hour: z.number(),
+    min_rate: z.number(),
+    min_hours: z.number(),
+    min_distance: z.number(),
+    is_active: z.boolean(),
+  })
+  .strip()
 
-export type VehicleType = z.infer<typeof vehicleSchema>
+export type Vehicle = z.infer<typeof vehicleSchema>
 
 // Service Type interface
-export interface ServiceType {
-  value: number
-  label: string
+export interface Service {
   is_active: boolean
   is_hourly: boolean
+  label: string
+  value: number
 }
 
 // Line Item interface
 export interface LineItem {
-  id?: string
-  label: string
   amount: number
-  is_taxable?: boolean
-  is_percentage?: boolean
+  id?: string
   is_active?: boolean
+  is_percentage?: boolean
+  is_taxable?: boolean
+  label: string
   total?: number
+  applies_to?: string | null
 }
 
 // Tax interface
 export interface SalesTax {
-  id: number
-  region: string
   amount: number
+  id: number
   is_active: boolean
+  region: string
   tax_name: string
 }
+
 const config = useRuntimeConfig().public.GOOGLE_MAPS_API_KEY
+
 // Distance Calculation function
 export async function calculateDistance(
   origin: string,
@@ -91,10 +98,10 @@ export async function calculateDistance(
 
 // Pricing Engine function
 export function usePricingEngine(
-  vehicleTypes: Vehicle[],
-  serviceTypes: ServiceType[],
+  vehicles: Vehicle[],
+  services: Service[],
   lineItems: LineItem[],
-  taxes: SalesTax[]
+  salesTaxes: SalesTax[]
 ) {
   // state variables
   const origin = ref('')
@@ -111,8 +118,8 @@ export function usePricingEngine(
   const totalPrice = computed(
     () => baseRate.value + lineItemsTotal.value + taxAmount.value
   )
-  const taxesList = ref(taxes)
-  const lineItemsList = ref([...lineItems])
+  const taxesList = ref(salesTaxes)
+  const lineItemsList = ref(lineItems)
 
   // methods
   async function updateDistance() {
@@ -125,10 +132,10 @@ export function usePricingEngine(
   }
 
   function updateBaseRate() {
-    const selectedVehicleType = vehicleTypes.find(
+    const selectedVehicleType = vehicles.find(
       (v) => v.value === vehicleTypeId.value
     )
-    const selectedServiceType = serviceTypes.find(
+    const selectedServiceType = services.find(
       (s) => s.value === serviceTypeId.value
     )
 
@@ -153,37 +160,35 @@ export function usePricingEngine(
     }
   }
 
-  function updateLineItemsTotal() {
+  function updateLineItemsTotal(originRef: string) {
     lineItemsTotal.value = 0
     taxableLineItemsTotal.value = 0
-    const lineItemDetails: LineItem[] = []
 
-    for (const item of lineItemsList.value) {
+    const filteredLineItems = lineItemsList.value
+      .filter((item) => {
+        return item.applies_to === null || item.applies_to === originRef
+      })
+      .filter((item) => item.is_active)
+
+    const lineItemDetails = filteredLineItems.map((item) => {
       const amount = item.is_percentage
         ? baseRate.value * (item.amount / 100)
         : item.amount
+
       lineItemsTotal.value += amount
 
       if (item.is_taxable) {
         taxableLineItemsTotal.value += amount
       }
 
-      // add label and amount to a new array
       item.total = amount
       item.label = item.label || ''
-      lineItemDetails.push({ label: item.label, amount: amount })
-    }
 
-    // update lineItemsList to include the updated totals for each item
-    lineItemsList.value = lineItemsList.value.map((item, index) => {
-      return {
-        ...item,
-        total: lineItemDetails[index].amount,
-        label: lineItemDetails[index].label,
-      }
+      return { label: item.label, amount: amount }
     })
 
-    // return the new array of line item details
+    lineItemsList.value = filteredLineItems
+
     return lineItemDetails
   }
 
@@ -216,11 +221,11 @@ export function usePricingEngine(
     origin,
     destination,
     routeData,
-    vehicleTypes,
-    serviceTypes,
+    vehicles,
+    services,
     lineItems,
     lineItemsList,
-    taxes,
+    salesTaxes,
     vehicleTypeId,
     serviceTypeId,
     selectedHours,

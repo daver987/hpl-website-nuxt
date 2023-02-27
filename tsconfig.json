@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "target": "es5",
+    "target": "es2022",
     "sourceMap": true,
     "lib": ["es2018", "dom", "esnext"]
   },

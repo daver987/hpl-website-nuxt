@@ -16,58 +16,9 @@ const totalPrice = computed(() => {
     : newQuote.value!.total_price
 })
 const totalPriceFormatted = totalPrice.value.toFixed(2)
-const firstNameQuote = ref()
-const lastNameQuote = ref()
-const userEmailQuote = ref()
-const phoneNumber = ref()
-const originNameQuote = ref()
-const destinationNameQuote = ref()
 const serviceTypeLabelQuote = ref()
-const vehicleTypeLabelQuote = ref()
 const isPearsonAirportDropoffQuote = ref()
 const isPearsonAirportPickupQuote = ref()
-const totalFareQuote = ref()
-const roundTripTotalQuote = ref()
-const isRoundTripQuote = ref()
-
-// const {
-//   pickupDate,
-//   pickupTime,
-//   returnDate,
-//   returnTime,
-//   firstName,
-//   lastName,
-//   userEmail,
-//   origin_name,
-//   origin_formatted_address,
-//   destination_name,
-//   destination_formatted_address,
-//   serviceTypeLabel,
-//   vehicleTypeLabel,
-//   isPearsonAirportDropoff,
-//   isPearsonAirportPickup,
-//   totalFare,
-//   roundTripTotal,
-//   isRoundTrip,
-//   phone_number,
-// } = newQuote
-
-// firstNameQuote.value = firstName
-// lastNameQuote.value = lastName
-// userEmailQuote.value = userEmail
-// phoneNumber.value = phone_number
-// originNameQuote.value = formatAddress(origin_name, origin_formatted_address)
-// destinationNameQuote.value = formatAddress(
-//   destination_name,
-//   destination_formatted_address
-// )
-// serviceTypeLabelQuote.value = serviceTypeLabel
-// vehicleTypeLabelQuote.value = vehicleTypeLabel
-// isPearsonAirportDropoffQuote.value = isPearsonAirportDropoff
-// isPearsonAirportPickupQuote.value = isPearsonAirportPickup
-// totalFareQuote.value = totalFare
-// roundTripTotalQuote.value = roundTripTotal
-// isRoundTripQuote.value = isRoundTrip
 
 console.log('Returned Quote from summary', newQuote.value)
 

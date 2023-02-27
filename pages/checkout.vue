@@ -3,9 +3,6 @@ definePageMeta({
   title: 'Checkout',
   layout: 'store',
 })
-
-const route = useRoute().query
-console.log(route.quoteNumber)
 </script>
 
 <template>

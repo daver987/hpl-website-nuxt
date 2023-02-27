@@ -3,29 +3,29 @@ import { v4 as uuidv4 } from 'uuid'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    userId: '',
+    user_id: '',
   }),
 
   actions: {
-    setUserId(userId: string) {
-      this.userId = userId
+    setUserId(user_id: string) {
+      this.user_id = user_id
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem('userId', userId)
+        window.localStorage.setItem('hpl_user_id', user_id)
       }
     },
 
     getUserId() {
       if (typeof window !== 'undefined') {
-        const userId = window.localStorage.getItem('userId')
-        if (userId) {
-          this.userId = userId
+        const user_id = window.localStorage.getItem('hpl_user_id')
+        if (user_id) {
+          this.user_id = user_id
         } else {
           const newUserId = generateUuid()
           this.setUserId(newUserId)
         }
       }
 
-      return this.userId
+      return this.user_id
     },
   },
 })

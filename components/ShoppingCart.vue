@@ -1,213 +1,205 @@
 <script setup lang="ts">
+import { Quote } from '~/server/api/quote.get'
+import { useQuoteStore } from '~/stores/useQuoteStore'
 import { useCartStore } from '~/stores/useCartStore'
 import { storeToRefs } from 'pinia'
-import { format, isValid } from 'date-fns'
-import { useQuoteStore } from '~/stores/useQuoteStore'
+
+interface LineItem {
+  id: string
+  label: string
+  total: number
+}
+
+interface Price {
+  total_price: number
+  tax_amount: number
+  base_rate: number
+  line_items: LineItem[]
+}
+
+interface BookingData {
+  customer: { id: string }
+  session: { url: string; id: string }
+  statusCode: number
+  update: any
+}
 
 const quoteStore = useQuoteStore()
-const { userQuoteData } = storeToRefs(quoteStore)
-//@ts-ignore
-const { newQuote, lineItemsList } = userQuoteData.value
 const cartStore = useCartStore()
-
-const lineItemsListTest = [
-  {
-    label: 'Gratuity',
-    total: 25.57,
-    id: 1,
-  },
-  {
-    label: 'Fuel Surcharge',
-    total: 10.23,
-    id: 2,
-  },
-]
-
-const newQuoteTest = {
-  trips: [
-    {
-      destination_formatted_address: '1265 Sixth Line, Oakville, Ontario',
-      destination_name: '1265 Sixth Line, Oakville, Ontario',
-      is_return: false,
-      origin_name: 'Toronto Pearson Airport',
-      origin_formatted_address: '6644 Silver Dart Drive, Mississauga Ontario',
-    },
-  ],
-  sales_tax: {
-    tax_name: 'HST',
-  },
-  service: {
-    label: 'From Airport',
-  },
-  vehicle: {
-    label: 'Standard SUV',
-    vehicle_image:
-      'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/5d171f30-de2f-447c-a602-95ccf248c600/1024',
-  },
-
-  base_rate: 127.8459,
-  created_at: '2023-02-20T20:49:42.485Z',
-  is_booked: false,
-  is_round_trip: false,
-  line_items_total: 35.796852,
-  pickup_date: 1677128400000,
-  pickup_time: 1676880300000,
-  quote_number: 6,
-  return_date: 0,
-  return_time: 0,
-  sales_tax_id: 1,
-  selected_hours: null,
-  selected_passengers: 1,
-  service_id: 3,
-  tax_amount: 17.94956436,
-  total_price: 181.59231636,
-  updated_at: '2023-02-20T20:49:42.485Z',
-  user_id: 'b98f28e7-9505-4bb2-8f47-7bc006584828',
-  vehicle_id: 3,
-}
 
 const { addedToCart, loading } = storeToRefs(cartStore)
 
-interface LineItem {
-  label: string
-  total: number
-  id: number
-}
-
-interface NewQuote {
-  trips: any[]
-  sales_tax: { tax_name: string }
-  service: { label: string }
-  vehicle: { label: string; vehicle_image: string }
-  base_rate: number
-  created_at: string
-  is_booked: boolean
-  is_round_trip: boolean
-  line_items_total: number
-  pickup_date: number
-  pickup_time: number
-  quote_number: number
-  return_date: any
-  return_time: any
-  sales_tax_id: number
-  selected_hours: any
-  service_id: number
-  tax_amount: number
-  total_price: number
-  updated_at: string
-  user_id: string
-  vehicle_id: number
-}
-
-const prices: any[] = []
-
-// calculate one-way prices
-const oneWayPrice = {
-  total_price: parseFloat(newQuote.total_price.toFixed(2)),
-  tax_amount: parseFloat(newQuote.tax_amount.toFixed(2)),
-  base_rate: parseFloat(newQuote.base_rate.toFixed(2)),
-  line_items: lineItemsList.map((item: LineItem) => ({
-    label: item.label,
-    total: parseFloat(item.total.toFixed(2)),
-    id: item.id,
-  })),
-}
-prices.push(oneWayPrice)
-
-// calculate round-trip prices
-if (newQuote.is_round_trip === true) {
-  const roundTripPrice = {
-    total_price: parseFloat((newQuote.total_price * 2).toFixed(2)),
-    tax_amount: parseFloat((newQuote.tax_amount * 2).toFixed(2)),
-    base_rate: parseFloat((newQuote.base_rate * 2).toFixed(2)),
-    line_items: lineItemsList.map((item: LineItem) => ({
-      label: item.label,
-      total: parseFloat((item.total * 2).toFixed(2)),
-      id: item.id,
-    })),
-  }
-  prices.push(roundTripPrice)
-}
-
-// prices array now contains both one-way and round-trip versions
-console.log(prices)
-
-const returnServiceTypeLabel = computed(() => {
-  if (newQuote.is_round_trip && newQuote.service.label === 'To Airport') {
-    return 'From Airport'
-  }
-  return newQuote.is_round_trip && newQuote.service.label === 'From Airport'
-    ? 'To Airport'
-    : newQuote.service.label
+const quote = reactive<Quote>({
+  total_price: 0,
+  tax_amount: 0,
+  base_rate: 0,
+  line_items_list: [
+    {
+      id: '0',
+      label: '',
+      total: 0.0,
+    },
+  ],
+  is_round_trip: false,
+  vehicle: { label: '', vehicle_image: '' },
+  service: { label: '' },
+  quote_number: 0,
+  selected_hours: 0,
+  selected_passengers: 1,
+  pickup_date: 11111111,
+  pickup_time: 11111111,
+  return_date: null,
+  return_time: null,
+  trips: [
+    {
+      origin_full_name: '',
+      destination_full_name: '',
+    },
+  ],
+  sales_tax: { tax_name: '' },
+  user: {
+    first_name: '',
+    last_name: '',
+    phone_number: '',
+    email_address: '',
+  },
 })
 
-const pickupAddress = formatAddress(
-  newQuote.trips[0].origin_name,
-  newQuote.trips[0].origin_formatted_address
-)
-const dropOffAddress = formatAddress(
-  newQuote.trips[0].destination_name,
-  newQuote.trips[0].destination_formatted_address
+// const lineItemsList = ref<LineItemsList[]>([])
+const prices = ref<Price[]>([])
+
+const formattedPickupDate = useFormattedDate(quote.pickup_date)
+const formattedPickupTime = useFormattedTime(quote.pickup_time)
+const formattedReturnDate = useFormattedDate(quote.return_date)
+const formattedReturnTime = useFormattedTime(quote.return_time)
+const currentDate = useFormattedDate(new Date())
+
+const returnServiceTypeLabel = computed(() =>
+  quote.is_round_trip && quote.service.label === 'To Airport'
+    ? 'From Airport'
+    : quote.is_round_trip && quote.service.label === 'From Airport'
+    ? 'To Airport'
+    : quote.service.label
 )
 
-const currentDate = format(new Date(), 'MMMM dd, yyyy')
+const pending = ref(false)
+const fetchData = async (quoteNumber: string) => {
+  try {
+    const { data, pending: loading } = await useFetch(`/api/quote`, {
+      method: 'POST',
+      query: { quote_number: quoteNumber },
+    })
+    pending.value = loading.value
+    const quoteData: Quote = data.value as unknown as Quote
+    quote.total_price = parseFloat(quoteData.total_price.toFixed(2))
+    quote.tax_amount = parseFloat(quoteData.tax_amount.toFixed(2))
+    quote.base_rate = parseFloat(quoteData.base_rate.toFixed(2))
+    quote.is_round_trip = quoteData.is_round_trip
+    quote.pickup_date = quoteData.pickup_date
+    quote.pickup_time = quoteData.pickup_time
+    quote.return_date = quoteData.return_date
+    quote.return_time = quoteData.return_time
+    quote.service = quoteData.service
+    quote.vehicle = quoteData.vehicle
+    quote.trips = quoteData.trips
+    quote.line_items_list = quoteData.line_items_list
+    console.log('Fetching Data, Quote Data:', quoteData)
+    await initCheckout()
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const fetchQuoteFromRoute = async () => {
+  const route = useRoute()
+  const quoteNumber = route.query.quote_number as string
+  console.log('Quote Number Client:', quoteNumber)
+  if (quoteNumber) {
+    await fetchData(quoteNumber)
+  }
+}
+
+const fetchQuoteFromStore = async () => {
+  if (quoteStore.quote) {
+    Object.assign(quote, quoteStore.quote)
+    initCheckout()
+  }
+}
+
+const initCheckout = () => {
+  console.log('Init Checkout')
+  if (quote.is_round_trip) {
+    const roundTripPrice: Price = {
+      total_price: parseFloat((quote.total_price * 2).toFixed(2)),
+      tax_amount: parseFloat((quote.tax_amount * 2).toFixed(2)),
+      base_rate: parseFloat((quote.base_rate * 2).toFixed(2)),
+      line_items: quote.line_items_list.map((item) => ({
+        id: item.id,
+        label: item.label,
+        total: parseFloat((item.total * 2).toFixed(2)),
+      })),
+    }
+    prices.value.push(roundTripPrice)
+  }
+}
+
+onMounted(() => {
+  fetchQuoteFromRoute()
+  fetchQuoteFromStore()
+})
 
 const checkoutLoading = ref(false)
 
-const createBooking = async () => {
+const createBooking = async (quote: Quote) => {
   checkoutLoading.value = true
 
-  // Save newQuote in localStorage
-  localStorage.setItem('newQuote', JSON.stringify(newQuote))
-
-  const { data: stripeData } = await useFetch('/api/booking', {
-    method: 'POST',
-    body: newQuote,
-  })
-
-  console.log('Stripe Checkout Data', stripeData.value)
-  //@ts-ignore
-  const { customer, session, statusCode, update: prismaData } = stripeData.value
-  console.log('Prisma Data:', prismaData)
-  console.log('Stripe Customer:', customer)
-  console.log('Stripe Session:', session)
-  console.log('Status Code:', statusCode)
-  const { url, id: sessionId } = session
-  const stripeCustomerId = customer.id
-
-  setTimeout(async () => {
-    checkoutLoading.value = false
-    await navigateTo(url, {
-      redirectCode: 303,
-      external: true,
+  try {
+    const { data: response } = await useFetch('/api/booking', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(quote),
     })
-  }, 1000)
-}
 
-const formattedPickupDate = computed(() => {
-  return isValid(new Date(newQuote.pickup_date))
-    ? format(new Date(newQuote.pickup_date), 'MMMM dd, yyyy')
-    : 'January 1, 2023'
-})
-const formattedPickupTime = computed(() => {
-  return isValid(new Date(newQuote.pickup_time))
-    ? format(new Date(newQuote.pickup_time), 'hh:mm a')
-    : '12:00'
-})
-const formattedReturnDate = computed(() => {
-  return isValid(new Date(newQuote.return_date))
-    ? format(new Date(newQuote.return_date), 'MMMM dd, yyyy')
-    : 'January 1, 2023'
-})
-const formattedReturnTime = computed(() => {
-  return isValid(new Date(newQuote.return_time))
-    ? format(new Date(newQuote.return_time), 'hh:mm a')
-    : '12:00'
-})
+    //@ts-ignore
+    const { data: stripeData } = await response.value
+
+    const {
+      customer,
+      session,
+      statusCode,
+      update: prismaData,
+    }: BookingData = stripeData
+
+    console.log('Prisma Data:', prismaData)
+    console.log('Stripe Customer:', customer)
+    console.log('Stripe Session:', session)
+    console.log('Status Code:', statusCode)
+
+    const { url } = session
+    const stripeCustomerId = customer.id
+
+    setTimeout(async () => {
+      checkoutLoading.value = false
+      await navigateTo(url, {
+        redirectCode: 303,
+        external: true,
+      })
+    }, 500)
+  } catch (error) {
+    console.log(error)
+    checkoutLoading.value = false
+  }
+}
 </script>
 
 <template>
-  <main class="mx-auto max-w-2xl px-4 pt-6 pb-8 sm:px-6 lg:max-w-7xl lg:px-8">
+  <div v-if="pending">Loading ...</div>
+  <main
+    v-else
+    class="mx-auto max-w-2xl px-4 pt-6 pb-8 sm:px-6 lg:max-w-7xl lg:px-8"
+  >
     <h1
       class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
     >
@@ -224,7 +216,7 @@ const formattedReturnTime = computed(() => {
           >
         </dt>
         <dd class="font-medium text-red-600">
-          <span>HPL-{{ newQuote.quote_number }}</span>
+          <span>HPL-{{ quote.quote_number }}</span>
         </dd>
         <dt>
           <span class="sr-only">Date</span>
@@ -233,9 +225,7 @@ const formattedReturnTime = computed(() => {
           >
         </dt>
         <dd class="font-medium text-gray-900 dark:text-gray-100">
-          <time :datetime="currentDate"
-            >{{ format(new Date(), 'MMMM dd, yyyy') }}
-          </time>
+          <time :datetime="currentDate">{{ currentDate }} </time>
         </dd>
       </dl>
       <div class="mt-4 sm:mt-0">
@@ -257,8 +247,8 @@ const formattedReturnTime = computed(() => {
           <li class="flex py-6 sm:py-8">
             <div class="flex-shrink-0">
               <NuxtPicture
-                :src="newQuote.vehicle.vehicle_image"
-                :alt="newQuote.vehicle.label"
+                :src="quote.vehicle.vehicle_image"
+                :alt="quote.vehicle.label"
                 :img-attrs="{
                   class:
                     'object-contain object-center w-24 h-24 rounded-md sm:h-48 sm:w-48',
@@ -276,7 +266,7 @@ const formattedReturnTime = computed(() => {
                       <NuxtLink
                         to="#"
                         class="font-medium text-gray-700 hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-200"
-                        >{{ newQuote.service.label }}
+                        >{{ quote.service.label }}
                       </NuxtLink>
                     </h3>
                   </div>
@@ -289,24 +279,24 @@ const formattedReturnTime = computed(() => {
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span
-                      >{{ pickupAddress }}
+                      >{{ quote.trips[0].origin_full_name }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">DO: </span>
-                      {{ dropOffAddress }}
+                      {{ quote.trips[0].destination_full_name }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Vehicle Type: </span
-                      >{{ newQuote.vehicle.label }}
+                      >{{ quote.vehicle.label }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Passengers: </span
-                      >{{ newQuote.selected_passengers }}
+                      >{{ quote.selected_passengers }}
                     </p>
                   </div>
                   <p class="mt-3 text-sm font-medium">
                     <span class="text-brand-400">Base Rate: </span>$
-                    {{ prices[0].base_rate }}
+                    {{ quote.base_rate }}
                   </p>
                 </div>
 
@@ -333,7 +323,7 @@ const formattedReturnTime = computed(() => {
               >
                 <Icon
                   name="heroicons:check-20-solid"
-                  v-if="newQuote.is_round_trip"
+                  v-if="quote.is_round_trip"
                   class="h-5 w-5 flex-shrink-0 text-green-500"
                   aria-hidden="true"
                 />
@@ -344,16 +334,16 @@ const formattedReturnTime = computed(() => {
                   aria-hidden="true"
                 />
                 <span>{{
-                  newQuote.is_round_trip ? 'Round Trip' : `One Way Trip`
+                  quote.is_round_trip ? 'Round Trip' : `One Way Trip`
                 }}</span>
               </p>
             </div>
           </li>
-          <li v-if="newQuote.is_round_trip" class="flex py-6 sm:py-10">
+          <li v-if="quote.is_round_trip" class="flex py-6 sm:py-10">
             <div class="flex-shrink-0">
               <NuxtPicture
-                :src="newQuote.vehicle.vehicle_image"
-                :alt="newQuote.vehicle.label"
+                :src="quote.vehicle.vehicle_image"
+                :alt="quote.vehicle.label"
                 :img-attrs="{
                   class:
                     'object-contain object-center w-24 h-24 rounded-md sm:h-48 sm:w-48',
@@ -385,24 +375,24 @@ const formattedReturnTime = computed(() => {
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">PU: </span
-                      >{{ dropOffAddress }}
+                      >{{ quote.trips[0].destination_full_name }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">DO: </span>
-                      {{ pickupAddress }}
+                      {{ quote.trips[0].origin_full_name }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Vehicle Type: </span
-                      >{{ newQuote.vehicle.label }}
+                      >{{ quote.vehicle.label }}
                     </p>
                     <p class="text-gray-500 dark:text-gray-100">
                       <span class="text-brand-400">Passengers: </span
-                      >{{ newQuote.selected_passengers }}
+                      >{{ quote.selected_passengers }}
                     </p>
                   </div>
                   <p class="mt-3 text-sm font-medium">
                     <span class="text-brand-400">Base Rate: </span
-                    >{{ prices[0].base_rate }}
+                    >{{ quote.line_items_list[0].total }}
                   </p>
                 </div>
 
@@ -428,7 +418,7 @@ const formattedReturnTime = computed(() => {
               >
                 <Icon
                   name="heroicons:check-20-solid"
-                  v-if="newQuote.is_round_trip"
+                  v-if="quote.is_round_trip"
                   class="h-5 w-5 flex-shrink-0 text-green-500"
                   aria-hidden="true"
                 />
@@ -439,7 +429,7 @@ const formattedReturnTime = computed(() => {
                   aria-hidden="true"
                 />
                 <span>{{
-                  newQuote.is_round_trip ? 'Round Trip' : `One Way Trip`
+                  quote.is_round_trip ? 'Round Trip' : `One Way Trip`
                 }}</span>
               </p>
             </div>
@@ -465,15 +455,15 @@ const formattedReturnTime = computed(() => {
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
               $
               {{
-                newQuote.is_round_trip
-                  ? prices[1].base_rate
-                  : prices[0].base_rate
+                quote.is_round_trip
+                  ? quote.line_items_list[1].total
+                  : quote.line_items_list[0].total
               }}
             </dd>
           </div>
           <div
             class="flex items-center justify-between border-t border-gray-200 pt-4"
-            v-for="item in prices[0].line_items"
+            v-for="item in quote.line_items_list"
             :key="item.id"
           >
             <dt
@@ -502,13 +492,13 @@ const formattedReturnTime = computed(() => {
             class="flex items-center justify-between border-t border-gray-200 pt-4"
           >
             <dt class="flex text-sm text-gray-600 dark:text-gray-300">
-              <span>{{ newQuote.sales_tax.tax_name }}</span>
+              <span>{{ quote.sales_tax.tax_name }}</span>
               <a
                 href="#"
                 class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
               >
                 <span class="sr-only"
-                  >Learn more about how {{ newQuote.sales_tax.tax_name }} is
+                  >Learn more about how {{ quote.sales_tax.tax_name }} is
                   calculated</span
                 >
                 <Icon
@@ -521,9 +511,9 @@ const formattedReturnTime = computed(() => {
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
               $
               {{
-                newQuote.is_round_trip
-                  ? prices[1].tax_amount
-                  : prices[0].tax_amount
+                quote.is_round_trip
+                  ? quote.line_items_list[1].total
+                  : quote.line_items_list[0].total
               }}
             </dd>
           </div>
@@ -536,9 +526,9 @@ const formattedReturnTime = computed(() => {
             <dd class="text-base font-medium text-gray-900 dark:text-gray-100">
               $
               {{
-                newQuote.is_round_trip
-                  ? prices[1].total_price
-                  : prices[0].total_price
+                quote.is_round_trip
+                  ? quote.line_items_list[0].total
+                  : quote.line_items_list[1].total
               }}
             </dd>
           </div>

@@ -18,7 +18,7 @@ definePageMeta({
 <template>
   <n-grid :cols="1">
     <n-grid-item :span="1">
-      <QuoteFormTwo />
+      <FlightInformation />
     </n-grid-item>
   </n-grid>
 

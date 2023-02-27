@@ -1,6 +1,7 @@
 import '@total-typescript/ts-reset'
 
 export default defineNuxtConfig({
+  //@ts-ignore
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: { name: 'layout', mode: 'out-in' },
@@ -12,9 +13,7 @@ export default defineNuxtConfig({
       '@googlemaps/js-api-loader',
     ],
   },
-  css: [],
-  extends: ['nuxt-seo-kit'],
-  //@ts-ignore
+  // extends: ['nuxt-seo-kit'],
   modules: [
     '@vueuse/nuxt',
     '@nuxtjs/fontaine',

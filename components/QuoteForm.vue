@@ -6,23 +6,23 @@ import 'vue-tel-input/dist/vue-tel-input.css'
 import { ErrorMessage, Field, Form } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
 import { useQuoteStore } from '~/stores/useQuoteStore'
-import { useServiceTypesStore } from '~/stores/useServiceTypesStore'
-import { useVehicleTypeStore } from '~/stores/useVehicleTypeStore'
-import { useTripStore } from '~/stores/useTripStore'
+// import { useServiceTypesStore } from '~/stores/useServiceTypesStore'
+// import { useVehicleTypeStore } from '~/stores/useVehicleTypeStore'
+// import { useTripStore } from '~/stores/useTripStore'
 import { storeToRefs } from 'pinia'
 import { useGtm } from '@gtm-support/vue-gtm'
 import Datepicker from '~/components/datepicker/Datepicker.vue'
 
-const tripStore = useTripStore()
-const { origin, destination, tripData } = storeToRefs(tripStore)
+// const tripStore = useTripStore()
+// const { origin, destination, tripData } = storeToRefs(tripStore)
 
-const vehicleTypeStore = useVehicleTypeStore()
-await vehicleTypeStore.getVehicleTypes()
-const { vehicleTypes } = storeToRefs(vehicleTypeStore)
-
-const serviceTypesStore = useServiceTypesStore()
-await serviceTypesStore.getServiceTypes()
-const { serviceTypeOptions } = storeToRefs(serviceTypesStore)
+// const vehicleTypeStore = useVehicleTypeStore()
+// await vehicleTypeStore.getVehicleTypes()
+// const { vehicleTypes } = storeToRefs(vehicleTypeStore)
+//
+// const serviceTypesStore = useServiceTypesStore()
+// await serviceTypesStore.getServiceTypes()
+// const { serviceTypeOptions } = storeToRefs(serviceTypesStore)
 
 const route = useRoute()
 const gtmValues = route.query

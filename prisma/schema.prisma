@@ -57,32 +57,38 @@ model Conversion {
 }
 
 model Quote {
-  quote_number        Int        @id @unique @default(autoincrement())
-  created_at          DateTime   @default(now())
-  updated_at          DateTime   @updatedAt
-  service             Service    @relation(fields: [service_id], references: [value])
-  vehicle             Vehicle    @relation(fields: [vehicle_id], references: [value])
-  user                User       @relation(fields: [user_id], references: [id])
-  sales_tax           SalesTax?  @relation(fields: [sales_tax_id], references: [id])
-  line_items          LineItem[]
-  trips               Trip[]
-  selected_hours      Int?
-  selected_passengers Int        @default(value: 1)
-  pickup_date         Float
-  pickup_time         Float
-  return_date         Float?
-  return_time         Float?
-  is_round_trip       Boolean    @default(false)
-  is_booked           Boolean    @default(false)
-  base_rate           Float
-  line_items_total    Float
-  tax_amount          Float
-  total_price         Float
-  session_id          String?
-  user_id             String
-  service_id          Int
-  vehicle_id          Int
-  sales_tax_id        Int
+  quote_number          Int        @id @unique @default(autoincrement())
+  created_at            DateTime   @default(now())
+  updated_at            DateTime   @updatedAt
+  service               Service    @relation(fields: [service_id], references: [value])
+  vehicle               Vehicle    @relation(fields: [vehicle_id], references: [value])
+  user                  User       @relation(fields: [user_id], references: [id])
+  sales_tax             SalesTax?  @relation(fields: [sales_tax_id], references: [id])
+  line_items            LineItem[]
+  trips                 Trip[]
+  selected_hours        Int?
+  selected_passengers   Int        @default(value: 1)
+  pickup_date           Float
+  formatted_pickup_date String?
+  pickup_time           Float
+  fomatted_pickup_time  String?
+  return_date           Float?
+  formatted_return_date String?
+  return_time           Float?
+  formatted_return_time String?
+  return_service_type   String?
+  is_round_trip         Boolean    @default(false)
+  is_booked             Boolean    @default(false)
+  base_rate             Float
+  line_items_total      Float
+  tax_amount            Float
+  total_price           Float
+  line_items_list       Json?
+  session_id            String?
+  user_id               String
+  service_id            Int
+  vehicle_id            Int
+  sales_tax_id          Int
 
   @@index([user_id])
   @@index([sales_tax_id])
@@ -110,6 +116,7 @@ model Trip {
   destination_types             Json
   destination_place_id          String
   distance                      Float
+  flight_information            Json?
   is_return                     Boolean  @default(false)
   notes                         String?
   quote_number                  Int
@@ -138,6 +145,7 @@ model LineItem {
   is_taxable    Boolean  @default(true)
   is_active     Boolean  @default(true)
   amount        Float
+  applies_to    String?
   quotes        Quote[]
 }
 

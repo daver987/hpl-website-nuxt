@@ -11,13 +11,13 @@ export interface OptionsArrayInput extends OptionsArray {
 export const extractOptions = (
   originalArray: OptionsArrayInput[] | null
 ): OptionsArray[] | null => {
-  if (!originalArray) {
-    return null
-  } else {
+  if (originalArray) {
     return originalArray.map((obj) => ({
       label: obj.label,
       value: obj.value,
       isDisabled: obj.isDisabled,
     }))
+  } else {
+    return null
   }
 }

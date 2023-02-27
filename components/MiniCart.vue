@@ -8,11 +8,10 @@ const cartStore = useCartStore()
 const { addedToCart } = storeToRefs(cartStore)
 
 const quoteStore = useQuoteStore()
-const { userQuoteData } = storeToRefs(quoteStore)
+const { quote } = storeToRefs(quoteStore)
 
 const itemsInCart = computed(() =>
-  //@ts-ignore
-  addedToCart.value ? (userQuoteData.value.is_round_trip ? 2 : 1) : 0
+  addedToCart.value ? (quote.value.is_round_trip ? 2 : 1) : 0
 )
 </script>
 
@@ -72,10 +71,10 @@ const itemsInCart = computed(() =>
               />
               <div class="ml-4 flex-auto">
                 <h3 class="font-sans font-medium text-gray-900">
-                  <NuxtLink to="#">{{ userQuoteData?.service.label }}</NuxtLink>
+                  <NuxtLink to="#">{{ quote?.service.label }}</NuxtLink>
                 </h3>
                 <p class="font-sans text-gray-500">
-                  {{ userQuoteData?.service.label }}
+                  {{ quote?.service.label }}
                 </p>
               </div>
             </li>
