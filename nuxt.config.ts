@@ -32,7 +32,7 @@ export default defineNuxtConfig({
     ],
   ],
   nitro: {
-    preset: 'netlify',
+    preset: 'vercel',
   },
   runtimeConfig: {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
