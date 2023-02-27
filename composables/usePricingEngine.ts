@@ -34,6 +34,7 @@ export const vehicleSchema = z
     min_hours: z.number(),
     min_distance: z.number(),
     is_active: z.boolean(),
+    vehicle_image: z.string(),
   })
   .strip()
 
@@ -121,6 +122,7 @@ export function usePricingEngine(
   const taxesList = ref(salesTaxes)
   const lineItemsList = ref(lineItems)
   const detailedLineItems = ref()
+  const selectedServiceLabel = ref<string | undefined>('')
 
   // methods
   async function updateDistance() {
@@ -142,6 +144,7 @@ export function usePricingEngine(
 
     console.log('Selected vehicle type:', selectedVehicleType)
     console.log('Selected service type:', selectedServiceType)
+    selectedServiceLabel.value = selectedServiceType?.label
 
     if (!selectedVehicleType || !selectedServiceType) {
       baseRate.value = 0
@@ -230,6 +233,7 @@ export function usePricingEngine(
     salesTaxes,
     vehicleTypeId,
     serviceTypeId,
+    selectedServiceLabel,
     selectedHours,
     distance,
     baseRate,
