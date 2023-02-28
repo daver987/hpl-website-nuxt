@@ -1,18 +1,17 @@
-import { isValid, format } from 'date-fns'
-import { computed } from 'vue'
+import { format } from 'date-fns'
 
-export function useFormattedDate(date: number | null | unknown) {
-  return computed(() => {
-    return isValid(new Date(date as any))
-      ? format(new Date(date as number), 'MMMM dd, yyyy')
-      : 'January 1, 2023'
-  })
+export function useFormattedDate(timestamp: number | null): string {
+  if (!timestamp) {
+    return ''
+  }
+  const date = new Date(timestamp)
+  return format(date, 'MMMM dd, yyyy')
 }
 
-export function useFormattedTime(time: number | null) {
-  return computed(() => {
-    return isValid(new Date(time as any))
-      ? format(new Date(time as number), 'hh:mm a')
-      : '12:00 PM'
-  })
+export function useFormattedTime(timestamp: number | null): string {
+  if (!timestamp) {
+    return ''
+  }
+  const date = new Date(timestamp)
+  return format(date, 'hh:mm a')
 }
