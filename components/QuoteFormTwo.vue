@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { FormInst, useMessage, FormRules, darkTheme } from 'naive-ui'
+import {
+  FormInst,
+  useMessage,
+  FormRules,
+  darkTheme,
+  useLoadingBar,
+} from 'naive-ui'
 import { WatchCallback } from 'vue'
 import { VueTelInput } from 'vue-tel-input'
 import { Vehicle } from '~/schema/vehicleSchema'
@@ -215,12 +221,11 @@ const inputOptions = ref({
   ariaDescribedby: 'name',
   ariaLabeledBy: 'placeholder',
   placeholder: 'Enter Phone',
-  autoFocus: true,
 })
 const dropdownOptions = ref({
   showDialCodeInSelection: false,
   showFlags: true,
-  showSearchBox: true,
+  showSearchBox: false,
   showDialCodeInList: true,
 })
 
@@ -275,6 +280,7 @@ const handleChangeDestination = (evt: Place) => {
 const message = useMessage()
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
+const loadingBar = useLoadingBar()
 
 async function onSubmit() {
   try {
@@ -289,6 +295,7 @@ async function onSubmit() {
     setTimeout(async () => {
       quoteStore.setQuote(quoteData.value as Quote)
       console.log('Routed quote Data', quoteStore.quote)
+      loadingBar.finish()
       // Navigate to checkout page
       await navigateTo(
         `/checkout?quote_number=${quoteStore.quote.quote_number}`
@@ -304,6 +311,7 @@ async function onSubmit() {
 }
 
 function handleValidateButtonClick(e: MouseEvent) {
+  loadingBar.start()
   e.preventDefault()
   formRef.value?.validate(async (errors) => {
     if (errors) {
@@ -311,7 +319,9 @@ function handleValidateButtonClick(e: MouseEvent) {
       message.error('Please correct the errors on the form')
     } else {
       await onSubmit()
-      message.success('Valid')
+      message.success(
+        'You will receive a copy of the quote to the email address provided'
+      )
     }
   })
 }
@@ -525,7 +535,6 @@ function handleValidateButtonClick(e: MouseEvent) {
                       :dropdown-options="dropdownOptions"
                       :input-options="inputOptions"
                       aria-label="phone input"
-                      style-classes="rounded border border-gray-300 pr-1 bg-white shadow-sm focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600"
                     />
                   </n-form-item-gi>
                 </n-grid>
@@ -547,3 +556,9 @@ function handleValidateButtonClick(e: MouseEvent) {
     </NLoadingBarProvider>
   </NConfigProvider>
 </template>
+
+<style>
+.vti__input {
+  min-width: 245px;
+}
+</style>
