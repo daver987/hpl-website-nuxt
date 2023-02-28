@@ -44,20 +44,19 @@ export default defineEventHandler(async (event) => {
 
     const conversionData = conversion as Conversion
     console.log('SS Quote Data:', quoteData)
+    const returnServiceTypeLabel = computed(() =>
+      is_round_trip && service_id === 2
+        ? 'From Airport'
+        : is_round_trip && service_id === 3
+        ? 'To Airport'
+        : 'Same Service'
+    )
 
     const pricingEngine = usePricingEngine(
       vehicle,
       service,
       line_items,
       sales_tax
-    )
-
-    const returnServiceTypeLabel = computed(() =>
-      is_round_trip && service_id === 2
-        ? 'From Airport'
-        : is_round_trip && service_id === 3
-        ? 'To Airport'
-        : pricingEngine.selectedServiceLabel.value
     )
 
     const { place_id: originPlaceId } = origin
@@ -80,6 +79,8 @@ export default defineEventHandler(async (event) => {
     const formattedPickupTime = useFormattedTime(pickup_time)
     const formattedReturnDate = useFormattedDate(return_date)
     const formattedReturnTime = useFormattedTime(return_time)
+    const returnServiceType = returnServiceTypeLabel.value
+    console.log('Detailed Line Items:', lineItemsList)
 
     const newQuote = await prisma.quote.create({
       data: {
@@ -94,7 +95,7 @@ export default defineEventHandler(async (event) => {
         return_time: return_time,
         formatted_return_time: formattedReturnTime.value,
         is_round_trip: is_round_trip,
-        return_service_type: returnServiceTypeLabel.value,
+        return_service_type: returnServiceType,
         base_rate: pricingEngine.baseRate.value,
         line_items_total: pricingEngine.lineItemsTotal.value,
         tax_amount: pricingEngine.taxAmount.value,
@@ -241,7 +242,6 @@ export default defineEventHandler(async (event) => {
           connect: [
             { id: pricingEngine.lineItems[0].id },
             { id: pricingEngine.lineItems[1].id },
-            { id: pricingEngine.lineItems[2].id },
           ],
         },
       },
