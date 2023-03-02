@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-// import { qualities } from '~/data/qualities'
-
 definePageMeta({
   layout: 'default',
   title: 'High Park Livery | About Us',

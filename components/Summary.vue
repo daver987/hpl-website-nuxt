@@ -1,47 +1,64 @@
 <script setup lang="ts">
-import { format, isValid } from 'date-fns'
-import { Quote } from '~/types/Quote'
+import { Quote } from '~/server/api/quote.get'
+import { combineTotals, combineLineItems } from '~/utils/lineItemUtils'
 
-const queryString = useRoute().query
-const quoteNumber = queryString.quote_number
-console.log('Quote Number:', quoteNumber)
-
-const { data: newQuote } = await useFetch<Quote>('/api/quote', {
-  query: { quote_number: queryString.quote_number },
+let quote = reactive<Quote>({
+  is_round_trip: false,
+  vehicle: {
+    label: '',
+    vehicle_image:
+      'https://imagedelivery.net/9mQjskQ9vgwm3kCilycqww/b4bf6461-ba55-48bd-e0ba-d613ae383000/1024',
+  },
+  service: { label: '' },
+  quote_number: 0,
+  selected_hours: 0,
+  selected_passengers: 1,
+  formatted_pickup_date: '',
+  formatted_pickup_time: '',
+  formatted_return_date: null,
+  formatted_return_time: null,
+  return_service_type: '',
+  trips: [
+    {
+      line_items_tax: 0,
+      line_items_subtotal: 0,
+      line_items_total: 0,
+      origin_full_name: '',
+      destination_full_name: '',
+      line_items_list: [
+        {
+          label: '',
+          tax: 0,
+          total: 0,
+        },
+      ],
+    },
+  ],
+  sales_tax: { tax_name: '' },
+  user: {
+    first_name: '',
+    last_name: '',
+    phone_number: '',
+    email_address: '',
+  },
 })
 
-const totalPrice = computed(() => {
-  return newQuote.value?.is_round_trip
-    ? newQuote.value.total_price * 2
-    : newQuote.value!.total_price
-})
-const totalPriceFormatted = totalPrice.value.toFixed(2)
-const serviceTypeLabelQuote = ref()
-const isPearsonAirportDropoffQuote = ref()
-const isPearsonAirportPickupQuote = ref()
+const route = useRoute()
+if (route.query) {
+  const { quote_number } = route.query
+  console.log('Quote Number in route:', quote_number)
+  const { data } = await useFetch('/api/quote', {
+    method: 'GET',
+    query: { quote_number: quote_number },
+  })
+  console.log('Fetched Data from route:', data.value)
+  Object.assign(quote, data.value)
+  console.log('Fetched data assigned to quote')
+}
 
-console.log('Returned Quote from summary', newQuote.value)
+const itemsArray = combineLineItems(quote.trips)
 
-const formattedPickupDate = computed(() => {
-  return isValid(new Date(newQuote.value!.pickup_date))
-    ? format(new Date(newQuote.value!.pickup_date), 'MMMM dd, yyyy')
-    : 'January 1, 2023'
-})
-const formattedPickupTime = computed(() => {
-  return isValid(new Date(newQuote.value!.pickup_time))
-    ? format(new Date(newQuote.value!.pickup_time), 'hh:mm a')
-    : '12:00'
-})
-const formattedReturnDate = computed(() => {
-  return isValid(new Date(newQuote.value!.return_date!))
-    ? format(new Date(newQuote.value!.return_date!), 'MMMM dd, yyyy')
-    : 'January 1, 2023'
-})
-const formattedReturnTime = computed(() => {
-  return isValid(new Date(newQuote.value!.return_time!))
-    ? format(new Date(newQuote.value!.return_time!), 'hh:mm a')
-    : '12:00'
-})
+const totals = combineTotals(quote.trips)
 
 const printSummary = () => {
   window.print()
@@ -62,41 +79,55 @@ const printSummary = () => {
           ><span
             class="font-sans text-base font-bold leading-relaxed text-red-600"
           >
-            HPL-{{ newQuote!.quote_number }}</span
+            HPL-{{ quote.quote_number }}</span
           ><br />
-          For:
+          <span class="font-sans font-medium text-black"> For: </span>
           <span class="font-sans font-normal"
-            >{{ newQuote!.user.first_name }}
-            {{ newQuote!.user.last_name + '  ' }}
+            >{{ quote.user.first_name }}
+            {{ quote.user.last_name + '  ' }}
           </span>
           <span class="font-sans font-medium">
-            {{ newQuote!.user.phone_number }}</span
+            {{ quote.user.phone_number }}</span
           >
           <br />
-          Email:
+          <span class="font-sans font-medium text-black"> Email: </span>
           <span class="font-sans font-normal">{{
-            newQuote!.user.email_address
+            quote.user.email_address
           }}</span
-          ><br />
-          Pick up Date:
-          <time class="font-sans font-normal" :datetime="formattedPickupDate"
-            >{{ formattedPickupDate }}
+          ><br /><span class="font-sans font-medium text-black">
+            Pick up Date:
+          </span>
+          <time
+            class="font-sans font-normal"
+            :datetime="quote.formatted_pickup_date"
+            >{{ quote.formatted_pickup_date }}
           </time>
           <br />
-          Pick up Time:
-          <time class="font-sans font-normal" :datetime="formattedPickupTime"
-            >{{ formattedPickupTime }}
+          <span class="font-sans font-medium text-black"> Pick up Time: </span>
+          <time
+            class="font-sans font-normal"
+            :datetime="quote.formatted_pickup_time"
+            >{{ quote.formatted_pickup_time }}
           </time>
         </p>
-        <p>
-          Return Pick up Date:
-          <time class="font-sans font-normal" :datetime="formattedReturnDate"
-            >{{ formattedReturnDate }}
+        <p v-if="quote.is_round_trip">
+          <span class="font-sans font-medium text-black">
+            Return Pick up Date:
+          </span>
+          <time
+            class="font-sans font-normal"
+            :datetime="quote.formatted_return_date"
+            >{{ quote.formatted_return_date }}
           </time>
           <br />
-          Return Pick up Time:
-          <time class="font-sans font-normal" :datetime="formattedReturnTime"
-            >{{ formattedReturnTime }}
+          <span class="font-sans font-medium text-black">
+            Return Pick up Time:
+          </span>
+
+          <time
+            class="font-sans font-normal"
+            :datetime="quote.formatted_return_time"
+            >{{ quote.formatted_return_time }}
           </time>
         </p>
       </div>
@@ -150,158 +181,83 @@ const printSummary = () => {
               </div>
               <div class="font-normal text-gray-500">
                 <span class="font-sans font-bold text-gray-900">PU: </span
-                >{{ newQuote!.trips[0].origin_full_name }}
+                >{{ quote.trips[0].origin_full_name }}
               </div>
               <div class="font-normal text-gray-500">
                 <span class="font-sans font-bold text-gray-900">DO: </span>
-                {{ newQuote!.trips[0].destination_full_name }}
+                {{ quote.trips[0].destination_full_name }}
               </div>
               <div class="mt-0.5 text-gray-500 sm:hidden">
                 <span class="font-sans font-bold text-gray-900"
                   >Vehicle Type:
                 </span>
-                {{ newQuote!.vehicle.label }}<br /><span
+                {{ quote.vehicle.label }}<br /><span
                   class="font-bold text-gray-900"
                   >Service Type: </span
-                >{{ newQuote!.service.label }}
+                >{{ quote.service.label }}
               </div>
             </td>
             <td
-              v-if="isPearsonAirportPickupQuote || isPearsonAirportDropoffQuote"
               class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-              {{
-                serviceTypeLabelQuote !== 'From Airport'
-                  ? 'To Airport'
-                  : serviceTypeLabelQuote
-              }}
-            </td>
-
-            <td
-              v-else
-              class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
-            >
-              {{ newQuote!.service.label }}
+              {{ quote.service.label }}
             </td>
             <td
               class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-              {{ newQuote!.vehicle.label }}
+              {{ quote.vehicle.label }}
             </td>
             <td
               class="py-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
               ${{
-                newQuote?.total_price
-                  ? newQuote?.total_price?.toFixed(2)
-                  : 'Loading....'
+                quote.trips[0] ? quote.trips[0].line_items_total : 'Loading....'
               }}
             </td>
           </tr>
-          <tr v-if="newQuote!.is_round_trip" class="border-b border-gray-200">
+          <tr v-if="quote.is_round_trip" class="border-b border-gray-200">
             <td class="py-4 pl-4 pr-3 text-sm sm:pl-6 md:pl-0">
               <div class="mt-0.5 text-gray-500 sm:hidden">
                 <span class="font-sans font-bold text-gray-900">Routing </span>
               </div>
               <div class="font-normal text-gray-500">
                 <span class="font-sans font-bold text-gray-900">PU: </span
-                >{{ newQuote!.trips[0].destination_full_name }}
+                >{{ quote.trips[0].destination_full_name }}
               </div>
               <div class="font-normal text-gray-500">
                 <span class="font-sans font-bold text-gray-900">DO: </span>
-                {{ newQuote!.trips[0].origin_full_name }}
+                {{ quote.trips[0].origin_full_name }}
               </div>
               <div class="mt-0.5 text-gray-500 sm:hidden">
                 <span class="font-sans font-bold text-gray-900"
                   >Vehicle Type:
                 </span>
-                {{ newQuote!.service.label }}<br /><span
+                {{ quote.service.label }}<br /><span
                   class="font-sans font-bold text-gray-900"
                   >Service Type: </span
-                >{{ newQuote!.vehicle.label }}
+                >{{ quote.vehicle.label }}
               </div>
             </td>
             <td
-              v-if="isPearsonAirportPickupQuote || isPearsonAirportDropoffQuote"
               class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-              {{
-                serviceTypeLabelQuote === 'From Airport'
-                  ? 'To Airport'
-                  : serviceTypeLabelQuote
-              }}
-            </td>
-
-            <td
-              v-else
-              class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
-            >
-              {{ newQuote!.service.label }}
+              {{ quote.return_service_type }}
             </td>
             <td
               class="hidden px-3 py-4 text-right font-sans text-sm text-gray-500 sm:table-cell"
             >
-              {{ newQuote!.vehicle.label }}
+              {{ quote.vehicle.label }}
             </td>
             <td
               class="py-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
             >
               ${{
-                newQuote?.total_price
-                  ? newQuote?.total_price?.toFixed(2)
-                  : 'Loading....'
+                quote.trips[1] ? quote.trips[1].line_items_total : 'Loading....'
               }}
             </td>
           </tr>
         </tbody>
         <tfoot>
-          <tr v-if="false">
-            <th
-              scope="row"
-              colspan="3"
-              class="hidden pt-6 pl-6 pr-3 text-right font-sans text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
-            >
-              Subtotal
-            </th>
-            <th
-              scope="row"
-              class="pt-6 pl-4 pr-3 text-left font-sans text-sm font-normal text-gray-500 sm:hidden"
-            >
-              Subtotal
-            </th>
-            <td
-              class="pt-6 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
-            >
-              $0.00
-            </td>
-          </tr>
-          <tr>
-            <th
-              v-show="false"
-              scope="row"
-              colspan="3"
-              class="hidden pt-4 pl-6 pr-3 text-right font-sans text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
-            >
-              Airport Fee
-            </th>
-            <th
-              v-show="false"
-              scope="row"
-              class="pt-4 pl-4 pr-3 text-left font-sans text-sm font-normal text-gray-500 sm:hidden"
-            >
-              Airport Fee
-            </th>
-            <td
-              v-show="false"
-              class="pt-4 pl-3 pr-4 text-right font-sans text-sm text-gray-500 sm:pr-6 md:pr-0"
-            >
-              ${{
-                isPearsonAirportDropoffQuote || isPearsonAirportPickupQuote
-                  ? '15.00'
-                  : '0.00'
-              }}
-            </td>
-          </tr>
           <tr>
             <th
               scope="row"
@@ -319,7 +275,7 @@ const printSummary = () => {
             <td
               class="pt-3 pl-3 pr-4 text-right font-sans text-sm font-semibold text-gray-900 sm:pr-6 md:pr-0"
             >
-              ${{ totalPriceFormatted }}
+              ${{ totals.line_items_total }}
             </td>
           </tr>
         </tfoot>

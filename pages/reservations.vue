@@ -15,9 +15,7 @@ definePageMeta({
   name: 'reservations',
 })
 const quoteStore = useQuoteStore()
-//@ts-ignore
 const { quote } = storeToRefs(quoteStore)
-const isRoundTrip = quote.value.isRoundTrip as boolean
 
 const nav = navigation
 
@@ -191,7 +189,7 @@ const src =
               <div class="hidden lg:ml-8 lg:flex">
                 <a
                   href="#"
-                  class="flex items-center text-gray-500 text-gray-900 hover:text-brand"
+                  class="flex items-center text-gray-500 hover:text-brand"
                 >
                   <NuxtPicture
                     src="https://tailwindui.com/img/flags/flag-canada.svg"

@@ -69,6 +69,7 @@ export default defineEventHandler(async (event) => {
       where: { quote_number: quote_number.value },
       select: {
         quote_number: true,
+        return_service_type: true,
         formatted_pickup_date: true,
         formatted_pickup_time: true,
         formatted_return_date: true,

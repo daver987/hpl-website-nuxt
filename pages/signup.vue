@@ -14,7 +14,7 @@ definePageMeta({
   name: 'signup',
 })
 const quoteStore = useQuoteStore()
-const { newQuote } = storeToRefs(quoteStore)
+const { quote } = storeToRefs(quoteStore)
 
 const nav = navigation
 
