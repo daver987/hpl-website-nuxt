@@ -12,7 +12,7 @@
         kind="btn-dark"
         label="Reserve Now"
         to="/reservations"
-        :nuxtLink="true"
+        :nuxt-link="true"
       />
     </div>
   </div>
