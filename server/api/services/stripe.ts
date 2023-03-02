@@ -6,31 +6,30 @@ export interface CreateCustomerParams {
   last_name: string
   email_address: string
   phone_number: string
+  id: string
 }
 
-export async function createCustomer(newQuote: {
+export async function createCustomer(quote: {
   user: CreateCustomerParams
-  user_id: string
 }): Promise<Stripe.Customer> {
-  const { first_name, last_name, email_address, phone_number } = newQuote.user
-  const { user_id } = newQuote
+  const { first_name, last_name, email_address, phone_number, id } = quote.user
 
   return await stripe.customers.create({
     email: email_address,
     name: `${first_name} ${last_name}`,
     phone: phone_number,
     metadata: {
-      user_id,
+      id,
     },
   })
 }
 
 export async function createCheckoutSession(
-  newQuote: { user_id: string; quote_number: number },
+  quote: { quote_number: number },
   stripeCustomerId: string,
   WEBSITE_URL: string
 ): Promise<Stripe.Checkout.Session> {
-  const { user_id, quote_number } = newQuote
+  const { quote_number } = quote
   return await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     payment_method_types: ['card'],
@@ -38,7 +37,6 @@ export async function createCheckoutSession(
     setup_intent_data: {
       metadata: {
         quote_number,
-        user_id,
       },
     },
     success_url: `${WEBSITE_URL}/success?quote_number=${quote_number}`,

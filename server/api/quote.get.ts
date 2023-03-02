@@ -52,6 +52,7 @@ export const quoteSchema = z
         last_name: z.string(),
         phone_number: z.string(),
         email_address: z.string().email(),
+        id: z.string(),
       })
       .strip(),
   })
@@ -93,6 +94,7 @@ export default defineEventHandler(async (event) => {
             last_name: true,
             phone_number: true,
             email_address: true,
+            id: true,
           },
         },
         trips: {

@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
         ? 'From Airport'
         : is_round_trip && service_id === 3
         ? 'To Airport'
-        : 'Service Label'
+        : service[0].label
     )
 
     const pricingEngine = usePricingEngine(

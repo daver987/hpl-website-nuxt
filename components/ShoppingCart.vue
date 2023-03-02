@@ -5,12 +5,6 @@ import { useCartStore } from '~/stores/useCartStore'
 import { storeToRefs } from 'pinia'
 import { combineTotals, combineLineItems } from '~/utils/lineItemUtils'
 
-// interface Totals {
-//   line_items_tax: number
-//   line_items_subtotal: number
-//   line_items_total: number
-// }
-
 interface BookingData {
   customer: { id: string }
   session: { url: string; id: string }
@@ -62,6 +56,7 @@ let quote = reactive<Quote>({
     last_name: '',
     phone_number: '',
     email_address: '',
+    id: '',
   },
 })
 
@@ -71,8 +66,8 @@ if (quoteStore.quote) {
 }
 
 const route = useRoute()
-if (route.query) {
-  const { quote_number } = route.query
+const { quote_number } = route.query
+if (quote_number) {
   console.log('Quote Number in route:', quote_number)
   const { data } = await useFetch('/api/quote', {
     method: 'GET',
@@ -87,83 +82,22 @@ const itemsArray = combineLineItems(quote.trips)
 
 const totals = combineTotals(quote.trips)
 
-// interface LineItem {
-//   label: string
-//   total: string
-//   tax: string
-// }
-
-// function combineLineItems(lineItems: any): LineItem[] {
-//   const combinedLineItems = lineItems.reduce(
-//     (acc: { label: string; total: string; tax: string }[], curr: any) => {
-//       curr.line_items_list.forEach((lineItem: LineItem) => {
-//         const index = acc.findIndex((item) => item.label === lineItem.label)
-//         if (index >= 0) {
-//           acc[index].total = (+acc[index].total + +lineItem.total).toFixed(2)
-//           acc[index].tax = (+acc[index].tax + +lineItem.tax).toFixed(2)
-//         } else {
-//           acc.push({
-//             label: lineItem.label,
-//             total: lineItem.total,
-//             tax: lineItem.tax,
-//           })
-//         }
-//       })
-//       return acc
-//     },
-//     []
-//   )
-//
-//   return combinedLineItems.map((lineItem: LineItem) => {
-//     lineItem.total = parseFloat(lineItem.total).toFixed(2)
-//     lineItem.tax = parseFloat(lineItem.tax).toFixed(2)
-//     return lineItem
-//   })
-// }
-//
-// function combineTotals(totals: Array<Totals>): Totals {
-//   const combinedTotals = totals.reduce<Totals>(
-//     (acc, curr) => {
-//       acc.line_items_tax += curr.line_items_tax
-//       acc.line_items_subtotal += curr.line_items_subtotal
-//       acc.line_items_total += curr.line_items_total
-//       return acc
-//     },
-//     { line_items_tax: 0, line_items_subtotal: 0, line_items_total: 0 }
-//   )
-//
-//   return Object.entries(combinedTotals).reduce<Totals>(
-//     (acc, [key, value]) => {
-//       acc[key as keyof Totals] = value.toFixed(2)
-//       return acc
-//     },
-//     { line_items_tax: 0, line_items_subtotal: 0, line_items_total: 0 }
-//   )
-// }
-
 const checkoutLoading = ref(false)
 
-const createBooking = async (quote: Quote) => {
+const createBooking = async () => {
+  const checkoutLoading = ref(false)
+
   checkoutLoading.value = true
 
   try {
     const { data: response } = await useFetch('/api/booking', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(quote),
+      body: quote,
     })
 
+    console.log('Stripe Response', response.value)
     //@ts-ignore
-    const { data: stripeData } = await response.value
-
-    const {
-      customer,
-      session,
-      statusCode,
-      update: prismaData,
-    }: BookingData = stripeData
+    const { customer, session, statusCode, update: prismaData } = response.value
 
     console.log('Prisma Data:', prismaData)
     console.log('Stripe Customer:', customer)
@@ -172,15 +106,17 @@ const createBooking = async (quote: Quote) => {
 
     const { url } = session
 
-    setTimeout(async () => {
-      checkoutLoading.value = false
-      await navigateTo(url, {
-        redirectCode: 303,
-        external: true,
-      })
-    }, 500)
+    await until(response).toBeTruthy() // use wait utility function to avoid setTimeout
+
+    checkoutLoading.value = false
+
+    await navigateTo(url, {
+      redirectCode: 303,
+      external: true,
+    })
   } catch (error) {
-    console.log(error)
+    console.error(error)
+
     checkoutLoading.value = false
   }
 }
