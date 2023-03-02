@@ -323,6 +323,8 @@ function handleValidateButtonClick(e: MouseEvent) {
     }
   })
 }
+
+const disablePreviousDate = (ts: number) => ts < Date.now()
 </script>
 
 <template>
@@ -380,6 +382,7 @@ function handleValidateButtonClick(e: MouseEvent) {
                       type="date"
                       placeholder="Select Pickup Date..."
                       :default-value="Date.now()"
+                      :is-date-disabled="disablePreviousDate"
                     />
                   </n-form-item-gi>
                   <n-form-item-gi

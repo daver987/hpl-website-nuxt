@@ -5,7 +5,6 @@ import { features } from '~/data/features'
 definePageMeta({
   name: 'Home',
   layout: 'default',
-  middleware: 'quoted',
 })
 </script>
 
