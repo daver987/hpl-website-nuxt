@@ -68,16 +68,13 @@ export default defineEventHandler(async (event) => {
     const data = await prisma.quote.findUnique({
       where: { quote_number: quote_number.value },
       select: {
-        pickup_date: true,
-        pickup_time: true,
-        return_date: true,
-        return_time: true,
-        base_rate: true,
-        tax_amount: true,
-        total_price: true,
+        quote_number: true,
+        formatted_pickup_date: true,
+        formatted_pickup_time: true,
+        formatted_return_date: true,
+        formatted_return_time: true,
         is_round_trip: true,
         selected_passengers: true,
-        line_items_list: true,
         service: {
           select: {
             label: true,
@@ -99,8 +96,12 @@ export default defineEventHandler(async (event) => {
         },
         trips: {
           select: {
-            origin_full_name: true,
             destination_full_name: true,
+            line_items_list: true,
+            line_items_subtotal: true,
+            line_items_tax: true,
+            line_items_total: true,
+            origin_full_name: true,
           },
         },
         sales_tax: {

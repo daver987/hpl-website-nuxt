@@ -70,6 +70,19 @@ if (quoteStore.quote) {
   console.log('Store assigned to quote')
 }
 
+const route = useRoute()
+if (route.query) {
+  const { quote_number } = route.query
+  console.log('Quote Number in route:', quote_number)
+  const { data } = await useFetch('/api/quote', {
+    method: 'GET',
+    query: { quote_number: quote_number },
+  })
+  console.log('Fetched Data from route:', data.value)
+  Object.assign(quote, data.value)
+  console.log('Fetched data assigned to quote')
+}
+
 const itemsArray = combineLineItems(quote.trips)
 
 const totals = combineTotals(quote.trips)
