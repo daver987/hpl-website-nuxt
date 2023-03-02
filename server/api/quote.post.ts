@@ -1,6 +1,5 @@
 import { usePricingEngine } from '~/composables/usePricingEngine'
 import { Quote } from '~/schema/quoteSchema'
-import { quoteSchema } from '~/server/api/quote.get'
 import { Conversion } from '~/schema/conversionSchema'
 import { createAircallContact } from './services/createAircallContact'
 import { sendEmail } from './services/sendEmail'
@@ -49,7 +48,7 @@ export default defineEventHandler(async (event) => {
         ? 'From Airport'
         : is_round_trip && service_id === 3
         ? 'To Airport'
-        : 'Same Service'
+        : 'Service Label'
     )
 
     const pricingEngine = usePricingEngine(
@@ -59,12 +58,9 @@ export default defineEventHandler(async (event) => {
       sales_tax
     )
 
-    const { place_id: originPlaceId } = origin
-    const { place_id: destinationPlaceId } = destination
-
     // Set pricing engine state
-    pricingEngine.origin.value = originPlaceId
-    pricingEngine.destination.value = destinationPlaceId
+    pricingEngine.origin.value = origin.place_id
+    pricingEngine.destination.value = destination.place_id
     pricingEngine.vehicleTypeId.value = vehicle_id
     pricingEngine.serviceTypeId.value = service_id
     pricingEngine.selectedHours.value = selected_hours!
@@ -72,8 +68,17 @@ export default defineEventHandler(async (event) => {
     // Wait for the distance to be set before updating other values
     await pricingEngine.updateDistance()
     pricingEngine.updateBaseRate()
-    const lineItemsList = pricingEngine.updateLineItemsTotal(originPlaceId)
-    pricingEngine.updateTaxAmount()
+    const lineItemsList = pricingEngine.updateLineItemsTotal(origin.place_id)
+    const { lineItemDetails, taxTotal, subTotal, totalAmount } = lineItemsList
+    const returnLineItemsList = pricingEngine.updateLineItemsTotal(
+      destination.place_id
+    )
+    const {
+      lineItemDetails: returnLineItemsDetails,
+      taxTotal: returnTaxTotal,
+      subTotal: returnSubTotal,
+      totalAmount: returnTotalAmount,
+    } = returnLineItemsList
 
     const formattedPickupDate = useFormattedDate(pickup_date)
     const formattedPickupTime = useFormattedTime(pickup_time)
@@ -96,11 +101,6 @@ export default defineEventHandler(async (event) => {
         formatted_return_time: formattedReturnTime,
         is_round_trip: is_round_trip,
         return_service_type: returnServiceType,
-        base_rate: pricingEngine.baseRate.value,
-        line_items_total: pricingEngine.lineItemsTotal.value,
-        tax_amount: pricingEngine.taxAmount.value,
-        total_price: pricingEngine.totalPrice.value,
-        line_items_list: lineItemsList,
         trips: {
           //@ts-ignore
           create: is_round_trip
@@ -137,6 +137,10 @@ export default defineEventHandler(async (event) => {
                   destination_types: origin.types,
                   distance: pricingEngine.distance.value,
                   is_return: false,
+                  line_items_list: lineItemDetails,
+                  line_items_subtotal: subTotal.value,
+                  line_items_tax: taxTotal.value,
+                  line_items_total: totalAmount.value,
                 },
                 {
                   // Second trip
@@ -170,6 +174,10 @@ export default defineEventHandler(async (event) => {
                   destination_types: destination.types,
                   distance: pricingEngine.distance.value,
                   is_return: true,
+                  line_items_list: returnLineItemsDetails,
+                  line_items_subtotal: returnSubTotal.value,
+                  line_items_tax: returnTaxTotal.value,
+                  line_items_total: returnTotalAmount.value,
                 },
               ]
             : [
@@ -205,6 +213,10 @@ export default defineEventHandler(async (event) => {
                   destination_types: destination.types,
                   distance: pricingEngine.distance.value,
                   is_return: false,
+                  line_items_list: lineItemDetails,
+                  line_items_subtotal: subTotal.value,
+                  line_items_tax: taxTotal.value,
+                  line_items_total: totalAmount.value,
                 },
               ],
         },
@@ -256,8 +268,8 @@ export default defineEventHandler(async (event) => {
     })
     const quote = newQuote
 
-    await sendEmail(zapierEmail, newQuote)
-    await createAircallContact(aircallSecret, newQuote)
+    // await sendEmail(zapierEmail, newQuote)
+    // await createAircallContact(aircallSecret, newQuote)
 
     return {
       quote,

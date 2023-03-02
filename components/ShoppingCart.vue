@@ -4,10 +4,10 @@ import { useQuoteStore } from '~/stores/useQuoteStore'
 import { useCartStore } from '~/stores/useCartStore'
 import { storeToRefs } from 'pinia'
 
-interface LineItem {
-  id: string
-  label: string
-  total: number
+interface Totals {
+  line_items_tax: number
+  line_items_subtotal: number
+  line_items_total: number
 }
 
 interface BookingData {
@@ -25,16 +25,6 @@ const { addedToCart, loading } = storeToRefs(cartStore)
 const currentDate = useFormattedDate(new Date())
 
 let quote = reactive<Quote>({
-  total_price: 0,
-  tax_amount: 0,
-  base_rate: 0,
-  line_items_list: [
-    {
-      id: '0',
-      label: '',
-      total: 0.0,
-    },
-  ],
   is_round_trip: false,
   vehicle: {
     label: '',
@@ -52,8 +42,18 @@ let quote = reactive<Quote>({
   return_service_type: '',
   trips: [
     {
+      line_items_tax: 0,
+      line_items_subtotal: 0,
+      line_items_total: 0,
       origin_full_name: '',
       destination_full_name: '',
+      line_items_list: [
+        {
+          label: '',
+          tax: 0,
+          total: 0,
+        },
+      ],
     },
   ],
   sales_tax: { tax_name: '' },
@@ -70,92 +70,65 @@ if (quoteStore.quote) {
   console.log('Store assigned to quote')
 }
 
-// const quoteData = ref<any>(null)
-// const route = useRoute()
-// const quoteNumber = route.query.quote_number as string
-// console.log('Quote Number Client:', quoteNumber)
-//
-// const { pending, data } = await useFetch('/api/quote', {
-//   method: 'GET',
-//   query: { quote_number: quoteNumber },
-// })
-// quoteData.value = data.value as unknown as Quote
-// console.log('Fetched Quote from query string', data.value)
-//
-// watch(quoteData, (newQuoteData) => {
-//   Object.assign(quote, newQuoteData.value)
-//   console.log('Watch fired for quote from route', newQuoteData.value)
-//   // Because posts starts out null, you will not have access
-//   // to its contents immediately, but you can watch it.
-// })
+const itemsArray = combineLineItems(quote.trips)
+console.log(itemsArray)
 
-// const fetchData = async (quoteNumber: string) => {
-//   try {
-//     const { data, pending: loading } = await useFetch(`/api/quote`, {
-//       method: 'GET',
-//       query: { quote_number: quoteNumber },
-//     })
-//     pending.value = loading.value
-//     console.log('Getting Data for Store:', data.value)
-//     await quoteStore.setQuote(data.value)
-//     await fetchQuoteFromStore()
-// quote.total_price = parseFloat(quoteData.value.total_price.toFixed(2))
-// quote.tax_amount = parseFloat(quoteData.value.tax_amount.toFixed(2))
-// quote.base_rate = parseFloat(quoteData.value.base_rate.toFixed(2))
-// quote.is_round_trip = quoteData.value.is_round_trip
-// quote.formatted_pickup_date = quoteData.value.formatted_pickup_date
-// quote.formatted_pickup_time = quoteData.value.formatted_pickup_time
-// quote.formatted_return_date = quoteData.value.formatted_return_date
-// quote.formatted_return_time = quoteData.value.formatted_return_time
-// quote.service = quoteData.service
-// quote.vehicle = quoteData.vehicle
-// quote.trips = quoteData.trips
-// quote.line_items_list = quoteData.line_items_list
-//     console.log('Fetching Data, Quote Data:', quote)
-//     await initCheckout()
-//   } catch (error) {
-//     console.log(error)
-//   }
-// }
+const totals = combineTotals(quote.trips)
+console.log(totals)
 
-// const fetchQuoteFromRoute = async () => {
-//   const route = useRoute()
-//   const quoteNumber = route.query.quote_number as string
-//   console.log('Quote Number Client:', quoteNumber)
-//   if (quoteNumber) {
-//     await fetchData(quoteNumber)
-//   }
-// }
+interface LineItem {
+  label: string
+  total: string
+  tax: string
+}
 
-// const fetchQuoteFromStore = async () => {
-//   if (quoteStore.quote) {
-//     Object.assign(quote, quoteStore.quote)
-//     initCheckout()
-//   }
-// }
+function combineLineItems(lineItems: any): LineItem[] {
+  const combinedLineItems = lineItems.reduce(
+    (acc: { label: string; total: string; tax: string }[], curr: any) => {
+      curr.line_items_list.forEach((lineItem: LineItem) => {
+        const index = acc.findIndex((item) => item.label === lineItem.label)
+        if (index >= 0) {
+          acc[index].total = (+acc[index].total + +lineItem.total).toFixed(2)
+          acc[index].tax = (+acc[index].tax + +lineItem.tax).toFixed(2)
+        } else {
+          acc.push({
+            label: lineItem.label,
+            total: lineItem.total,
+            tax: lineItem.tax,
+          })
+        }
+      })
+      return acc
+    },
+    []
+  )
 
-// const initCheckout = () => {
-//   console.log('Init Checkout')
-//   if (quote.is_round_trip) {
-//     const roundTripPrice: Price = {
-//       total_price: parseFloat((quote.total_price * 2).toFixed(2)),
-//       tax_amount: parseFloat((quote.tax_amount * 2).toFixed(2)),
-//       base_rate: parseFloat((quote.base_rate * 2).toFixed(2)),
-//       line_items: quote.line_items_list.map((item) => ({
-//         id: item.id,
-//         label: item.label,
-//         total: parseFloat((item.total * 2).toFixed(2)),
-//       })),
-//     }
-//     prices.value.push(roundTripPrice)
-//   }
-// }
-// await fetchQuoteFromStore()
+  return combinedLineItems.map((lineItem: LineItem) => {
+    lineItem.total = parseFloat(lineItem.total).toFixed(2)
+    lineItem.tax = parseFloat(lineItem.tax).toFixed(2)
+    return lineItem
+  })
+}
 
-// onMounted(() => {
-// fetchQuoteFromRoute()
-// fetchQuoteFromStore()
-// })
+function combineTotals(totals: Array<Totals>): Totals {
+  const combinedTotals = totals.reduce<Totals>(
+    (acc, curr) => {
+      acc.line_items_tax += curr.line_items_tax
+      acc.line_items_subtotal += curr.line_items_subtotal
+      acc.line_items_total += curr.line_items_total
+      return acc
+    },
+    { line_items_tax: 0, line_items_subtotal: 0, line_items_total: 0 }
+  )
+
+  return Object.entries(combinedTotals).reduce<Totals>(
+    (acc, [key, value]) => {
+      acc[key as keyof Totals] = value.toFixed(2)
+      return acc
+    },
+    { line_items_tax: 0, line_items_subtotal: 0, line_items_total: 0 }
+  )
+}
 
 const checkoutLoading = ref(false)
 
@@ -301,7 +274,7 @@ const createBooking = async (quote: Quote) => {
                   </div>
                   <p class="mt-3 text-sm font-medium">
                     <span class="text-brand-400">Base Rate: </span>$
-                    {{ quote.base_rate }}
+                    {{ quote.trips[0].line_items_list[0].total }}
                   </p>
                 </div>
 
@@ -396,8 +369,8 @@ const createBooking = async (quote: Quote) => {
                     </p>
                   </div>
                   <p class="mt-3 text-sm font-medium">
-                    <span class="text-brand-400">Base Rate: </span
-                    >{{ quote.base_rate }}
+                    <span class="text-brand-400">Base Rate: </span>$
+                    {{ quote.trips[1].line_items_list[0].total }}
                   </p>
                 </div>
 
@@ -455,16 +428,16 @@ const createBooking = async (quote: Quote) => {
         </h2>
 
         <dl class="mt-6 space-y-4">
-          <div class="flex items-center justify-between">
-            <dt class="text-sm text-gray-600 dark:text-gray-300">Base Rate</dt>
-            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
-              $
-              {{ quote.base_rate }}
-            </dd>
-          </div>
+          <!--          <div class="flex items-center justify-between">-->
+          <!--            <dt class="text-sm text-gray-600 dark:text-gray-300">Base Rate</dt>-->
+          <!--            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">-->
+          <!--              $-->
+          <!--              {{ quote.base_rate }}-->
+          <!--            </dd>-->
+          <!--          </div>-->
           <div
             class="flex items-center justify-between border-t border-gray-200 pt-4"
-            v-for="item in quote.line_items_list"
+            v-for="item in itemsArray"
             :key="item.label"
           >
             <dt
@@ -511,7 +484,7 @@ const createBooking = async (quote: Quote) => {
             </dt>
             <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">
               $
-              {{ quote.tax_amount }}
+              {{ totals.line_items_tax }}
             </dd>
           </div>
           <div
@@ -522,7 +495,7 @@ const createBooking = async (quote: Quote) => {
             </dt>
             <dd class="text-base font-medium text-gray-900 dark:text-gray-100">
               $
-              {{ quote.total_price }}
+              {{ totals.line_items_total }}
             </dd>
           </div>
         </dl>

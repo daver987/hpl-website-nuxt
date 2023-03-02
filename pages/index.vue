@@ -102,7 +102,7 @@ export default {
               kind="btn-light"
               label="View All"
               to="/fleet"
-              nuxt-link
+              :nuxtLink="true"
             />
           </div>
         </BaseContainer>

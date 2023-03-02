@@ -1,6 +1,5 @@
 import { computed, ref, reactive } from 'vue'
 import { z } from 'zod'
-import { usePrecision } from '@vueuse/math'
 
 const directionsSchema = z.object({
   routes: z.array(
@@ -52,11 +51,13 @@ export interface Service {
 export interface LineItem {
   amount: number
   id?: string
+  region?: string
   is_active?: boolean
   is_percentage?: boolean
   is_taxable?: boolean
   label: string
   total?: number
+  tax?: number
   applies_to?: string | null
 }
 
@@ -115,6 +116,9 @@ export function usePricingEngine(
   const baseRate = ref(0)
   const lineItemsTotal = ref(0)
   const taxableLineItemsTotal = ref(0)
+  const taxTotal = ref(0)
+  const subTotal = ref(0)
+  const totalAmount = ref(0)
   const taxAmount = ref(0)
   const totalPrice = computed(
     () => baseRate.value + lineItemsTotal.value + taxAmount.value
@@ -168,50 +172,55 @@ export function usePricingEngine(
   }
 
   function updateLineItemsTotal(originRef: string) {
-    lineItemsTotal.value = 0
-    taxableLineItemsTotal.value = 0
-
     const filteredLineItems = lineItemsList.value
       .filter((item) => {
         return item.applies_to === null || item.applies_to === originRef
       })
       .filter((item) => item.is_active)
 
-    const lineItemDetails = filteredLineItems.map((item) => {
-      const amount = item.is_percentage
-        ? +(baseRate.value * (item.amount / 100)).toFixed(2)
-        : +item.amount.toFixed(2)
+    const matchingTaxes = taxesList.value.filter((tax) => tax.is_active)
+    const taxRate = matchingTaxes.length > 0 ? matchingTaxes[0].amount : 0
+    const baseRateAmount = +baseRate.value.toFixed(2)
+    const baseRateTax = +((baseRateAmount * taxRate) / 100).toFixed(2)
 
-      lineItemsTotal.value += amount
+    const lineItemDetails = [
+      { label: 'Base Rate', total: baseRateAmount, tax: baseRateTax },
+      ...filteredLineItems.map((item) => {
+        const amount = item.is_percentage
+          ? +(baseRate.value * (item.amount / 100)).toFixed(2)
+          : +item.amount.toFixed(2)
 
-      if (item.is_taxable) {
-        taxableLineItemsTotal.value += amount
-      }
+        const tax = item.is_taxable ? +((amount * taxRate) / 100).toFixed(2) : 0
 
-      item.total = amount
-      item.label = item.label || ''
+        item.total = amount
+        item.label = item.label || ''
+        item.tax = tax
 
-      return { label: item.label, total: amount }
-    })
+        return { label: item.label, total: amount, tax: tax }
+      }),
+    ]
 
-    lineItemsList.value = filteredLineItems
+    taxTotal.value = lineItemDetails.reduce((acc, item) => acc + item.tax, 0)
+    subTotal.value = lineItemDetails.reduce((acc, item) => acc + item.total, 0)
+    totalAmount.value = +(taxTotal.value + subTotal.value).toFixed(2)
+
     detailedLineItems.value = lineItemDetails
 
-    return lineItemDetails
+    return { lineItemDetails, taxTotal, subTotal, totalAmount }
   }
 
-  function updateTaxAmount() {
-    taxAmount.value = 0
-    for (const tax of taxesList.value) {
-      if (tax.is_active) {
-        const amount = +(
-          (tax.amount / 100) *
-          (baseRate.value + taxableLineItemsTotal.value)
-        ).toFixed(2)
-        taxAmount.value += amount
-      }
-    }
-  }
+  // function updateTaxAmount() {
+  //   taxAmount.value = 0
+  //   for (const tax of taxesList.value) {
+  //     if (tax.is_active) {
+  //       const amount = +(
+  //         (tax.amount / 100) *
+  //         (baseRate.value + taxableLineItemsTotal.value)
+  //       ).toFixed(2)
+  //       taxAmount.value += amount
+  //     }
+  //   }
+  // }
 
   function reset() {
     origin.value = ''
@@ -250,7 +259,6 @@ export function usePricingEngine(
     updateDistance,
     updateBaseRate,
     updateLineItemsTotal,
-    updateTaxAmount,
     reset,
   }
 }
