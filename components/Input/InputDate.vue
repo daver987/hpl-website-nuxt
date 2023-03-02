@@ -97,7 +97,11 @@ const updateDate = (date: string, isOpen: boolean) => {
                     @click="open = false"
                   >
                     <span class="sr-only">Close</span>
-                    <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                    <Icon
+                      name="heroicons:x-mark"
+                      class="h-6 w-6"
+                      aria-hidden="true"
+                    />
                   </button>
                 </div>
                 <Calendar class="mx-auto mt-4" @date="updateDate" />
@@ -113,7 +117,8 @@ const updateDate = (date: string, isOpen: boolean) => {
       }}</label>
       <div class="relative mt-1 rounded shadow-sm">
         <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-          <CalendarIcon
+          <Icon
+            name="heroicons:calendar"
             @click="toggleCalendar"
             class="h-5 w-5 cursor-pointer text-gray-400"
             aria-hidden="true"

@@ -51,7 +51,11 @@ const dismissBanner = () => {
           class="flex rounded-md p-2 hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-white"
         >
           <span class="sr-only">Dismiss</span>
-          <XMarkIcon class="h-4 w-4 text-white" aria-hidden="true" />
+          <Icon
+            name="heroicons:x-mark"
+            class="h-4 w-4 text-white"
+            aria-hidden="true"
+          />
         </button>
       </div>
     </div>

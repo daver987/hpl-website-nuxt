@@ -5,13 +5,6 @@ import { useCartStore } from '~/stores/useCartStore'
 import { storeToRefs } from 'pinia'
 import { combineTotals, combineLineItems } from '~/utils/lineItemUtils'
 
-interface BookingData {
-  customer: { id: string }
-  session: { url: string; id: string }
-  statusCode: number
-  update: any
-}
-
 const quoteStore = useQuoteStore()
 const cartStore = useCartStore()
 

@@ -6,11 +6,7 @@ export default defineNuxtConfig({
     layoutTransition: { name: 'layout', mode: 'out-in' },
   },
   build: {
-    transpile: [
-      '@heroicons/vue',
-      '@headlessui/vue',
-      '@googlemaps/js-api-loader',
-    ],
+    transpile: ['@headlessui/vue', '@googlemaps/js-api-loader'],
   },
   // extends: ['nuxt-seo-kit'],
   modules: [
@@ -20,7 +16,6 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxt/image-edge',
     'nuxt-icon',
-    '@nuxtjs/supabase',
     'nuxt-vitest',
     '@huntersofbook/naive-ui-nuxt',
     [
