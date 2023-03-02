@@ -71,10 +71,8 @@ if (quoteStore.quote) {
 }
 
 const itemsArray = combineLineItems(quote.trips)
-console.log(itemsArray)
 
 const totals = combineTotals(quote.trips)
-console.log(totals)
 
 interface LineItem {
   label: string
@@ -428,13 +426,6 @@ const createBooking = async (quote: Quote) => {
         </h2>
 
         <dl class="mt-6 space-y-4">
-          <!--          <div class="flex items-center justify-between">-->
-          <!--            <dt class="text-sm text-gray-600 dark:text-gray-300">Base Rate</dt>-->
-          <!--            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">-->
-          <!--              $-->
-          <!--              {{ quote.base_rate }}-->
-          <!--            </dd>-->
-          <!--          </div>-->
           <div
             class="flex items-center justify-between border-t border-gray-200 pt-4"
             v-for="item in itemsArray"

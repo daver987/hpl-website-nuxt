@@ -268,8 +268,8 @@ export default defineEventHandler(async (event) => {
     })
     const quote = newQuote
 
-    // await sendEmail(zapierEmail, newQuote)
-    // await createAircallContact(aircallSecret, newQuote)
+    await sendEmail(zapierEmail, newQuote)
+    await createAircallContact(aircallSecret, newQuote)
 
     return {
       quote,

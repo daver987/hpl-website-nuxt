@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 
-export function useFormattedDate(timestamp: number | null): string {
+export function useFormattedDate(timestamp: number | Date | null): string {
   if (!timestamp) {
     return ''
   }

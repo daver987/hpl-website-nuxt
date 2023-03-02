@@ -209,19 +209,6 @@ export function usePricingEngine(
     return { lineItemDetails, taxTotal, subTotal, totalAmount }
   }
 
-  // function updateTaxAmount() {
-  //   taxAmount.value = 0
-  //   for (const tax of taxesList.value) {
-  //     if (tax.is_active) {
-  //       const amount = +(
-  //         (tax.amount / 100) *
-  //         (baseRate.value + taxableLineItemsTotal.value)
-  //       ).toFixed(2)
-  //       taxAmount.value += amount
-  //     }
-  //   }
-  // }
-
   function reset() {
     origin.value = ''
     destination.value = ''
