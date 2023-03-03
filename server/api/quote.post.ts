@@ -2,6 +2,7 @@ import { usePricingEngine } from '~/composables/usePricingEngine'
 import { Quote } from '~/schema/quoteSchema'
 import { Conversion } from '~/schema/conversionSchema'
 import { createAircallContact } from './services/createAircallContact'
+import { twilioClient } from '~/server/api/services/twilioInit'
 import { sendEmail } from './services/sendEmail'
 import { formatAddress } from '~/utils/formatAddress'
 import { computed } from 'vue'
@@ -12,7 +13,6 @@ import {
 
 const zapierEmail = useRuntimeConfig().ZAPIER_WEBHOOK_EMAIL
 const aircallSecret = useRuntimeConfig().AIRCALL_API_TOKEN
-
 export default defineEventHandler(async (event) => {
   try {
     const prisma = event.context.prisma
@@ -270,6 +270,18 @@ export default defineEventHandler(async (event) => {
 
     await sendEmail(zapierEmail, newQuote)
     await createAircallContact(aircallSecret, newQuote)
+    const checkoutLink = `https://highparklivery.com/checkout?quote_number=${quote.quote_number}`
+    //@ts-ignore
+    const message = `Hi ${quote.user.first_name} This is High Park Livery. Thank you for requesting a quote. Please use this link to book: ${checkoutLink}.`
+
+    setTimeout(async () => {
+      await twilioClient.messages.create({
+        body: message,
+        messagingServiceSid: 'MG9b5c0af877bac1ebc7504e98a8022456',
+        //@ts-ignore
+        to: quote.user.phone_number,
+      })
+    }, 20000)
 
     return {
       quote,

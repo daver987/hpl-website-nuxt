@@ -1,9 +1,9 @@
 import { stripe } from '~/server/api/services/stripeInit'
-import twilio from 'twilio'
+import { twilioClient } from '~/server/api/services/twilioInit'
 
-const TWILIO_ACCOUNT_SID = useRuntimeConfig().TWILIO_ACCOUNT_SID
-const TWILIO_AUTH_TOKEN = useRuntimeConfig().TWILIO_AUTH_TOKEN
-const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+// const TWILIO_ACCOUNT_SID = useRuntimeConfig().TWILIO_ACCOUNT_SID
+// const TWILIO_AUTH_TOKEN = useRuntimeConfig().TWILIO_AUTH_TOKEN
+// const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 export default defineEventHandler(async (event) => {
   const endpointSecret = useRuntimeConfig().stripeWebhookSecret
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     // @ts-ignore
     const { email } = checkoutSession
     console.log(checkoutSession)
-    await client.messages.create({
+    await twilioClient.messages.create({
       body: `Order Booked For: ${email}`,
       messagingServiceSid: 'MG9b5c0af877bac1ebc7504e98a8022456',
       to: '+16473609631',
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     const customer = stripeEvent.data.object
     // @ts-ignore
     const { name } = customer
-    await client.messages.create({
+    await twilioClient.messages.create({
       body: `Customer: ${name} has been created`,
       messagingServiceSid: 'MG9b5c0af877bac1ebc7504e98a8022456',
       to: '+12894009408',

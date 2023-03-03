@@ -13,6 +13,10 @@ useHead({
 definePageMeta({
   layout: 'default',
 })
+
+const dropdownOptions = ref({
+  showFlags: true,
+})
 </script>
 
 <template>
