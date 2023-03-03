@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { loadStripe } from '@stripe/stripe-js'
+import { stripe } from '~/services/stripeClientInit'
+import { useStripeStore } from '~/stores/useStripeStore'
 definePageMeta({
   name: 'cart',
   layout: 'auth',
 })
 
-const config = useRuntimeConfig()
-
-const stripe = await loadStripe(
-  'pk_test_51LB1WyEm9nnVhePI7x5av80XBdGNV7C6jt27HgDHJ7sHQEVbzQccJwrXRT8LphTIEFSwGebIMwkGRCHoIUI2xiGU00rvazE9dK'
-)
-
+const stripeStore = useStripeStore()
+let clientSecret = ''
+if (stripeStore.client_secret) {
+  clientSecret = stripeStore.client_secret
+}
 const appearance = {
   theme: 'stripe',
   variables: {
@@ -22,18 +22,16 @@ const appearance = {
     spacingUnit: '2px',
     borderRadius: '4px',
   },
-}
+} as const
 
-const clientSecret =
-  'seti_1MWgziEm9nnVhePIDDuEYtiE_secret_NHFU4iarMgelRQl01On2W98cb0wPS9U'
-
-// Set up Stripe.js and Elements to use in checkout form, passing the client secret obtained in step 3
-//@ts-ignore
-const elements = stripe?.elements({ clientSecret, appearance })
-
-// Create and mount the Payment Element
-const paymentElement = elements?.create('payment')
-paymentElement?.mount('#payment-element')
+onMounted(() => {
+  // Wait for the page to load before executing Stripe methods
+  nextTick(() => {
+    const elements = stripe?.elements({ clientSecret, appearance })
+    const paymentElement = elements?.create('payment')
+    paymentElement?.mount('#payment-element')
+  })
+})
 
 const products = [
   {

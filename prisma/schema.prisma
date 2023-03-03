@@ -80,6 +80,7 @@ model Quote {
   is_round_trip         Boolean    @default(false)
   is_booked             Boolean    @default(false)
   session_id            String?
+  setup_intent          Json?
   user_id               String
   service_id            Int
   vehicle_id            Int

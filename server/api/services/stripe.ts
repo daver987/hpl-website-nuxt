@@ -44,6 +44,20 @@ export async function createCheckoutSession(
   })
 }
 
+export async function createSetupIntent(
+  quote: { quote_number: number },
+  stripeCustomerId: string
+): Promise<Stripe.SetupIntent> {
+  const { quote_number } = quote
+  return await stripe.setupIntents.create({
+    customer: stripeCustomerId,
+    payment_method_types: ['card'],
+    metadata: {
+      quoteNumber: quote_number,
+    },
+  })
+}
+
 interface GetCustomerByEmailParams {
   email: string
 }

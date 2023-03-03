@@ -4,9 +4,11 @@ import { useQuoteStore } from '~/stores/useQuoteStore'
 import { useCartStore } from '~/stores/useCartStore'
 import { storeToRefs } from 'pinia'
 import { combineTotals, combineLineItems } from '~/utils/lineItemUtils'
+import { useStripeStore } from '~/stores/useStripeStore'
 
 const quoteStore = useQuoteStore()
 const cartStore = useCartStore()
+const stripeStore = useStripeStore()
 
 const { addedToCart, loading } = storeToRefs(cartStore)
 const currentDate = useFormattedDate(new Date())
@@ -68,6 +70,7 @@ if (quote_number) {
   })
   console.log('Fetched Data from route:', data.value)
   Object.assign(quote, data.value)
+  Object.assign(quoteStore.quote, data.value)
   console.log('Fetched data assigned to quote')
 }
 
@@ -78,34 +81,39 @@ const totals = combineTotals(quote.trips)
 const checkoutLoading = ref(false)
 
 const createBooking = async () => {
-  const checkoutLoading = ref(false)
-
   checkoutLoading.value = true
-
   try {
     const { data: response } = await useFetch('/api/booking', {
       method: 'POST',
       body: quote,
     })
-
     console.log('Stripe Response', response.value)
-    //@ts-ignore
-    const { customer, session, statusCode, update: prismaData } = response.value
+    if (response.value) {
+      const {
+        customer,
+        setupIntent,
+        statusCode,
+        update: prismaData,
+      } = response.value
+      console.log('Prisma Data:', prismaData)
+      console.log('Stripe Customer:', customer)
+      stripeStore.setCustomer(customer)
+      console.log('Stripe Setup Intent', setupIntent)
+      stripeStore.setClientSecret(setupIntent)
+      // console.log('Stripe Session:', session)
+      // stripeStore.setSession(session)
+      console.log('Status Code:', statusCode)
+    }
 
-    console.log('Prisma Data:', prismaData)
-    console.log('Stripe Customer:', customer)
-    console.log('Stripe Session:', session)
-    console.log('Status Code:', statusCode)
+    // const { url } = session
 
-    const { url } = session
-
-    await until(response).toBeTruthy() // use wait utility function to avoid setTimeout
+    await until(response.value).toBeTruthy() // use wait utility function to avoid setTimeout
 
     checkoutLoading.value = false
 
-    await navigateTo(url, {
+    await navigateTo('/cart', {
       redirectCode: 303,
-      external: true,
+      external: false,
     })
   } catch (error) {
     console.error(error)
@@ -116,7 +124,6 @@ const createBooking = async () => {
 </script>
 
 <template>
-  <!--  <div v-if="pending">Loading ...</div>-->
   <main class="mx-auto max-w-2xl px-4 pt-6 pb-8 sm:px-6 lg:max-w-7xl lg:px-8">
     <h1
       class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"

@@ -1,11 +1,12 @@
 import {
-  createCheckoutSession,
+  // createCheckoutSession,
   createCustomer,
+  createSetupIntent,
   getCustomerByEmail,
 } from './services/stripe'
 import { Quote } from './quote.get'
 
-const WEBSITE_URL = useRuntimeConfig().public.WEBSITE_URL
+// const WEBSITE_URL = useRuntimeConfig().public.WEBSITE_URL
 
 export default defineEventHandler(async (event) => {
   try {
@@ -26,7 +27,8 @@ export default defineEventHandler(async (event) => {
     const stripeId = customer.id
 
     // Create a checkout session
-    const session = await createCheckoutSession(quote, stripeId, WEBSITE_URL)
+    // const session = await createCheckoutSession(quote, stripeId, WEBSITE_URL)
+    const setupIntent = await createSetupIntent(quote, stripeId)
 
     // Add the session ID and stripe ID to the user and quotes table
     const update = await prisma.user.update({
@@ -36,19 +38,20 @@ export default defineEventHandler(async (event) => {
       data: {
         stripe_customer_id: stripeId,
         quotes: {
+          //@ts-ignore
           update: {
             where: {
               quote_number: quote.quote_number,
             },
             data: {
-              session_id: session.id,
+              setup_intent: setupIntent,
             },
           },
         },
       },
     })
     // Return the session ID to the client
-    return { update, session, customer, statusCode: 200 }
+    return { update, setupIntent, customer, statusCode: 200 }
   } catch (err) {
     // Handle any errors that occur
     throw err
