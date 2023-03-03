@@ -1,10 +1,6 @@
 import { stripe } from '~/server/api/services/stripeInit'
 import { twilioClient } from '~/server/api/services/twilioInit'
 
-// const TWILIO_ACCOUNT_SID = useRuntimeConfig().TWILIO_ACCOUNT_SID
-// const TWILIO_AUTH_TOKEN = useRuntimeConfig().TWILIO_AUTH_TOKEN
-// const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-
 export default defineEventHandler(async (event) => {
   const endpointSecret = useRuntimeConfig().stripeWebhookSecret
   const body = await readRawBody(event)
