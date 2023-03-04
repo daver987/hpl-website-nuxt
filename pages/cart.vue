@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { stripe } from '~/services/stripeClientInit'
+import { stripeInit } from '~/services/stripeClientInit'
 import { useStripeStore } from '~/stores/useStripeStore'
 import { storeToRefs } from 'pinia'
 definePageMeta({
@@ -9,6 +9,7 @@ definePageMeta({
 
 const stripeStore = useStripeStore()
 const { client_secret } = storeToRefs(stripeStore)
+const stripe = await stripeInit()
 
 const appearance = {
   theme: 'stripe',

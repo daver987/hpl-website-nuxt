@@ -1,7 +1,6 @@
 import '@total-typescript/ts-reset'
 
 export default defineNuxtConfig({
-  //@ts-ignore
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: { name: 'layout', mode: 'out-in' },
@@ -27,7 +26,7 @@ export default defineNuxtConfig({
     ],
   ],
   nitro: {
-    preset: 'vercel',
+    preset: 'azure',
   },
   runtimeConfig: {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,

@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "target": "es2022",
+    "target": "esnext",
     "sourceMap": true,
-    "lib": ["es2018", "dom", "esnext"]
+    "lib": ["dom", "esnext"]
   },
   "exclude": ["node_modules"],
   "extends": "./.nuxt/tsconfig.json",
