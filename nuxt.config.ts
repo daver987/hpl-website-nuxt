@@ -1,6 +1,7 @@
 import '@total-typescript/ts-reset'
 
 export default defineNuxtConfig({
+  //@ts-ignore
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: { name: 'layout', mode: 'out-in' },

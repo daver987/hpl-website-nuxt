@@ -27,7 +27,6 @@ const appearance = {
 const stripeElements = reactive<any>({})
 
 onMounted(() => {
-  // Wait for the page to load before executing Stripe methods
   nextTick(() => {
     console.log('clientSecret:', client_secret.value)
     stripeElements.elements = stripe?.elements({
@@ -51,7 +50,6 @@ async function submitHandler() {
   })
   if (error) {
     alert(error)
-    // Inform the customer that there was an error.
   }
 }
 
