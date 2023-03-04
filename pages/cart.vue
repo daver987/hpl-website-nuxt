@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { stripe } from '~/services/stripeClientInit'
 import { useStripeStore } from '~/stores/useStripeStore'
+import { storeToRefs } from 'pinia'
 definePageMeta({
   name: 'cart',
   layout: 'auth',
 })
 
 const stripeStore = useStripeStore()
-let clientSecret = ''
-if (stripeStore.client_secret) {
-  clientSecret = stripeStore.client_secret
-}
+const { client_secret } = storeToRefs(stripeStore)
+
 const appearance = {
   theme: 'stripe',
   variables: {
@@ -24,14 +23,36 @@ const appearance = {
   },
 } as const
 
+const stripeElements = reactive<any>({})
+
 onMounted(() => {
   // Wait for the page to load before executing Stripe methods
   nextTick(() => {
-    const elements = stripe?.elements({ clientSecret, appearance })
-    const paymentElement = elements?.create('payment')
+    console.log('clientSecret:', client_secret.value)
+    stripeElements.elements = stripe?.elements({
+      clientSecret: client_secret.value,
+      appearance,
+    })
+    const paymentElement = stripeElements?.elements?.create('payment')
     paymentElement?.mount('#payment-element')
   })
 })
+
+const websiteUrl = useRuntimeConfig().public.WEBSITE_URL
+async function submitHandler() {
+  console.log('clientSecret:', client_secret.value)
+  console.log('Stripe Elements:', stripeElements.elements)
+  const { error } = await stripe!.confirmSetup({
+    elements: stripeElements.elements,
+    confirmParams: {
+      return_url: websiteUrl,
+    },
+  })
+  if (error) {
+    alert(error)
+    // Inform the customer that there was an error.
+  }
+}
 
 const products = [
   {
@@ -160,78 +181,103 @@ const products = [
           Payment and shipping details
         </h2>
 
-        <form>
-          <div class="mx-auto max-w-2xl px-4 lg:max-w-none lg:px-0">
-            <div>
-              <h3
-                id="contact-info-heading"
-                class="text-lg font-medium text-gray-900"
-              >
-                Contact information
-              </h3>
+        <div class="mx-auto max-w-2xl px-4 lg:max-w-none lg:px-0">
+          <!--            <div>-->
+          <!--              <h3-->
+          <!--                id="contact-info-heading"-->
+          <!--                class="text-lg font-medium text-gray-900"-->
+          <!--              >-->
+          <!--                Payment Information-->
+          <!--              </h3>-->
 
-              <div class="mt-6">
-                <label
-                  for="full-name"
-                  class="block text-sm font-medium text-gray-700"
-                  >Full Name</label
-                >
-                <div class="mt-1">
-                  <input
-                    type="text"
-                    id="full-name"
-                    name="full-name"
-                    autocomplete="full-name"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
-                  />
-                </div>
+          <!--              &lt;!&ndash;              <div class="mt-6">&ndash;&gt;-->
+          <!--              &lt;!&ndash;                <label&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  for="full-name"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  class="block text-sm font-medium text-gray-700"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  >Full Name</label&ndash;&gt;-->
+          <!--              &lt;!&ndash;                >&ndash;&gt;-->
+          <!--              &lt;!&ndash;                <div class="mt-1">&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  <input&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    v-model="fullName"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    type="text"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    id="full-name"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    name="full-name"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    autocomplete="full-name"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  />&ndash;&gt;-->
+          <!--              &lt;!&ndash;                </div>&ndash;&gt;-->
+          <!--              &lt;!&ndash;              </div>&ndash;&gt;-->
+          <!--              &lt;!&ndash;              <div class="mt-1">&ndash;&gt;-->
+          <!--              &lt;!&ndash;                <label&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  for="email-address"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  class="block text-sm font-medium text-gray-700"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  >Email address</label&ndash;&gt;-->
+          <!--              &lt;!&ndash;                >&ndash;&gt;-->
+          <!--              &lt;!&ndash;                <div class="mt-1">&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  <input&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    v-model="email"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    type="email"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    id="email-address"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    name="email-address"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    autocomplete="email"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"&ndash;&gt;-->
+          <!--              &lt;!&ndash;                  />&ndash;&gt;-->
+          <!--              &lt;!&ndash;                </div>&ndash;&gt;-->
+          <!--              &lt;!&ndash;              </div>&ndash;&gt;-->
+          <!--            </div>-->
+
+          <div class="mt-4">
+            <h3
+              id="payment-heading"
+              class="mb-4 text-lg font-medium text-gray-900"
+            >
+              Payment details
+            </h3>
+
+            <form id="payment-form" @submit.prevent="submitHandler">
+              <div id="payment-element">
+                <!--Stripe.js injects the Payment Element-->
               </div>
-              <div class="mt-1">
-                <label
-                  for="email-address"
-                  class="block text-sm font-medium text-gray-700"
-                  >Email address</label
+              <div class="mt-10 flex justify-end border-t border-gray-200 pt-6">
+                <button
+                  type="submit"
+                  id="submit"
+                  class="rounded-md border border-transparent bg-brand-600 py-2 px-4 text-sm font-medium uppercase text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
                 >
-                <div class="mt-1">
-                  <input
-                    type="email"
-                    id="email-address"
-                    name="email-address"
-                    autocomplete="email"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
-                  />
-                </div>
+                  <div class="spinner hidden" id="spinner"></div>
+                  <span id="button-text">Complete Booking</span>
+                </button>
+                <div id="payment-message" class="hidden"></div>
               </div>
-            </div>
-
-            <div class="mt-4">
-              <h3
-                id="payment-heading"
-                class="mb-4 text-lg font-medium text-gray-900"
+            </form>
+            <div class="mb-2 flex flex-col">
+              <p
+                class="font-sans text-sm font-bold text-gray-900 dark:text-gray-100"
               >
-                Payment details
-              </h3>
-
-              <form id="payment-form">
-                <div id="payment-element">
-                  <!--Stripe.js injects the Payment Element-->
-                </div>
-                <div
-                  class="mt-10 flex justify-end border-t border-gray-200 pt-6"
+                We require a credit card to hold your reservation
+              </p>
+              <p class="max-w-[65ch] font-sans text-xs text-red-700">
+                Please note, 24 hours before the scheduled pickup time, an
+                authorization hold will be placed on your credit card for the
+                full amount of your reservation.
+              </p>
+              <div class="mt-2 flex flex-col">
+                <p
+                  class="font-sans text-sm font-bold text-gray-900 dark:text-gray-100"
                 >
-                  <button
-                    id="submit"
-                    class="rounded-md border border-transparent bg-brand-600 py-2 px-4 text-sm font-medium uppercase text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-gray-50"
-                  >
-                    <div class="spinner hidden" id="spinner"></div>
-                    <span id="button-text">Book now</span>
-                  </button>
-                  <div id="payment-message" class="hidden"></div>
-                </div>
-              </form>
+                  Card is not charged until the completion of your trip
+                </p>
+                <p class="font-sans text-xs text-red-700">
+                  All prices include taxes, surcharges and gratuity
+                </p>
+                <p class="font-sans text-xs text-red-700">
+                  **Does not include hwy tolls, parking fees, or any extra fees
+                  incurred during the trip
+                </p>
+              </div>
             </div>
           </div>
-        </form>
+        </div>
       </section>
     </main>
   </div>

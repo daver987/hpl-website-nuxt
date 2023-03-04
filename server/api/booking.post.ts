@@ -49,6 +49,9 @@ export default defineEventHandler(async (event) => {
           },
         },
       },
+      include: {
+        quotes: true,
+      },
     })
     // Return the session ID to the client
     return { update, setupIntent, customer, statusCode: 200 }

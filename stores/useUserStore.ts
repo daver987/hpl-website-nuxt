@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 export const useUserStore = defineStore('user', {
   state: () => ({
     user_id: '',
+    fullName: '',
   }),
 
   actions: {
@@ -12,6 +13,11 @@ export const useUserStore = defineStore('user', {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem('hpl_user_id', user_id)
       }
+    },
+
+    setFullName(firstName: string | null, lastName: string | null) {
+      this.fullName = `${firstName} ${lastName}`
+      console.log('Set Full Name')
     },
 
     getUserId() {

@@ -285,7 +285,7 @@ const loadingBar = useLoadingBar()
 async function onSubmit() {
   try {
     loading.value = true
-
+    userStore.setFullName(formValue.value.first_name, formValue.value.last_name)
     const { data: quoteData } = await useFetch('/api/quote', {
       method: 'POST',
       body: formValue.value,

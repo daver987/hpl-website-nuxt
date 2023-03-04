@@ -100,12 +100,8 @@ const createBooking = async () => {
       stripeStore.setCustomer(customer)
       console.log('Stripe Setup Intent', setupIntent)
       stripeStore.setClientSecret(setupIntent)
-      // console.log('Stripe Session:', session)
-      // stripeStore.setSession(session)
       console.log('Status Code:', statusCode)
     }
-
-    // const { url } = session
 
     await until(response.value).toBeTruthy() // use wait utility function to avoid setTimeout
 
@@ -459,37 +455,37 @@ const createBooking = async () => {
           </button>
         </div>
       </section>
-      <section
-        v-if="addedToCart"
-        class="px-4 py-6 sm:p-6 lg:col-span-5 lg:col-start-8 lg:mt-0 lg:p-6"
-      >
-        <div class="mb-2 flex flex-col">
-          <p
-            class="font-sans text-sm font-bold text-gray-900 dark:text-gray-100"
-          >
-            We require a credit card to hold your reservation
-          </p>
-          <p class="max-w-[65ch] font-sans text-xs text-red-700">
-            Please note, 24 hours before the scheduled pickup time, an
-            authorization hold will be placed on your credit card for the full
-            amount of your reservation.
-          </p>
-          <div class="mt-2 flex flex-col">
-            <p
-              class="font-sans text-sm font-bold text-gray-900 dark:text-gray-100"
-            >
-              Card is not charged until the completion of your trip
-            </p>
-            <p class="font-sans text-xs text-red-700">
-              All prices include taxes, surcharges and gratuity
-            </p>
-            <p class="font-sans text-xs text-red-700">
-              **Does not include hwy tolls, parking fees, or any extra fees
-              incurred during the trip
-            </p>
-          </div>
-        </div>
-      </section>
+      <!--      <section-->
+      <!--        v-if="addedToCart"-->
+      <!--        class="px-4 py-6 sm:p-6 lg:col-span-5 lg:col-start-8 lg:mt-0 lg:p-6"-->
+      <!--      >-->
+      <!--        <div class="mb-2 flex flex-col">-->
+      <!--          <p-->
+      <!--            class="font-sans text-sm font-bold text-gray-900 dark:text-gray-100"-->
+      <!--          >-->
+      <!--            We require a credit card to hold your reservation-->
+      <!--          </p>-->
+      <!--          <p class="max-w-[65ch] font-sans text-xs text-red-700">-->
+      <!--            Please note, 24 hours before the scheduled pickup time, an-->
+      <!--            authorization hold will be placed on your credit card for the full-->
+      <!--            amount of your reservation.-->
+      <!--          </p>-->
+      <!--          <div class="mt-2 flex flex-col">-->
+      <!--            <p-->
+      <!--              class="font-sans text-sm font-bold text-gray-900 dark:text-gray-100"-->
+      <!--            >-->
+      <!--              Card is not charged until the completion of your trip-->
+      <!--            </p>-->
+      <!--            <p class="font-sans text-xs text-red-700">-->
+      <!--              All prices include taxes, surcharges and gratuity-->
+      <!--            </p>-->
+      <!--            <p class="font-sans text-xs text-red-700">-->
+      <!--              **Does not include hwy tolls, parking fees, or any extra fees-->
+      <!--              incurred during the trip-->
+      <!--            </p>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </section>-->
     </form>
   </main>
 </template>
