@@ -35,12 +35,12 @@ export default defineNuxtConfig({
     ],
   ],
 
-  image: {
-    provider: 'netlify',
-  },
+  // image: {
+  //   provider: 'netlify',
+  // },
 
   nitro: {
-    preset: 'netlify',
+    preset: 'vercel',
   },
 
   colorMode: {
